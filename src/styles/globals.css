@@ -20,6 +20,11 @@ body {
   color: var(--text-dark);
   font-size: 18px;
   line-height: 1.8;
+  overflow-x: hidden;
+}
+
+html {
+  overflow-x: hidden;
 }
 
 h1, h2, h3, h4, h5, h6, .font-cinzel {

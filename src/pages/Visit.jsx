@@ -100,7 +100,7 @@ export default function Visit() {
             <p className="font-cinzel text-text-muted uppercase tracking-wider relative z-10">[ Google Maps Embed Placeholder ]</p>
             <iframe 
               title="Google Map"
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1m3!1d14620.158580226343!2d75.698305!3d24.1852445!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x39634e0a7de2f03f%3A0xc3464aa5e7eeecb3!2sParasali%2C%20Madhya%20Pradesh%20458883!5e0!3m2!1sen!2sin!4v1716301234567!5m2!1sen!2sin" 
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.5!2d75.6!3d24.2!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3963ef1234567890%3A0xabcdef1234567890!2sParasali%2C+Madhya+Pradesh!5e0!3m2!1sen!2sin!4v1234567890" 
               className="absolute inset-0 w-full h-full border-0" 
               allowFullScreen="" 
               loading="lazy" 

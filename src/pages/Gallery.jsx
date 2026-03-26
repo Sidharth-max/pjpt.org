@@ -98,9 +98,19 @@ export default function Gallery() {
     event.stopPropagation();
     const node = videoRefs.current[id];
     if (!node) return;
+    
     if (node.paused) {
-      node.play();
-      setPlayingVideos(prev => ({ ...prev, [id]: true }));
+      const playPromise = node.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          setPlayingVideos(prev => ({ ...prev, [id]: true }));
+        }).catch(error => {
+          console.error("Video play was interrupted:", error);
+          setPlayingVideos(prev => ({ ...prev, [id]: false }));
+        });
+      } else {
+        setPlayingVideos(prev => ({ ...prev, [id]: true }));
+      }
     } else {
       node.pause();
       setPlayingVideos(prev => ({ ...prev, [id]: false }));

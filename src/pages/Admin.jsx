@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
+import { Loader2, CheckCircle2, AlertTriangle, XCircle, Copy, Eye, Filter, Search, Image as ImageIcon, Video as VideoIcon } from 'lucide-react';
 import { getImages, uploadImage, deleteImage, getEvents, createEvent, updateEvent, deleteEvent, getMessages, deleteMessage } from '../services/api';
 
 const formatBytes = (bytes = 0) => {
@@ -19,17 +19,37 @@ const formatDuration = (seconds = 0) => {
   return mins > 0 ? `${mins}m ${secs.toString().padStart(2, '0')}s` : `${secs}s`;
 };
 
+const VIDEO_EXTENSIONS = /\.(mp4|webm|ogg|mov)$/i;
+const GALLERY_CATEGORIES = ['All', 'Temple', 'Idol', 'Festivals', 'Events', 'Nature'];
+
+const formatDateLabel = (dateString) => {
+  if (!dateString) return '—';
+  try {
+    return new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  } catch (error) {
+    console.error('Invalid date provided to formatDateLabel:', error);
+    return '—';
+  }
+};
+
 export default function Admin() {
   const [auth, setAuth] = useState(false);
   const [password, setPassword] = useState('');
   const [activeTab, setActiveTab] = useState('gallery');
 
   const [images, setImages] = useState([]);
-  const [imgForm, setImgForm] = useState({ title: '', category: 'Temple', files: [] });
+  const [imgForm, setImgForm] = useState({ title: '', category: 'Temple' });
+  const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadingImg, setUploadingImg] = useState(false);
   const [activeUploads, setActiveUploads] = useState([]);
+  const [galleryFilters, setGalleryFilters] = useState({ category: 'All', search: '', sort: 'newest', mediaType: 'all' });
+  const [galleryLoading, setGalleryLoading] = useState(false);
+  const [galleryError, setGalleryError] = useState('');
+  const [copiedImageId, setCopiedImageId] = useState(null);
   const uploadControllers = useRef(new Map());
   const removalTimers = useRef(new Map());
+  const fileInputRef = useRef(null);
+  const copyTimerRef = useRef(null);
 
   const [events, setEvents] = useState([]);
   const [messages, setMessages] = useState([]);
@@ -61,6 +81,7 @@ export default function Admin() {
     return () => {
       uploadControllers.current.forEach(controller => controller.abort());
       removalTimers.current.forEach(timer => clearTimeout(timer));
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
     };
   }, []);
 
@@ -118,25 +139,97 @@ export default function Admin() {
     uploadControllers.current.forEach(controller => controller.abort());
   };
 
+  const filteredImages = useMemo(() => {
+    const query = galleryFilters.search.trim().toLowerCase();
+    const base = images.filter(img => {
+      const categoryMatch = galleryFilters.category === 'All' || img.category === galleryFilters.category;
+      const isVideo = VIDEO_EXTENSIONS.test(img.url || '');
+      const mediaMatch =
+        galleryFilters.mediaType === 'all' ||
+        (galleryFilters.mediaType === 'videos' && isVideo) ||
+        (galleryFilters.mediaType === 'images' && !isVideo);
+      const searchMatch =
+        !query ||
+        (img.title || '').toLowerCase().includes(query) ||
+        (img.category || '').toLowerCase().includes(query);
+      return categoryMatch && mediaMatch && searchMatch;
+    });
+
+    return base.sort((a, b) => {
+      const aTime = Date.parse(a.uploadedAt || '') || 0;
+      const bTime = Date.parse(b.uploadedAt || '') || 0;
+      switch (galleryFilters.sort) {
+        case 'oldest':
+          return aTime - bTime;
+        case 'title-asc':
+          return (a.title || '').localeCompare(b.title || '');
+        case 'title-desc':
+          return (b.title || '').localeCompare(a.title || '');
+        default:
+          return bTime - aTime;
+      }
+    });
+  }, [images, galleryFilters]);
+
+  const galleryStats = useMemo(() => {
+    const total = images.length;
+    let videos = 0;
+    images.forEach(img => {
+      if (VIDEO_EXTENSIONS.test(img.url || '')) videos += 1;
+    });
+    const photos = Math.max(total - videos, 0);
+    const latestTimestamp = images.reduce((latest, img) => {
+      const timestamp = Date.parse(img.uploadedAt || '') || 0;
+      return timestamp > latest ? timestamp : latest;
+    }, 0);
+
+    const perCategory = GALLERY_CATEGORIES.filter(category => category !== 'All').map(category => ({
+      category,
+      count: images.filter(img => img.category === category).length
+    }));
+
+    return {
+      total,
+      videos,
+      photos,
+      latestUpload: latestTimestamp ? new Date(latestTimestamp) : null,
+      perCategory
+    };
+  }, [images]);
+
   const fetchMessages = async () => {
     try {
       const data = await getMessages();
       setMessages(data);
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+      showAlert('Unable to load contact form submissions right now. Please refresh and try again.', 'Messages Error');
+    }
   };
 
   const fetchImages = async () => {
     try {
+      setGalleryLoading(true);
+      setGalleryError('');
       const data = await getImages('All');
       setImages(data);
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+      setGalleryError('Unable to load media items. Please retry once your connection is stable.');
+      showAlert('Unable to load the gallery items. Please retry after a moment.', 'Gallery Error');
+    } finally {
+      setGalleryLoading(false);
+    }
   };
 
   const fetchEvents = async () => {
     try {
       const data = await getEvents();
       setEvents(data);
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+      showAlert('Unable to load events at this moment. Please refresh and try again.', 'Events Error');
+    }
   };
 
   const handleLogin = (e) => {
@@ -145,10 +238,54 @@ export default function Admin() {
     else showAlert('Incorrect password. Please try again.', 'Authentication Failed');
   };
 
+  const generateFileKey = (file) => `${file.name}-${file.lastModified}-${file.size}`;
+
+  const handleFileSelection = (filesList) => {
+    const incoming = Array.from(filesList || []);
+    if (!incoming.length) return;
+    setSelectedFiles(prev => {
+      const existingKeys = new Set(prev.map(generateFileKey));
+      const merged = [...prev];
+      incoming.forEach(file => {
+        const key = generateFileKey(file);
+        if (!existingKeys.has(key)) {
+          merged.push(file);
+          existingKeys.add(key);
+        }
+      });
+      return merged;
+    });
+  };
+
+  const handleFileInputChange = (event) => {
+    handleFileSelection(event.target.files);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleDropFiles = (event) => {
+    event.preventDefault();
+    handleFileSelection(event.dataTransfer.files);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleDragOver = (event) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'copy';
+  };
+
+  const removeSelectedFile = (fileKey) => {
+    setSelectedFiles(prev => prev.filter(file => generateFileKey(file) !== fileKey));
+  };
+
+  const clearSelectedFiles = () => {
+    setSelectedFiles([]);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
   // Gallery Handlers
   const handleImageUpload = async (e) => {
     e.preventDefault();
-    const files = Array.from(imgForm.files || []);
+    const files = [...selectedFiles];
     if (!files.length || !imgForm.title) return showAlert('Please select file(s) and provide a title before uploading.', 'Missing Requirements');
     setUploadingImg(true);
 
@@ -164,6 +301,7 @@ export default function Admin() {
           id: uploadId,
           name: file.name,
           size: file.size,
+          category: imgForm.category,
           progress: 0,
           eta: 'Calculating…',
           status: 'uploading'
@@ -216,9 +354,8 @@ export default function Admin() {
 
       if (successfulUploads > 0) {
         showToast(successfulUploads > 1 ? 'Media files uploaded successfully' : 'Media uploaded successfully');
-        setImgForm({ title: '', category: 'Temple', files: [] });
-        const fileInput = document.getElementById('gallery-file-upload');
-        if (fileInput) fileInput.value = '';
+        setImgForm({ title: '', category: 'Temple' });
+        clearSelectedFiles();
         fetchImages();
       }
 
@@ -247,6 +384,33 @@ export default function Admin() {
         showAlert('Failed to delete the image. Please try again.', 'Error');
       }
     });
+  };
+
+  const handleCopyImageUrl = async (image) => {
+    try {
+      if (!navigator?.clipboard) throw new Error('Clipboard API unavailable');
+      await navigator.clipboard.writeText(image.url);
+      if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
+      setCopiedImageId(image._id);
+      copyTimerRef.current = setTimeout(() => setCopiedImageId(null), 2000);
+      showToast('Media link copied to clipboard');
+    } catch (err) {
+      console.error(err);
+      showAlert('Unable to copy the media link automatically. Please copy it manually instead.', 'Copy Failed');
+    }
+  };
+
+  const handleOpenMedia = (url) => {
+    if (!url) return;
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
+  const updateGalleryFilter = (key, value) => {
+    setGalleryFilters(prev => ({ ...prev, [key]: value }));
+  };
+
+  const resetGalleryFilters = () => {
+    setGalleryFilters({ category: 'All', search: '', sort: 'newest', mediaType: 'all' });
   };
 
   // Event Handlers
@@ -402,24 +566,96 @@ export default function Admin() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="bg-white p-8 border border-gold-light shadow-sm mb-12">
               <h2 className="font-cinzel text-2xl mb-6 text-gold-primary">Upload Media</h2>
-              <form onSubmit={handleImageUpload} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-                <div>
-                  <label className="block font-cinzel text-sm text-text-dark mb-2">Title</label>
-                  <input type="text" value={imgForm.title} onChange={e => setImgForm({...imgForm, title: e.target.value})} className="w-full border-b-2 border-gold-pale focus:border-gold-primary focus:outline-none p-2 font-cormorant" required />
+              <form onSubmit={handleImageUpload} className="space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block font-cinzel text-sm text-text-dark mb-2">Title</label>
+                    <input type="text" value={imgForm.title} onChange={e => setImgForm({...imgForm, title: e.target.value})} className="w-full border-b-2 border-gold-pale focus:border-gold-primary focus:outline-none p-2 font-cormorant" required />
+                  </div>
+                  <div>
+                    <label className="block font-cinzel text-sm text-text-dark mb-2">Category</label>
+                    <select value={imgForm.category} onChange={e => setImgForm({...imgForm, category: e.target.value})} className="w-full border-b-2 border-gold-pale focus:border-gold-primary focus:outline-none p-2 font-cormorant">
+                      {GALLERY_CATEGORIES.filter(c => c !== 'All').map(c => <option key={c}>{c}</option>)}
+                    </select>
+                  </div>
                 </div>
-                <div>
-                  <label className="block font-cinzel text-sm text-text-dark mb-2">Category</label>
-                  <select value={imgForm.category} onChange={e => setImgForm({...imgForm, category: e.target.value})} className="w-full border-b-2 border-gold-pale focus:border-gold-primary focus:outline-none p-2 font-cormorant">
-                    {['Temple', 'Idol', 'Festivals', 'Events', 'Nature'].map(c => <option key={c}>{c}</option>)}
-                  </select>
+
+                <div
+                  onDrop={handleDropFiles}
+                  onDragOver={handleDragOver}
+                  className="border-2 border-dashed border-gold-light rounded-sm bg-bg-section/60 p-6 text-center transition hover:border-gold-primary"
+                >
+                  <input
+                    ref={fileInputRef}
+                    id="gallery-file-upload"
+                    type="file"
+                    multiple
+                    onChange={handleFileInputChange}
+                    className="hidden"
+                    accept="image/*,video/*"
+                  />
+                  <label htmlFor="gallery-file-upload" className="flex flex-col items-center gap-3 cursor-pointer">
+                    <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-white border border-gold-light text-gold-primary">
+                      <ImageIcon size={22} />
+                    </span>
+                    <div>
+                      <p className="font-cinzel text-base text-text-dark">Drop files here or click to browse</p>
+                      <p className="text-sm font-cormorant text-text-muted">JPEG, PNG, WEBP, MP4 up to 100MB each</p>
+                    </div>
+                    <span className="btn-gold mt-2 inline-flex items-center gap-2 px-5 py-2 text-sm">Browse Files</span>
+                  </label>
                 </div>
-                <div>
-                  <label className="block font-cinzel text-sm text-text-dark mb-2">Media Files</label>
-                  <input id="gallery-file-upload" type="file" multiple onChange={e => setImgForm({...imgForm, files: e.target.files})} className="w-full text-sm font-cormorant" accept="image/*,video/*" required />
+
+                {selectedFiles.length > 0 && (
+                  <div className="border border-gold-light bg-white rounded-sm p-4">
+                    <div className="flex items-center justify-between mb-4">
+                      <div>
+                        <p className="font-cinzel text-sm text-text-dark uppercase tracking-wide">Selected Files ({selectedFiles.length})</p>
+                        <p className="text-xs text-text-muted font-cormorant">Each file will inherit the title prefix above.</p>
+                      </div>
+                      <button type="button" onClick={clearSelectedFiles} className="text-xs font-cinzel uppercase tracking-wide text-red-500 hover:text-red-600">
+                        Clear All
+                      </button>
+                    </div>
+                    <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                      {selectedFiles.map(file => {
+                        const fileKey = generateFileKey(file);
+                        const isVideo = VIDEO_EXTENSIONS.test(file.type || file.name);
+                        return (
+                          <div key={fileKey} className="flex items-center justify-between gap-3 border border-gold-pale/60 bg-off-white px-3 py-2 rounded-sm">
+                            <div className="flex items-center gap-3 min-w-0">
+                              <span className={`w-8 h-8 rounded-full flex items-center justify-center ${isVideo ? 'bg-purple-100 text-purple-600' : 'bg-gold-pale text-gold-primary'}`}>
+                                {isVideo ? <VideoIcon size={16} /> : <ImageIcon size={16} />}
+                              </span>
+                              <div className="min-w-0">
+                                <p className="font-cinzel text-sm text-text-dark truncate" title={file.name}>{file.name}</p>
+                                <p className="text-xs font-cormorant text-text-muted">{formatBytes(file.size)}</p>
+                              </div>
+                            </div>
+                            <button type="button" onClick={() => removeSelectedFile(fileKey)} className="text-xs font-cinzel uppercase tracking-wide text-red-500 hover:text-red-600">
+                              Remove
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex flex-wrap gap-3 justify-end">
+                  <button
+                    type="button"
+                    onClick={clearSelectedFiles}
+                    disabled={selectedFiles.length === 0}
+                    className="font-cinzel text-sm uppercase tracking-wide border px-5 py-2 transition border-gold-light text-text-dark disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    Clear Selection
+                  </button>
+                  <button type="submit" disabled={uploadingImg || selectedFiles.length === 0} className="btn-gold h-[42px] disabled:opacity-50 flex items-center gap-2">
+                    {uploadingImg && <Loader2 size={18} className="animate-spin" />}
+                    {uploadingImg ? 'Uploading…' : selectedFiles.length > 1 ? `Upload ${selectedFiles.length} files` : 'Upload'}
+                  </button>
                 </div>
-                <button type="submit" disabled={uploadingImg} className="btn-gold h-[42px] disabled:opacity-50">
-                  {uploadingImg ? 'Uploading...' : 'Upload'}
-                </button>
               </form>
             </div>
 
@@ -463,6 +699,11 @@ export default function Admin() {
                             <p className="font-cinzel text-base text-text-dark truncate font-semibold" title={upload.name}>{upload.name}</p>
                             <div className="flex flex-wrap items-center gap-x-3 text-xs font-cormorant mt-2 text-text-muted">
                               <span className="font-medium bg-bg-section px-2 py-0.5 rounded-sm">{formatBytes(upload.size)}</span>
+                              {upload.category && (
+                                <span className="px-2 py-0.5 bg-gold-pale text-gold-primary font-cinzel uppercase tracking-wide text-[10px] rounded-sm">
+                                  {upload.category}
+                                </span>
+                              )}
                               <span className={upload.status === 'uploading' ? 'text-gold-primary animate-pulse font-medium' : ''}>
                                 {upload.eta || 'Calculating…'}
                               </span>
@@ -507,34 +748,175 @@ export default function Admin() {
               </div>
             )}
 
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <div className="p-4 border border-gold-light bg-white shadow-sm">
+                <p className="text-xs font-cinzel uppercase tracking-widest text-text-muted">Total Media</p>
+                <div className="mt-2 flex items-center gap-3">
+                  <span className="p-2 rounded-full bg-gold-pale text-gold-primary"><ImageIcon size={18} /></span>
+                  <p className="font-cinzel text-3xl text-text-dark">{galleryStats.total}</p>
+                </div>
+              </div>
+              <div className="p-4 border border-gold-light bg-white shadow-sm">
+                <p className="text-xs font-cinzel uppercase tracking-widest text-text-muted">Photos</p>
+                <div className="mt-2 flex items-center gap-3">
+                  <span className="p-2 rounded-full bg-green-50 text-green-600"><ImageIcon size={18} /></span>
+                  <p className="font-cinzel text-3xl text-text-dark">{galleryStats.photos}</p>
+                </div>
+              </div>
+              <div className="p-4 border border-gold-light bg-white shadow-sm">
+                <p className="text-xs font-cinzel uppercase tracking-widest text-text-muted">Videos</p>
+                <div className="mt-2 flex items-center gap-3">
+                  <span className="p-2 rounded-full bg-purple-50 text-purple-600"><VideoIcon size={18} /></span>
+                  <p className="font-cinzel text-3xl text-text-dark">{galleryStats.videos}</p>
+                </div>
+              </div>
+              <div className="p-4 border border-gold-light bg-white shadow-sm">
+                <p className="text-xs font-cinzel uppercase tracking-widest text-text-muted">Last Update</p>
+                <div className="mt-2 flex items-center gap-3">
+                  <span className="p-2 rounded-full bg-bg-section text-text-muted"><Loader2 size={18} /></span>
+                  <p className="font-cinzel text-lg text-text-dark">{galleryStats.latestUpload ? formatDateLabel(galleryStats.latestUpload) : '—'}</p>
+                </div>
+              </div>
+            </div>
+
+            {galleryError && (
+              <div className="bg-red-50 border border-red-200 p-4 mb-6 flex flex-wrap items-center justify-between gap-3">
+                <p className="text-red-700 font-cormorant">{galleryError}</p>
+                <button type="button" onClick={fetchImages} className="font-cinzel text-xs uppercase tracking-wide text-red-600 border border-red-300 px-4 py-1 hover:bg-red-100">
+                  Retry Loading
+                </button>
+              </div>
+            )}
+
+            <div className="bg-white p-5 border border-gold-light shadow-sm mb-10">
+              <div className="flex flex-wrap items-center gap-3 mb-4">
+                <Filter size={18} className="text-gold-primary" />
+                <h3 className="font-cinzel text-xl text-text-dark">Gallery Filters</h3>
+                <button type="button" onClick={resetGalleryFilters} className="ml-auto text-xs font-cinzel uppercase tracking-wide text-text-muted hover:text-text-dark">
+                  Reset
+                </button>
+              </div>
+              <div className="flex flex-wrap gap-2 mb-5">
+                {GALLERY_CATEGORIES.map(category => (
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() => updateGalleryFilter('category', category)}
+                    className={`px-3 py-1 text-xs font-cinzel uppercase tracking-wide border transition ${
+                      galleryFilters.category === category ? 'bg-gold-primary text-white border-gold-primary' : 'border-gold-light text-text-dark bg-white'
+                    }`}
+                  >
+                    {category}
+                  </button>
+                ))}
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="relative">
+                  <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+                  <input
+                    type="search"
+                    value={galleryFilters.search}
+                    onChange={e => updateGalleryFilter('search', e.target.value)}
+                    placeholder="Search by title or category"
+                    className="w-full border border-gold-light pl-9 pr-3 py-2 font-cormorant focus:outline-none focus:border-gold-primary"
+                  />
+                </div>
+                <div>
+                  <select
+                    value={galleryFilters.sort}
+                    onChange={e => updateGalleryFilter('sort', e.target.value)}
+                    className="w-full border border-gold-light px-3 py-2 font-cormorant focus:outline-none focus:border-gold-primary"
+                  >
+                    <option value="newest">Newest first</option>
+                    <option value="oldest">Oldest first</option>
+                    <option value="title-asc">Title A → Z</option>
+                    <option value="title-desc">Title Z → A</option>
+                  </select>
+                </div>
+                <div className="flex items-center gap-2">
+                  {['all', 'images', 'videos'].map(type => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => updateGalleryFilter('mediaType', type)}
+                      className={`flex-1 px-3 py-2 text-xs font-cinzel uppercase tracking-wide border transition ${
+                        galleryFilters.mediaType === type ? 'bg-text-dark text-white border-text-dark' : 'border-gold-light text-text-dark'
+                      }`}
+                    >
+                      {type}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-5 flex flex-wrap gap-2 text-xs text-text-muted">
+                {galleryStats.perCategory.map(({ category, count }) => (
+                  <span key={category} className="px-3 py-1 border border-gold-light bg-bg-section font-cinzel uppercase tracking-wider">{category}: {count}</span>
+                ))}
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-              {images.map(img => {
-                const isVideo = img.url.match(/\.(mp4|webm|ogg|mov)$/i);
+              {galleryLoading && (
+                <div className="col-span-full flex justify-center py-12 text-gold-primary">
+                  <Loader2 className="animate-spin" size={32} />
+                </div>
+              )}
+
+              {!galleryLoading && filteredImages.length === 0 && (
+                <div className="col-span-full bg-bg-section border border-gold-light p-8 text-center">
+                  <p className="font-cinzel text-lg text-text-dark">No media matches the current filters.</p>
+                  <button type="button" onClick={resetGalleryFilters} className="btn-gold mt-4">
+                    Clear filters
+                  </button>
+                </div>
+              )}
+
+              {filteredImages.map(img => {
+                const isVideo = VIDEO_EXTENSIONS.test(img.url || '');
                 return (
-                  <div key={img._id} className="bg-white border border-gold-light p-2 relative group">
-                    {isVideo ? (
-                      <div className="w-full bg-black/80 rounded-sm overflow-hidden mb-2">
+                  <div key={img._id} className="bg-white border border-gold-light rounded-sm shadow-sm overflow-hidden group">
+                    <div className="relative">
+                      {isVideo ? (
                         <video
                           src={img.url}
-                          className="w-full h-auto max-h-[320px] object-contain"
+                          className="w-full aspect-square object-cover bg-black"
                           controls
                           playsInline
                           preload="metadata"
                         />
+                      ) : (
+                        <img src={img.url} alt={img.title} className="w-full aspect-square object-cover" loading="lazy" />
+                      )}
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-3">
+                        <button type="button" onClick={() => handleOpenMedia(img.url)} className="bg-white/90 text-text-dark px-3 py-1 text-xs font-cinzel uppercase tracking-wide flex items-center gap-1">
+                          <Eye size={14} /> View
+                        </button>
+                        <button type="button" onClick={() => handleCopyImageUrl(img)} className="bg-white/90 text-text-dark px-3 py-1 text-xs font-cinzel uppercase tracking-wide flex items-center gap-1">
+                          <Copy size={14} /> {copiedImageId === img._id ? 'Copied' : 'Copy'}
+                        </button>
                       </div>
-                    ) : (
-                      <img src={img.url} alt={img.title} className="w-full aspect-square object-cover mb-2 rounded-sm" />
-                    )}
-                    <p className="font-cinzel text-sm truncate">{img.title}</p>
-                    <span className="text-xs bg-gold-pale text-gold-primary px-2 py-0.5 mt-1 inline-block">{img.category}</span>
-                    <button
-                      onClick={() => handleImageDelete(img._id)}
-                      disabled={!allowMediaDelete}
-                      className={`absolute top-4 right-4 bg-red-500 text-white w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-lg ${!allowMediaDelete ? 'cursor-not-allowed opacity-40 group-hover:opacity-40' : ''}`}
-                      title={allowMediaDelete ? 'Delete media' : 'Deletion disabled in this environment'}
-                    >
-                      X
-                    </button>
+                      {isVideo && <span className="absolute top-3 left-3 bg-black/70 text-white text-[10px] font-cinzel px-2 py-0.5 uppercase tracking-wide">Video</span>}
+                    </div>
+                    <div className="p-3 space-y-2">
+                      <div className="flex items-baseline justify-between gap-2">
+                        <p className="font-cinzel text-sm text-text-dark truncate" title={img.title}>{img.title || 'Untitled Media'}</p>
+                        <span className="text-[10px] font-cinzel uppercase tracking-widest text-text-muted">{formatDateLabel(img.uploadedAt)}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs bg-gold-pale text-gold-primary px-2 py-0.5 inline-flex items-center gap-1">
+                          {img.category || 'Uncategorized'}
+                        </span>
+                        <button
+                          onClick={() => handleImageDelete(img._id)}
+                          disabled={!allowMediaDelete}
+                          className={`text-xs font-cinzel uppercase tracking-wide border px-2 py-1 transition ${
+                            allowMediaDelete ? 'border-red-300 text-red-500 hover:bg-red-50' : 'border-gold-light text-text-muted cursor-not-allowed'
+                          }`}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 );
               })}

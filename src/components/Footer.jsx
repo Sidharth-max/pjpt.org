@@ -46,15 +46,19 @@ export default function Footer() {
           <div>
             <h4 className="font-cinzel text-gold-light text-lg mb-4 uppercase tracking-wide">Visit Us</h4>
             <address className="not-italic mb-4 font-cormorant">
-              <a href="https://www.google.com/maps/search/?api=1&query=Shri+Antariksh+Parshvanath+Shwetambar+Jain+Tirth,+Parasali" target="_blank" rel="noopener noreferrer" className="text-white/80 hover:text-gold-light transition-colors block">
+              <a href="https://share.google/ObJ9vP3gJ7KFJ5Dzg" target="_blank" rel="noopener noreferrer" className="text-white/80 hover:text-gold-light transition-colors block">
                 Shri Jain Shwetambar Parasali Tirth<br/>
                 Parasali, Shamgarh<br/>
                 District Mandsaur, MP — 458883
               </a>
             </address>
-            <p className="font-cinzel text-sm text-gold-pale opacity-90 tracking-wide">
+            <p className="font-cinzel text-sm text-gold-pale opacity-90 tracking-wide mb-6">
               Open: 5:30 AM – 8:30 PM
             </p>
+            <h4 className="font-cinzel text-gold-light text-lg mb-2 uppercase tracking-wide">Connect</h4>
+            <a href="https://www.instagram.com/avadhpuri_parasli_jain_tirth?igsh=MTVlb21mNHZ6cXlqbQ==" target="_blank" rel="noopener noreferrer" className="text-white/80 hover:text-gold-light transition font-cinzel text-sm uppercase tracking-wide inline-block">
+              Instagram
+            </a>
           </div>
         </div>
 

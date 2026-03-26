@@ -325,11 +325,11 @@ export default function Dhwajarohan2026() {
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="bg-white p-6 border-l-4 border-[#E1306C] shadow-sm flex flex-col justify-center">
               <span className="font-noto font-bold text-lg text-text-dark mb-1">Follow us on Instagram</span>
-              <p className="font-cinzel text-gold-primary mb-2">@AVADHPURI_PARASALI_JAIN_TIRTH</p>
+              <a href="https://www.instagram.com/avadhpuri_parasli_jain_tirth?igsh=MTVlb21mNHZ6cXlqbQ==" target="_blank" rel="noopener noreferrer" className="font-cinzel text-gold-primary hover:text-gold-light transition-colors mb-2 inline-block">@AVADHPURI_PARASALI_JAIN_TIRTH</a>
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="bg-white p-6 border-l-4 border-[#EA4335] shadow-sm flex flex-col justify-center">
               <span className="font-noto font-bold text-lg text-text-dark mb-1">Find Us on Google Maps</span>
-              <a href="https://www.google.com/maps/search/?api=1&query=Shri+Antariksh+Parshvanath+Shwetambar+Jain+Tirth,+Parasali" target="_blank" rel="noopener noreferrer" className="font-cinzel text-gold-primary hover:text-gold-light transition-colors mb-2 inline-block">TIRTH LOCATION</a>
+              <a href="https://share.google/ObJ9vP3gJ7KFJ5Dzg" target="_blank" rel="noopener noreferrer" className="font-cinzel text-gold-primary hover:text-gold-light transition-colors mb-2 inline-block">TIRTH LOCATION</a>
               <p className="font-cormorant text-text-muted text-sm mt-1">Parasali, Shamgarh, Mandsaur, MP</p>
             </motion.div>
           </div>

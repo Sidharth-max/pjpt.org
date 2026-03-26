@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, CheckCircle2, AlertTriangle, XCircle, Copy, Eye, Filter, Search, Trash2, Check, Image as ImageIcon, Video as VideoIcon } from 'lucide-react';
+import { Loader2, CheckCircle2, AlertTriangle, XCircle, Copy, Eye, Filter, Search, Trash2, Check, Image as ImageIcon, Video as VideoIcon, UploadCloud } from 'lucide-react';
 import { getImages, uploadImage, deleteImage, getEvents, createEvent, updateEvent, deleteEvent, getMessages, deleteMessage } from '../services/api';
 
 const formatBytes = (bytes = 0) => {
@@ -651,7 +651,60 @@ export default function Admin() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="bg-white p-8 border border-gold-light shadow-sm mb-12">
               <h2 className="font-cinzel text-2xl mb-6 text-gold-primary">Upload Media</h2>
-              <form onSubmit={handleImageUpload} className="space-y-6">
+              <form onSubmit={handleImageUpload} className="space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="font-cinzel text-sm uppercase tracking-wide text-text-dark">Title Prefix</label>
+                    <input
+                      type="text"
+                      value={imgForm.title}
+                      onChange={e => setImgForm(prev => ({ ...prev, title: e.target.value }))}
+                      placeholder="e.g., Rath Yatra 2026"
+                      className="w-full border border-gold-light px-4 py-2 font-cormorant text-lg bg-off-white/60 focus:outline-none focus:border-gold-primary"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="font-cinzel text-sm uppercase tracking-wide text-text-dark">Category</label>
+                    <select
+                      value={imgForm.category}
+                      onChange={e => setImgForm(prev => ({ ...prev, category: e.target.value }))}
+                      className="w-full border border-gold-light px-4 py-2 font-cormorant text-lg bg-off-white/60 focus:outline-none focus:border-gold-primary"
+                    >
+                      {GALLERY_CATEGORIES.filter(category => category !== 'All').map(category => (
+                        <option key={category} value={category}>{category}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div
+                  onDrop={handleDropFiles}
+                  onDragOver={handleDragOver}
+                  className="border-2 border-dashed border-gold-light rounded-sm bg-bg-section/60 px-6 py-10 text-center transition hover:border-gold-primary"
+                >
+                  <div className="flex flex-col items-center gap-3">
+                    <UploadCloud size={40} className="text-gold-primary" />
+                    <p className="font-cinzel text-lg text-text-dark">Drag & drop media files here</p>
+                    <p className="text-sm text-text-muted font-cormorant">JPG, PNG, WEBP or MP4 up to 40 MB each</p>
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="btn-gold px-6 py-2"
+                    >
+                      Browse Files
+                    </button>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      multiple
+                      accept="image/*,video/*"
+                      onChange={handleFileInputChange}
+                      className="hidden"
+                    />
+                  </div>
+                </div>
+
                 {selectedFiles.length > 0 && (
                   <div className="border border-gold-light bg-white rounded-sm p-4">
                     <div className="flex items-center justify-between mb-4">
@@ -687,43 +740,98 @@ export default function Admin() {
                     </div>
                   </div>
                 )}
-                          ) : (
-                            <button
-                              type="button"
-                              onClick={enableSelectionMode}
-                              disabled={filteredImages.length === 0}
-                              className="text-xs font-cinzel uppercase tracking-wide border px-4 py-2 transition border-gold-light text-text-dark hover:bg-bg-section disabled:opacity-40 disabled:cursor-not-allowed"
-                            >
-                              Enable Selection
-                            </button>
-                          )}
-                        </div>
-                      ) : (
-                        <p className="text-xs font-cormorant text-red-600 ml-auto">Media deletion is disabled for this deployment.</p>
-                      )}
-                    </div>
-                                Cancel
-                              </button>
-                            )}
-                          </div>
-                        </div>
 
-                        {/* Progress Bar Track */}
-                        <div className="mt-5 h-2 bg-bg-section rounded-full overflow-hidden w-full relative z-10 border border-gold-pale/50">
-                          <div
-                            className={`h-full transition-all duration-300 ease-out flex items-center justify-end
-                              ${upload.status === 'error' ? 'bg-red-500' : upload.status === 'canceled' ? 'bg-text-muted/60' : upload.status === 'completed' ? 'bg-green-500' : 'bg-gold-primary'}`}
-                            style={{ width: `${Math.max(upload.progress, 2)}%` }}
-                          >
-                          </div>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                  </AnimatePresence>
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    type="submit"
+                    disabled={uploadingImg || selectedFiles.length === 0}
+                    className="btn-gold px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {uploadingImg ? 'Uploading…' : selectedFiles.length ? `Upload ${selectedFiles.length} File${selectedFiles.length > 1 ? 's' : ''}` : 'Upload Files'}
+                  </button>
+                  {selectedFiles.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={clearSelectedFiles}
+                      className="text-xs font-cinzel uppercase tracking-wide border px-4 py-2 transition border-gold-light text-text-dark hover:bg-bg-section"
+                    >
+                      Clear Selection
+                    </button>
+                  )}
+                  <p className="text-xs text-text-muted font-cormorant">Tip: You can mix images and videos in one batch.</p>
                 </div>
-              </div>
-            )}
+
+                {activeUploads.length > 0 && (
+                  <div className="border border-gold-light bg-white rounded-sm p-5 space-y-4">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <p className="font-cinzel text-sm text-text-dark uppercase tracking-wide">Upload Queue</p>
+                        <p className="text-xs text-text-muted font-cormorant">Tracking {activeUploads.length} file{activeUploads.length > 1 ? 's' : ''} in progress</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={cancelAllUploads}
+                        className="text-xs font-cinzel uppercase tracking-wide border px-3 py-1.5 transition border-red-300 text-red-500 hover:bg-red-50"
+                      >
+                        Cancel All
+                      </button>
+                    </div>
+                    <div className="space-y-4">
+                      <AnimatePresence initial={false}>
+                        {activeUploads.map(upload => {
+                          const statusMeta = getStatusMeta(upload.status);
+                          return (
+                            <motion.div
+                              key={upload.id}
+                              layout
+                              initial={{ opacity: 0, y: 12 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -12 }}
+                              className="border border-gold-pale/60 rounded-sm bg-bg-section p-3 shadow-sm"
+                            >
+                              <div className="flex flex-wrap items-center gap-3">
+                                <div className="flex-1 min-w-[200px]">
+                                  <p className="font-cinzel text-sm text-text-dark truncate" title={upload.name}>{upload.name}</p>
+                                  <p className="text-xs font-cormorant text-text-muted">{formatBytes(upload.size)} • {upload.eta}</p>
+                                </div>
+                                <div className={`flex items-center gap-1 text-xs font-cinzel uppercase tracking-wide ${statusMeta.color}`}>
+                                  {statusMeta.icon}
+                                  {statusMeta.label}
+                                </div>
+                                {upload.status === 'uploading' && (
+                                  <button
+                                    type="button"
+                                    onClick={() => cancelUpload(upload.id)}
+                                    className="text-xs font-cinzel uppercase tracking-wide border px-3 py-1.5 transition border-gold-light text-text-dark hover:bg-white"
+                                  >
+                                    Cancel
+                                  </button>
+                                )}
+                              </div>
+
+                              <div className="mt-3 h-2 bg-white rounded-full overflow-hidden border border-gold-pale/60">
+                                <div
+                                  className={`h-full transition-all duration-300 ${
+                                    upload.status === 'error'
+                                      ? 'bg-red-500'
+                                      : upload.status === 'canceled'
+                                      ? 'bg-text-muted/60'
+                                      : upload.status === 'completed'
+                                      ? 'bg-green-500'
+                                      : 'bg-gold-primary'
+                                  }`}
+                                  style={{ width: `${Math.max(upload.progress, 2)}%` }}
+                                />
+                              </div>
+                            </motion.div>
+                          );
+                        })}
+                      </AnimatePresence>
+                    </div>
+                  </div>
+                )}
+              </form>
+            </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               <div className="p-4 border border-gold-light bg-white shadow-sm">

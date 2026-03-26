@@ -1,5 +1,5 @@
 import Image from '../models/Image.js';
-import cloudinary from '../config/cloudinary.js';
+import { uploadFileToS3, deleteFileFromS3 } from '../utils/s3Media.js';
 
 const allowMediaDelete = (process.env.ALLOW_MEDIA_DELETE || '').toLowerCase() === 'true';
 
@@ -22,11 +22,13 @@ export const uploadImage = async (req, res) => {
     const { title, category } = req.body;
     if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
 
+    const uploadResult = await uploadFileToS3(req.file);
+
     const newImage = new Image({
       title,
       category,
-      url: req.file.path,
-      publicId: req.file.filename
+      url: uploadResult.url,
+      publicId: uploadResult.key
     });
 
     const savedImage = await newImage.save();
@@ -45,7 +47,11 @@ export const deleteImage = async (req, res) => {
     const image = await Image.findById(req.params.id);
     if (!image) return res.status(404).json({ message: 'Image not found' });
 
-    await cloudinary.uploader.destroy(image.publicId);
+    try {
+      await deleteFileFromS3(image.publicId);
+    } catch (err) {
+      console.warn('Failed to delete object from S3', err.message);
+    }
     await image.deleteOne();
     res.json({ message: 'Image removed' });
   } catch (error) {

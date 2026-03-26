@@ -19,14 +19,34 @@ connectDB();
 
 const app = express();
 
+const resolveMediaHost = () => {
+  if (process.env.AWS_PUBLIC_URL) return process.env.AWS_PUBLIC_URL;
+  if (process.env.AWS_BUCKET_NAME && process.env.AWS_REGION) {
+    return `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com`;
+  }
+  return null;
+};
+
+const mediaHost = resolveMediaHost();
+const imgSources = ["'self'", 'data:', 'https://fonts.gstatic.com', 'https://www.google-analytics.com'];
+const mediaSources = ["'self'"];
+const connectSources = ["'self'", 'https://www.google-analytics.com', 'https://region1.google-analytics.com'];
+
+if (mediaHost) {
+  imgSources.push(mediaHost);
+  mediaSources.push(mediaHost);
+  connectSources.push(mediaHost);
+}
+
 // Security and Performance
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-      "img-src": ["'self'", "data:", "https://res.cloudinary.com", "https://fonts.gstatic.com", "https://www.google-analytics.com"],
+      "img-src": imgSources,
       "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://www.googletagmanager.com", "https://www.google-analytics.com"],
-      "connect-src": ["'self'", "https://res.cloudinary.com", "https://www.google-analytics.com", "https://region1.google-analytics.com"],
+      "connect-src": connectSources,
+      "media-src": mediaSources,
       "frame-src": ["'self'", "https://www.google.com"],
     },
   },

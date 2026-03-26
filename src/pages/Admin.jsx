@@ -25,7 +25,7 @@ export default function Admin() {
   const [activeTab, setActiveTab] = useState('gallery');
 
   const [images, setImages] = useState([]);
-  const [imgForm, setImgForm] = useState({ title: '', category: 'All', files: [] });
+  const [imgForm, setImgForm] = useState({ title: '', category: 'Temple', files: [] });
   const [uploadingImg, setUploadingImg] = useState(false);
   const [activeUploads, setActiveUploads] = useState([]);
   const uploadControllers = useRef(new Map());
@@ -195,7 +195,7 @@ export default function Admin() {
 
       if (successfulUploads > 0) {
         showToast(successfulUploads > 1 ? 'Media files uploaded successfully' : 'Media uploaded successfully');
-        setImgForm({ title: '', category: 'All', files: [] });
+        setImgForm({ title: '', category: 'Temple', files: [] });
         const fileInput = document.getElementById('gallery-file-upload');
         if (fileInput) fileInput.value = '';
         fetchImages();
@@ -335,7 +335,7 @@ export default function Admin() {
                 <div>
                   <label className="block font-cinzel text-sm text-text-dark mb-2">Category</label>
                   <select value={imgForm.category} onChange={e => setImgForm({...imgForm, category: e.target.value})} className="w-full border-b-2 border-gold-pale focus:border-gold-primary focus:outline-none p-2 font-cormorant">
-                    {['All', 'Temple', 'Idol', 'Festivals', 'Events', 'Nature'].map(c => <option key={c}>{c}</option>)}
+                    {['Temple', 'Idol', 'Festivals', 'Events', 'Nature'].map(c => <option key={c}>{c}</option>)}
                   </select>
                 </div>
                 <div>

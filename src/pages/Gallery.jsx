@@ -61,16 +61,38 @@ export default function Gallery() {
   };
 
   const openLightbox = (index) => {
-    const target = galleryItems[index];
-    if (target && isVideo(target.url)) {
-      pauseVideo(target._id);
-    }
+    // Pause all currently playing background videos
+    Object.keys(playingVideos).forEach(id => {
+      if (playingVideos[id]) pauseVideo(id);
+    });
     setLightboxIndex(index);
   };
   const closeLightbox = () => setLightboxIndex(null);
-  const prevImage = (e) => { e.stopPropagation(); setLightboxIndex(prev => prev > 0 ? prev - 1 : galleryItems.length - 1); };
-  const nextImage = (e) => { e.stopPropagation(); setLightboxIndex(prev => prev < galleryItems.length - 1 ? prev + 1 : 0); };
+  const prevImage = (e) => { if (e) e.stopPropagation(); setLightboxIndex(prev => prev > 0 ? prev - 1 : galleryItems.length - 1); };
+  const nextImage = (e) => { if (e) e.stopPropagation(); setLightboxIndex(prev => prev < galleryItems.length - 1 ? prev + 1 : 0); };
   const currentItem = lightboxIndex !== null ? galleryItems[lightboxIndex] : null;
+
+  // Keyboard Navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (lightboxIndex === null) return;
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') prevImage();
+      if (e.key === 'ArrowRight') nextImage();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [lightboxIndex, galleryItems.length]);
+
+  // Lock body scroll when lightbox is open
+  useEffect(() => {
+    if (lightboxIndex !== null) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [lightboxIndex]);
 
   const toggleVideoPlayback = (event, id) => {
     event.stopPropagation();
@@ -120,11 +142,11 @@ export default function Gallery() {
       {/* Masonry Grid or Empty State */}
       <section className="px-4 pb-24 max-w-[1200px] mx-auto min-h-[40vh]">
         {loading ? (
-          <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
+          <div className="columns-1 sm:columns-2 lg:columns-3 gap-6">
             {Array.from({ length: 6 }).map((_, i) => (
               <div 
                 key={i} 
-                className={`w-full ${i % 3 === 0 ? 'aspect-square' : i % 2 === 0 ? 'aspect-video' : 'aspect-[3/4]'} bg-white border border-gold-light animate-pulse flex items-center justify-center`}
+                className={`w-full ${i % 3 === 0 ? 'aspect-square' : i % 2 === 0 ? 'aspect-video' : 'aspect-[3/4]'} bg-white border border-gold-light animate-pulse flex items-center justify-center break-inside-avoid mb-6`}
               >
                 <div className="w-1/3 h-1/3 text-gold-primary opacity-20">
                   <LotusWatermark opacity={1} />
@@ -133,7 +155,7 @@ export default function Gallery() {
             ))}
           </div>
         ) : galleryItems.length > 0 ? (
-          <motion.div layout className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
+          <motion.div layout className="columns-1 sm:columns-2 lg:columns-3 gap-6">
             <AnimatePresence>
               {galleryItems.map((item, index) => {
                 const videoItem = isVideo(item.url);
@@ -146,7 +168,7 @@ export default function Gallery() {
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{ duration: 0.3 }}
                     key={item._id}
-                    className="break-inside-avoid"
+                    className="break-inside-avoid mb-6 inline-block w-full"
                   >
                     <div 
                       className={`relative w-full ${ratioClass} bg-white border border-gold-light overflow-hidden group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300`}
@@ -203,7 +225,9 @@ export default function Gallery() {
               <LotusWatermark opacity={1} />
             </div>
             <p className="font-cormorant italic text-2xl text-gold-primary max-w-md mx-auto">
-              Gallery coming soon. Check back after Pratishtha Mahotsav 2025.
+              {activeFilter === 'All' 
+                ? 'Gallery coming soon. Check back after Pratishtha Mahotsav 2025.'
+                : `No media found for the "${activeFilter}" category.`}
             </p>
           </div>
         )}
@@ -235,6 +259,7 @@ export default function Gallery() {
               const modalRatio = currentIsVideo ? '' : currentItem.aspectRatio;
               return (
                 <motion.div
+                  key={currentItem._id}
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0.9, opacity: 0 }}
@@ -246,6 +271,7 @@ export default function Gallery() {
                   src={currentItem.url}
                   className="w-full h-full object-contain" 
                   controls
+                  autoPlay
                 />
               ) : (
                 <img 

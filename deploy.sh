@@ -4,8 +4,10 @@ echo "======================================"
 echo "🚀 Starting Deployment Process..."
 echo "======================================"
 
-echo "▶ 1. Pulling latest changes from Git..."
-git pull origin main
+echo "▶ 1. Resetting local changes and Pulling from Git..."
+git fetch origin
+git reset --hard origin/main
+git clean -fd
 
 echo "▶ 2. Installing Node.js dependencies..."
 npm install

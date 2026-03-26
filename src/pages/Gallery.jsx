@@ -33,11 +33,11 @@ export default function Gallery() {
     try {
       const data = await getImages(activeFilter);
       // Give each an alternating aspect ratio to maintain masonry feel (images only)
-      const itemsWithAspect = data.map((item, i) => ({
+            const itemsWithAspect = data.map((item, i) => ({
         ...item,
         url: normalizeMediaUrl(item.url),
         aspectRatio: i % 3 === 0 ? 'aspect-square' : i % 2 === 0 ? 'aspect-video' : 'aspect-[3/4]'
-      }));
+            }));
       setGalleryItems(itemsWithAspect);
     } catch (error) {
       console.error("Failed to fetch images", error);

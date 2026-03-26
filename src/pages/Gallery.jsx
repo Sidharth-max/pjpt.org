@@ -28,6 +28,7 @@ export default function Gallery() {
       // Give each an alternating aspect ratio to maintain masonry feel
       const itemsWithAspect = data.map((item, i) => ({
         ...item,
+        url: item.url.replace(/\+/g, '%20') + '?v=2',
         aspectRatio: i % 3 === 0 ? 'aspect-square' : i % 2 === 0 ? 'aspect-video' : 'aspect-[3/4]'
       }));
       setGalleryItems(itemsWithAspect);

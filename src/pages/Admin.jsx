@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
 import { getImages, uploadImage, deleteImage, getEvents, createEvent, updateEvent, deleteEvent, getMessages, deleteMessage } from '../services/api';
 
@@ -366,42 +366,68 @@ export default function Admin() {
                 </div>
 
                 <div className="space-y-4">
+                  <AnimatePresence>
                   {activeUploads.map(upload => {
                     const statusMeta = getStatusMeta(upload.status);
                     const isInProgress = upload.status === 'uploading';
                     return (
-                      <div key={upload.id} className="p-4 border border-gold-pale bg-bg-section rounded-sm shadow-inner">
-                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                          <div>
-                            <p className="font-cinzel text-base text-text-dark break-all">{upload.name}</p>
-                            <p className="text-xs text-text-muted font-cormorant mt-1">
-                              {formatBytes(upload.size)} • {upload.eta || 'Calculating…'}
-                            </p>
-                          </div>
-                          <div className="flex items-center gap-4">
-                            <div className={`flex items-center gap-1 text-sm ${statusMeta.color}`}>
-                              {statusMeta.icon}
-                              <span className="font-cinzel text-xs uppercase tracking-wide">{statusMeta.label}</span>
+                      <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        key={upload.id} 
+                        className={`p-5 border bg-white rounded-sm hover:shadow-md transition-shadow relative overflow-hidden group ${
+                          upload.status === 'completed' ? 'border-green-200' :
+                          upload.status === 'error' ? 'border-red-200' :
+                          upload.status === 'canceled' ? 'border-gray-200' :
+                          'border-gold-light'
+                        }`}
+                      >
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 relative z-10">
+                          <div className="flex-1 min-w-0 pr-4">
+                            <p className="font-cinzel text-base text-text-dark truncate font-semibold" title={upload.name}>{upload.name}</p>
+                            <div className="flex flex-wrap items-center gap-x-3 text-xs font-cormorant mt-2 text-text-muted">
+                              <span className="font-medium bg-bg-section px-2 py-0.5 rounded-sm">{formatBytes(upload.size)}</span>
+                              <span className={upload.status === 'uploading' ? 'text-gold-primary animate-pulse font-medium' : ''}>
+                                {upload.eta || 'Calculating…'}
+                              </span>
+                              <span>•</span>
+                              <span className="tabular-nums font-bold tracking-wide">
+                                {upload.progress}%
+                              </span>
                             </div>
-                            <button
-                              type="button"
-                              onClick={() => cancelUpload(upload.id)}
-                              disabled={!isInProgress}
-                              className="font-cinzel text-xs uppercase tracking-wide border px-3 py-1 transition disabled:opacity-40 disabled:cursor-not-allowed border-red-200 text-red-600 hover:bg-red-500 hover:text-white"
-                            >
-                              Cancel
-                            </button>
+                          </div>
+                          
+                          <div className="flex items-center gap-5">
+                            <div className={`flex items-center gap-1.5 text-sm ${statusMeta.color}`}>
+                              {statusMeta.icon}
+                              <span className="font-cinzel text-xs uppercase tracking-wider font-bold">{statusMeta.label}</span>
+                            </div>
+                            {isInProgress && (
+                              <button
+                                type="button"
+                                onClick={() => cancelUpload(upload.id)}
+                                className="font-cinzel text-[11px] uppercase tracking-wider border px-4 py-1.5 transition border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 active:bg-red-100"
+                              >
+                                Cancel
+                              </button>
+                            )}
                           </div>
                         </div>
-                        <div className="mt-3 h-2 bg-white/60 rounded-full overflow-hidden">
+
+                        {/* Progress Bar Track */}
+                        <div className="mt-5 h-2 bg-bg-section rounded-full overflow-hidden w-full relative z-10 border border-gold-pale/50">
                           <div
-                            className={`h-full transition-all duration-300 ${upload.status === 'error' ? 'bg-red-400' : upload.status === 'canceled' ? 'bg-text-muted' : 'bg-gold-primary'}`}
-                            style={{ width: `${upload.progress}%` }}
-                          />
+                            className={`h-full transition-all duration-300 ease-out flex items-center justify-end
+                              ${upload.status === 'error' ? 'bg-red-500' : upload.status === 'canceled' ? 'bg-text-muted/60' : upload.status === 'completed' ? 'bg-green-500' : 'bg-gold-primary'}`}
+                            style={{ width: `${Math.max(upload.progress, 2)}%` }}
+                          >
+                          </div>
                         </div>
-                      </div>
+                      </motion.div>
                     );
                   })}
+                  </AnimatePresence>
                 </div>
               </div>
             )}

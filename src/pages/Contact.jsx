@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import LotusWatermark from '../components/LotusWatermark';
+import { submitContact } from '../services/api';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -11,6 +12,7 @@ export default function Contact() {
   const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', phone: '', subject: 'General Inquiry', message: '' });
   const [errors, setErrors] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -18,19 +20,32 @@ export default function Contact() {
     setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
     if (!formData.firstName) newErrors.firstName = 'First name is required';
-    if (!formData.email) newErrors.email = 'Email is required';
+    if (!formData.phone && !formData.email) newErrors.phone = 'Phone or Email is required';
     if (!formData.message) newErrors.message = 'Message is required';
     
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
     } else {
-      setIsSubmitted(true);
-      // Optional: reset form
-      // setFormData({ firstName: '', lastName: '', email: '', phone: '', subject: 'General Inquiry', message: '' });
+      setIsSubmitting(true);
+      try {
+        await submitContact({
+          name: `${formData.firstName} ${formData.lastName}`.trim(),
+          email: formData.email,
+          phone: formData.phone || "N/A",
+          subject: formData.subject,
+          message: formData.message
+        });
+        setIsSubmitted(true);
+        setFormData({ firstName: '', lastName: '', email: '', phone: '', subject: 'General Inquiry', message: '' });
+      } catch (err) {
+        alert('Failed to send message. Please try again.');
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -148,8 +163,8 @@ export default function Contact() {
                     {errors.message && <p className="text-gold-primary text-sm mt-1">{errors.message}</p>}
                   </div>
 
-                  <button type="submit" className="w-full bg-gold-primary text-white border-2 border-gold-primary font-cinzel uppercase tracking-wide py-4 hover:bg-transparent hover:text-gold-primary transition duration-300">
-                    Send Message
+                  <button type="submit" disabled={isSubmitting} className="w-full bg-gold-primary text-white border-2 border-gold-primary font-cinzel uppercase tracking-wide py-4 hover:bg-transparent hover:text-gold-primary transition duration-300 disabled:opacity-50">
+                    {isSubmitting ? 'Sending...' : 'Send Message'}
                   </button>
                 </motion.form>
               )}

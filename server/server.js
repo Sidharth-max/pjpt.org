@@ -9,6 +9,7 @@ import compression from 'compression';
 import connectDB from './config/db.js';
 import imageRoutes from './routes/imageRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
+import messageRoutes from './routes/messageRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,9 +24,10 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       ...helmet.contentSecurityPolicy.getDefaultDirectives(),
-      "img-src": ["'self'", "data:", "https://res.cloudinary.com", "https://fonts.gstatic.com"],
-      "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-      "connect-src": ["'self'", "https://res.cloudinary.com"],
+      "img-src": ["'self'", "data:", "https://res.cloudinary.com", "https://fonts.gstatic.com", "https://www.google-analytics.com"],
+      "script-src": ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://www.googletagmanager.com", "https://www.google-analytics.com"],
+      "connect-src": ["'self'", "https://res.cloudinary.com", "https://www.google-analytics.com", "https://region1.google-analytics.com"],
+      "frame-src": ["'self'", "https://www.google.com"],
     },
   },
 }));
@@ -37,6 +39,7 @@ app.use(express.urlencoded({ limit: '100mb', extended: true }));
 
 app.use('/api/images', imageRoutes);
 app.use('/api/events', eventRoutes);
+app.use('/api/messages', messageRoutes);
 
 // Static files for production
 const distPath = path.join(__dirname, '../dist');

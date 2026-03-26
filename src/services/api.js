@@ -36,3 +36,13 @@ export const updateEvent = (id, formData) =>
 
 export const deleteEvent = (id) => 
   api.delete(`/api/events/${id}`).then(res => res.data);
+
+// Message API
+export const submitContact = (data) => 
+  api.post('/api/messages', data).then(res => res.data);
+
+export const getMessages = () => 
+  api.get('/api/messages').then(res => res.data);
+
+export const deleteMessage = (id) => 
+  api.delete(`/api/messages/${id}`).then(res => res.data);

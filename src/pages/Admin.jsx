@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { getImages, uploadImage, deleteImage, getEvents, createEvent, updateEvent, deleteEvent } from '../services/api';
+import { getImages, uploadImage, deleteImage, getEvents, createEvent, updateEvent, deleteEvent, getMessages, deleteMessage } from '../services/api';
 
 export default function Admin() {
   const [auth, setAuth] = useState(false);
@@ -12,6 +12,7 @@ export default function Admin() {
   const [uploadingImg, setUploadingImg] = useState(false);
 
   const [events, setEvents] = useState([]);
+  const [messages, setMessages] = useState([]);
   const [eventForm, setEventForm] = useState({ id: null, title: '', date: '', description: '', category: '', isFeatured: false, file: null });
   const [uploadingEvent, setUploadingEvent] = useState(false);
   const [notification, setNotification] = useState('');
@@ -22,12 +23,20 @@ export default function Admin() {
     if (auth) {
       fetchImages();
       fetchEvents();
+      fetchMessages();
     }
   }, [auth]);
 
   const showToast = (msg) => {
     setNotification(msg);
     setTimeout(() => setNotification(''), 3000);
+  };
+
+  const fetchMessages = async () => {
+    try {
+      const data = await getMessages();
+      setMessages(data);
+    } catch (err) { console.error(err); }
   };
 
   const fetchImages = async () => {
@@ -129,6 +138,17 @@ export default function Admin() {
     }
   };
 
+  const handleMessageDelete = async (id) => {
+    if (!window.confirm('Delete this message?')) return;
+    try {
+      await deleteMessage(id);
+      showToast('Message deleted');
+      fetchMessages();
+    } catch (err) {
+      alert('Delete failed');
+    }
+  };
+
   const editEvent = (evt) => {
     setEventForm({
       id: evt._id,
@@ -170,6 +190,7 @@ export default function Admin() {
         <div className="flex space-x-4 mb-8">
           <button onClick={() => setActiveTab('gallery')} className={`font-cinzel uppercase px-6 py-2 transition-colors ${activeTab === 'gallery' ? 'bg-gold-primary text-white' : 'border border-gold-light text-text-dark bg-white'}`}>Gallery</button>
           <button onClick={() => setActiveTab('events')} className={`font-cinzel uppercase px-6 py-2 transition-colors ${activeTab === 'events' ? 'bg-gold-primary text-white' : 'border border-gold-light text-text-dark bg-white'}`}>Events</button>
+          <button onClick={() => setActiveTab('messages')} className={`font-cinzel uppercase px-6 py-2 transition-colors ${activeTab === 'messages' ? 'bg-gold-primary text-white' : 'border border-gold-light text-text-dark bg-white'}`}>Messages</button>
         </div>
 
         {activeTab === 'gallery' && (
@@ -280,6 +301,43 @@ export default function Admin() {
                   </div>
                 </div>
               ))}
+            </div>
+          </motion.div>
+        )}
+
+        {activeTab === 'messages' && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <div className="bg-white p-8 border border-gold-light shadow-sm mb-12">
+              <h2 className="font-cinzel text-2xl mb-6 text-gold-primary">Contact Form Submissions</h2>
+              {messages.length === 0 ? (
+                <p className="text-text-muted font-cormorant text-lg">No messages received yet.</p>
+              ) : (
+                <div className="space-y-6">
+                  {messages.map(msg => (
+                    <div key={msg._id} className="border-b border-gold-pale pb-6 relative group">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-noto font-bold text-lg text-text-dark">{msg.name}</h3>
+                          <p className="text-sm font-cormorant text-text-muted">
+                            <span className="font-bold">Email:</span> {msg.email} <span className="mx-2">|</span>
+                            <span className="font-bold">Phone:</span> {msg.phone}
+                          </p>
+                          <p className="text-sm font-cormorant text-gold-primary mt-1">
+                            <span className="font-bold">Subject:</span> {msg.subject}
+                          </p>
+                        </div>
+                        <p className="text-xs text-text-muted font-cormorant">
+                          {new Date(msg.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+                      <div className="mt-4 bg-bg-section p-4 border-l-4 border-gold-primary">
+                        <p className="font-cormorant whitespace-pre-wrap">{msg.message}</p>
+                      </div>
+                      <button onClick={() => handleMessageDelete(msg._id)} className="absolute top-0 right-0 bg-red-500 text-white w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-lg rounded">X</button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </motion.div>
         )}

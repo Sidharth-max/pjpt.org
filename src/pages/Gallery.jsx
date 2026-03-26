@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
 import LotusWatermark from '../components/LotusWatermark';
@@ -23,6 +23,8 @@ export default function Gallery() {
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [galleryItems, setGalleryItems] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [playingVideos, setPlayingVideos] = useState({});
+  const videoRefs = useRef({});
 
   useEffect(() => {
     fetchImages();
@@ -33,12 +35,13 @@ export default function Gallery() {
     try {
       const data = await getImages(activeFilter);
       // Give each an alternating aspect ratio to maintain masonry feel (images only)
-            const itemsWithAspect = data.map((item, i) => ({
+      const itemsWithAspect = data.map((item, i) => ({
         ...item,
         url: normalizeMediaUrl(item.url),
         aspectRatio: i % 3 === 0 ? 'aspect-square' : i % 2 === 0 ? 'aspect-video' : 'aspect-[3/4]'
-            }));
+      }));
       setGalleryItems(itemsWithAspect);
+      setPlayingVideos({});
     } catch (error) {
       console.error("Failed to fetch images", error);
     } finally {
@@ -46,11 +49,41 @@ export default function Gallery() {
     }
   };
 
-  const openLightbox = (index) => setLightboxIndex(index);
+  const pauseVideo = (id) => {
+    const node = videoRefs.current[id];
+    if (node && !node.paused) {
+      node.pause();
+    }
+    setPlayingVideos(prev => {
+      if (prev[id] === false) return prev;
+      return { ...prev, [id]: false };
+    });
+  };
+
+  const openLightbox = (index) => {
+    const target = galleryItems[index];
+    if (target && isVideo(target.url)) {
+      pauseVideo(target._id);
+    }
+    setLightboxIndex(index);
+  };
   const closeLightbox = () => setLightboxIndex(null);
   const prevImage = (e) => { e.stopPropagation(); setLightboxIndex(prev => prev > 0 ? prev - 1 : galleryItems.length - 1); };
   const nextImage = (e) => { e.stopPropagation(); setLightboxIndex(prev => prev < galleryItems.length - 1 ? prev + 1 : 0); };
   const currentItem = lightboxIndex !== null ? galleryItems[lightboxIndex] : null;
+
+  const toggleVideoPlayback = (event, id) => {
+    event.stopPropagation();
+    const node = videoRefs.current[id];
+    if (!node) return;
+    if (node.paused) {
+      node.play();
+      setPlayingVideos(prev => ({ ...prev, [id]: true }));
+    } else {
+      node.pause();
+      setPlayingVideos(prev => ({ ...prev, [id]: false }));
+    }
+  };
 
   return (
     <div className="w-full pt-20 bg-bg-section min-h-screen">
@@ -120,14 +153,29 @@ export default function Gallery() {
                       onClick={() => openLightbox(index)}
                     >
                       {videoItem ? (
-                        <video 
-                          src={item.url} 
-                          className="w-full h-auto block transition-transform duration-700 group-hover:scale-[1.01]"
-                          muted
-                          loop
-                          playsInline
-                          autoPlay
-                        />
+                        <div className="relative w-full bg-black flex items-center justify-center">
+                          <video 
+                            ref={node => {
+                              if (node) {
+                                videoRefs.current[item._id] = node;
+                              } else {
+                                delete videoRefs.current[item._id];
+                              }
+                            }}
+                            src={item.url} 
+                            className="w-full h-full max-h-[460px] object-contain"
+                            playsInline
+                            preload="metadata"
+                            controls={false}
+                            onEnded={() => pauseVideo(item._id)}
+                          />
+                          <button
+                            onClick={(event) => toggleVideoPlayback(event, item._id)}
+                            className="absolute bottom-4 right-4 px-4 py-2 bg-white/90 text-text-dark font-cinzel text-xs tracking-widest uppercase shadow-lg hover:bg-gold-primary hover:text-white transition pointer-events-auto"
+                          >
+                            {playingVideos[item._id] ? 'Pause' : 'Play'}
+                          </button>
+                        </div>
                       ) : (
                         <img 
                           src={item.url} 
@@ -137,10 +185,12 @@ export default function Gallery() {
                       )}
                       
                       {/* Hover Overlay */}
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center pointer-events-none">
-                        <ZoomIn className="text-white mb-2" size={32} />
-                        <span className="font-cinzel text-white tracking-widest text-sm">{item.category}</span>
-                      </div>
+                      {!videoItem && (
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center pointer-events-none">
+                          <ZoomIn className="text-white mb-2" size={32} />
+                          <span className="font-cinzel text-white tracking-widest text-sm">{item.category}</span>
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 );
@@ -195,7 +245,7 @@ export default function Gallery() {
                 <video 
                   src={currentItem.url}
                   className="w-full h-full object-contain" 
-                  controls autoPlay
+                  controls
                 />
               ) : (
                 <img 

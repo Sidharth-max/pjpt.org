@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --gold-primary: #B8960C;
+  --gold-light: #D4AF37;
+  --gold-pale: #F5EFC0;
+  --white: #FFFFFF;
+  --off-white: #FAFAF7;
+  --bg-section: #F9F6F0;
+  --text-dark: #1C1610;
+  --text-muted: #6B5B45;
+  --border: #E8DEC8;
+}
+
+body {
+  font-family: 'Cormorant Garamond', serif;
+  background-color: var(--white);
+  color: var(--text-dark);
+  font-size: 18px;
+  line-height: 1.8;
+}
+
+h1, h2, h3, h4, h5, h6, .font-cinzel {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+}
+
+.font-noto {
+  font-family: 'Noto Sans Devanagari', sans-serif;
+}
+
+.gold-divider {
+  width: 100%;
+  height: 1px;
+  background-color: var(--gold-light);
+}
+
+.btn-gold {
+  border: 1.5px solid var(--gold-primary);
+  background: transparent;
+  color: var(--gold-primary);
+  padding: 0.5rem 1.5rem;
+  transition: all 0.3s ease;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+}
+
+.btn-gold:hover {
+  background: var(--gold-primary);
+  color: var(--white);
+}
+
+.btn-white {
+  border: 1.5px solid var(--white);
+  background: transparent;
+  color: var(--white);
+  padding: 0.5rem 1.5rem;
+  transition: all 0.3s ease;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+}
+
+.btn-white:hover {
+  background: var(--white);
+  color: var(--text-dark);
+}
+
+.card {
+  background-color: var(--white);
+  border: 1px solid var(--gold-light);
+  box-shadow: 0 2px 24px rgba(184, 150, 12, 0.08);
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 32px rgba(184, 150, 12, 0.15);
+}

@@ -36,6 +36,15 @@ export default function Admin() {
   const [eventForm, setEventForm] = useState({ id: null, title: '', date: '', description: '', category: '', isFeatured: false, file: null });
   const [uploadingEvent, setUploadingEvent] = useState(false);
   const [notification, setNotification] = useState('');
+  
+  // Custom Alert / Confirm Modal State
+  const [dialogState, setDialogState] = useState({ 
+    isOpen: false, 
+    type: 'alert', // 'alert' | 'confirm'
+    title: '', 
+    message: '', 
+    onConfirm: null 
+  });
 
   const adminPass = import.meta.env.VITE_ADMIN_PASSWORD;
   const allowMediaDelete = import.meta.env.VITE_ALLOW_MEDIA_DELETE === 'true';
@@ -58,6 +67,18 @@ export default function Admin() {
   const showToast = (msg) => {
     setNotification(msg);
     setTimeout(() => setNotification(''), 3000);
+  };
+
+  const showAlert = (message, title = 'Attention') => {
+    setDialogState({ isOpen: true, type: 'alert', title, message, onConfirm: null });
+  };
+
+  const showConfirm = (message, onConfirm, title = 'Confirm Action') => {
+    setDialogState({ isOpen: true, type: 'confirm', title, message, onConfirm });
+  };
+
+  const closeDialog = () => {
+    setDialogState(prev => ({ ...prev, isOpen: false }));
   };
 
   const getStatusMeta = (status) => {
@@ -121,14 +142,14 @@ export default function Admin() {
   const handleLogin = (e) => {
     e.preventDefault();
     if (password === adminPass) setAuth(true);
-    else alert('Incorrect password');
+    else showAlert('Incorrect password. Please try again.', 'Authentication Failed');
   };
 
   // Gallery Handlers
   const handleImageUpload = async (e) => {
     e.preventDefault();
     const files = Array.from(imgForm.files || []);
-    if (!files.length || !imgForm.title) return alert('File(s) and Title required');
+    if (!files.length || !imgForm.title) return showAlert('Please select file(s) and provide a title before uploading.', 'Missing Requirements');
     setUploadingImg(true);
 
     const uploadTasks = files.map((file, index) => {
@@ -202,10 +223,10 @@ export default function Admin() {
       }
 
       if (hasFailure) {
-        alert('Some uploads failed. Please try again.');
+        showAlert('Some uploads failed. Please clearly check your network and try again.', 'Upload Incomplete');
       }
     } catch (err) {
-      alert('Upload failed');
+      showAlert('A critical error occurred while trying to upload media.', 'Upload Failed');
     } finally {
       setUploadingImg(false);
     }
@@ -213,23 +234,25 @@ export default function Admin() {
 
   const handleImageDelete = async (id) => {
     if (!allowMediaDelete) {
-      alert('Media deletion is disabled in this environment.');
+      showAlert('Media deletion is disabled in this environment configurations.', 'Action Blocked');
       return;
     }
-    if (!window.confirm('Delete this image?')) return;
-    try {
-      await deleteImage(id);
-      showToast('Image deleted');
-      fetchImages();
-    } catch (err) {
-      alert('Delete failed');
-    }
+    
+    showConfirm('Are you sure you want to delete this image? This action cannot be undone.', async () => {
+      try {
+        await deleteImage(id);
+        showToast('Image deleted successfully');
+        fetchImages();
+      } catch (err) {
+        showAlert('Failed to delete the image. Please try again.', 'Error');
+      }
+    });
   };
 
   // Event Handlers
   const handleEventSubmit = async (e) => {
     e.preventDefault();
-    if (!eventForm.title || !eventForm.date || !eventForm.description) return alert('Missing required fields');
+    if (!eventForm.title || !eventForm.date || !eventForm.description) return showAlert('Please fill out the title, date, and description fields.', 'Missing Information');
     setUploadingEvent(true);
     
     const fd = new FormData();
@@ -243,40 +266,42 @@ export default function Admin() {
     try {
       if (eventForm.id) {
         await updateEvent(eventForm.id, fd);
-        showToast('Event updated');
+        showToast('Event updated successfully');
       } else {
         await createEvent(fd);
-        showToast('Event created');
+        showToast('Event created successfully');
       }
       setEventForm({ id: null, title: '', date: '', description: '', category: '', isFeatured: false, file: null });
       fetchEvents();
     } catch (err) {
-      alert('Save failed');
+      showAlert('Failed to save the event. Please try again.', 'Error');
     } finally {
       setUploadingEvent(false);
     }
   };
 
   const handleEventDelete = async (id) => {
-    if (!window.confirm('Delete this event?')) return;
-    try {
-      await deleteEvent(id);
-      showToast('Event deleted');
-      fetchEvents();
-    } catch (err) {
-      alert('Delete failed');
-    }
+    showConfirm('Are you sure you want to delete this event? This action cannot be undone.', async () => {
+      try {
+        await deleteEvent(id);
+        showToast('Event deleted successfully');
+        fetchEvents();
+      } catch (err) {
+        showAlert('Failed to delete the event. Please try again.', 'Error');
+      }
+    });
   };
 
   const handleMessageDelete = async (id) => {
-    if (!window.confirm('Delete this message?')) return;
-    try {
-      await deleteMessage(id);
-      showToast('Message deleted');
-      fetchMessages();
-    } catch (err) {
-      alert('Delete failed');
-    }
+    showConfirm('Are you sure you want to delete this message? This action cannot be undone.', async () => {
+      try {
+        await deleteMessage(id);
+        showToast('Message deleted successfully');
+        fetchMessages();
+      } catch (err) {
+        showAlert('Failed to delete the message. Please try again.', 'Error');
+      }
+    });
   };
 
   const editEvent = (evt) => {
@@ -313,6 +338,56 @@ export default function Admin() {
             {notification}
           </div>
         )}
+
+        {/* Custom Dialog / Modal */}
+        <AnimatePresence>
+          {dialogState.isOpen && (
+            <>
+              <motion.div 
+                initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998]"
+                onClick={closeDialog}
+              />
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95, y: 20 }} 
+                animate={{ opacity: 1, scale: 1, y: 0 }} 
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white border border-gold-light shadow-2xl z-[9999] p-6 overflow-hidden"
+              >
+                <div className="flex items-start mb-4">
+                  <div className={`p-2 rounded-full mr-4 ${dialogState.type === 'alert' && dialogState.title.includes('Failed') ? 'bg-red-100 text-red-600' : 'bg-gold-pale text-gold-primary'}`}>
+                    {dialogState.type === 'alert' && dialogState.title.includes('Failed') ? <AlertTriangle size={24} /> : <AlertTriangle size={24} />}
+                  </div>
+                  <div>
+                    <h3 className="font-cinzel text-xl text-text-dark mb-1">{dialogState.title}</h3>
+                    <p className="font-cormorant text-text-muted text-lg leading-snug">{dialogState.message}</p>
+                  </div>
+                </div>
+                
+                <div className="flex justify-end gap-3 mt-6">
+                  {dialogState.type === 'confirm' && (
+                    <button 
+                      onClick={closeDialog}
+                      className="px-5 py-2 font-cinzel text-sm border border-gold-light text-text-muted hover:bg-bg-section transition uppercase tracking-wide"
+                    >
+                      Cancel
+                    </button>
+                  )}
+                  <button 
+                    onClick={() => {
+                      if (dialogState.onConfirm) dialogState.onConfirm();
+                      closeDialog();
+                    }}
+                    className={`px-5 py-2 font-cinzel text-sm text-white transition uppercase tracking-wide
+                      ${dialogState.type === 'confirm' ? 'bg-red-500 hover:bg-red-600' : 'bg-gold-primary hover:bg-gold-light'}`}
+                  >
+                    {dialogState.type === 'confirm' ? 'Confirm' : 'Okay'}
+                  </button>
+                </div>
+              </motion.div>
+            </>
+          )}
+        </AnimatePresence>
 
       <div className="max-w-[1200px] mx-auto px-4">
         <h1 className="font-cinzel text-4xl text-text-dark mb-8 uppercase tracking-wide">Admin Dashboard</h1>

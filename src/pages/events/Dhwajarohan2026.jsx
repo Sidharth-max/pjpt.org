@@ -321,24 +321,18 @@ export default function Dhwajarohan2026() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 text-left">
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="bg-white p-6 border-l-4 border-[#25D366] shadow-sm flex flex-col justify-center">
               <span className="font-noto font-bold text-lg text-text-dark mb-1">Join our WhatsApp Community</span>
-              <p className="font-cinzel text-gold-primary mb-2">AVADHPURI PARASALI</p>
-              <p className="font-cormorant text-text-muted text-sm">Scan QR or search on WhatsApp</p>
+              <a href="https://chat.whatsapp.com/EZJTMgrnbUN1nx9JgcCDe8" target="_blank" rel="noopener noreferrer" className="font-cinzel text-gold-primary hover:text-gold-light transition-colors mb-2 inline-block">AVADHPURI PARASALI</a>
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="bg-white p-6 border-l-4 border-[#E1306C] shadow-sm flex flex-col justify-center">
               <span className="font-noto font-bold text-lg text-text-dark mb-1">Follow us on Instagram</span>
               <p className="font-cinzel text-gold-primary mb-2">@AVADHPURI_PARASALI_JAIN_TIRTH</p>
-              <p className="font-cormorant text-text-muted text-sm">Scan QR to follow</p>
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="bg-white p-6 border-l-4 border-[#EA4335] shadow-sm flex flex-col justify-center">
               <span className="font-noto font-bold text-lg text-text-dark mb-1">Find Us on Google Maps</span>
-              <p className="font-cinzel text-gold-primary mb-2">Scan for Tirth Location</p>
-              <p className="font-cormorant text-text-muted text-sm">Parasali, Shamgarh, Mandsaur, MP</p>
+              <a href="https://www.google.com/maps/search/?api=1&query=Shri+Antariksh+Parshvanath+Shwetambar+Jain+Tirth,+Parasali" target="_blank" rel="noopener noreferrer" className="font-cinzel text-gold-primary hover:text-gold-light transition-colors mb-2 inline-block">TIRTH LOCATION</a>
+              <p className="font-cormorant text-text-muted text-sm mt-1">Parasali, Shamgarh, Mandsaur, MP</p>
             </motion.div>
           </div>
-          
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="inline-block border border-gold-primary bg-gold-pale px-8 py-4 font-cinzel text-text-dark uppercase tracking-widest shadow-sm">
-            Visit us at www.pjpt.org
-          </motion.div>
         </div>
       </section>
 

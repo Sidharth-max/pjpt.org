@@ -45,10 +45,12 @@ export default function Footer() {
           {/* Col 3 */}
           <div>
             <h4 className="font-cinzel text-gold-light text-lg mb-4 uppercase tracking-wide">Visit Us</h4>
-            <address className="text-white/80 not-italic mb-4 font-cormorant">
-              Shri Jain Shwetambar Parasali Tirth<br/>
-              Parasali, Shamgarh<br/>
-              District Mandsaur, MP — 458883
+            <address className="not-italic mb-4 font-cormorant">
+              <a href="https://www.google.com/maps/search/?api=1&query=Shri+Antariksh+Parshvanath+Shwetambar+Jain+Tirth,+Parasali" target="_blank" rel="noopener noreferrer" className="text-white/80 hover:text-gold-light transition-colors block">
+                Shri Jain Shwetambar Parasali Tirth<br/>
+                Parasali, Shamgarh<br/>
+                District Mandsaur, MP — 458883
+              </a>
             </address>
             <p className="font-cinzel text-sm text-gold-pale opacity-90 tracking-wide">
               Open: 5:30 AM – 8:30 PM

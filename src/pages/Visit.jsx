@@ -97,7 +97,6 @@ export default function Visit() {
             <div className="absolute inset-0 pointer-events-none opacity-10 flex items-center justify-center text-gold-primary">
               <LotusWatermark opacity={1} className="w-64 h-64" />
             </div>
-            <p className="font-cinzel text-text-muted uppercase tracking-wider relative z-10">[ Google Maps Embed Placeholder ]</p>
             <iframe 
               title="Google Map"
               src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.5!2d75.6!3d24.2!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3963ef1234567890%3A0xabcdef1234567890!2sParasali%2C+Madhya+Pradesh!5e0!3m2!1sen!2sin!4v1234567890" 

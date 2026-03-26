@@ -6,7 +6,8 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'pjpt_gallery',
-    allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
+    resource_type: 'auto',
+    // removed allowed_formats to allow videos and other media
   },
 });
 

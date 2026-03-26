@@ -107,11 +107,19 @@ export default function Gallery() {
                     className={`relative w-full ${item.aspectRatio} bg-white border border-gold-light overflow-hidden group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300`}
                     onClick={() => openLightbox(index)}
                   >
-                    <img 
-                      src={item.url} 
-                      alt={item.title} 
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-                    />
+                    {item.url.match(/\.(mp4|webm|ogg|mov)$/i) ? (
+                      <video 
+                        src={item.url} 
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                        muted loop playsInline autoPlay
+                      />
+                    ) : (
+                      <img 
+                        src={item.url} 
+                        alt={item.title} 
+                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                      />
+                    )}
                     
                     {/* Hover Overlay */}
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center pointer-events-none">
@@ -156,18 +164,26 @@ export default function Gallery() {
               <ChevronRight size={48} />
             </button>
 
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               className={`relative bg-black w-full max-w-5xl max-h-[85vh] ${galleryItems[lightboxIndex].aspectRatio} min-h-[50vh] flex flex-col border border-gold-primary/30`}
               onClick={e => e.stopPropagation()}
             >
-              <img 
-                src={galleryItems[lightboxIndex].url} 
-                alt={galleryItems[lightboxIndex].title} 
-                className="w-full h-full object-contain" 
-              />
+              {galleryItems[lightboxIndex].url.match(/\.(mp4|webm|ogg|mov)$/i) ? (
+                <video 
+                  src={galleryItems[lightboxIndex].url}
+                  className="w-full h-full object-contain" 
+                  controls autoPlay
+                />
+              ) : (
+                <img 
+                  src={galleryItems[lightboxIndex].url} 
+                  alt={galleryItems[lightboxIndex].title} 
+                  className="w-full h-full object-contain" 
+                />
+              )}
               <div className="absolute bottom-0 inset-x-0 bg-black/70 backdrop-blur p-4 text-center">
                 <h3 className="font-cinzel text-xl text-white uppercase tracking-wide">{galleryItems[lightboxIndex].title}</h3>
                 <p className="font-cormorant text-gold-light mt-1">Category: {galleryItems[lightboxIndex].category}</p>

@@ -8,7 +8,7 @@ export default function Admin() {
   const [activeTab, setActiveTab] = useState('gallery');
 
   const [images, setImages] = useState([]);
-  const [imgForm, setImgForm] = useState({ title: '', category: 'All', file: null });
+  const [imgForm, setImgForm] = useState({ title: '', category: 'All', files: [] });
   const [uploadingImg, setUploadingImg] = useState(false);
 
   const [events, setEvents] = useState([]);
@@ -53,17 +53,21 @@ export default function Admin() {
   // Gallery Handlers
   const handleImageUpload = async (e) => {
     e.preventDefault();
-    if (!imgForm.file || !imgForm.title) return alert('File and Title required');
+    if (!imgForm.files || imgForm.files.length === 0 || !imgForm.title) return alert('File(s) and Title required');
     setUploadingImg(true);
-    const fd = new FormData();
-    fd.append('title', imgForm.title);
-    fd.append('category', imgForm.category);
-    fd.append('file', imgForm.file);
-
+    
     try {
-      await uploadImage(fd);
-      showToast('Image uploaded successfully');
-      setImgForm({ title: '', category: 'All', file: null });
+      await Promise.all(Array.from(imgForm.files).map(file => {
+        const fd = new FormData();
+        fd.append('title', imgForm.files.length > 1 ? `${imgForm.title} - ${file.name}` : imgForm.title);
+        fd.append('category', imgForm.category);
+        fd.append('file', file);
+        return uploadImage(fd);
+      }));
+      showToast(imgForm.files.length > 1 ? 'Media files uploaded successfully' : 'Media uploaded successfully');
+      setImgForm({ title: '', category: 'All', files: [] });
+      const fileInput = document.getElementById('gallery-file-upload');
+      if (fileInput) fileInput.value = '';
       fetchImages();
     } catch (err) {
       alert('Upload failed');
@@ -171,7 +175,7 @@ export default function Admin() {
         {activeTab === 'gallery' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="bg-white p-8 border border-gold-light shadow-sm mb-12">
-              <h2 className="font-cinzel text-2xl mb-6 text-gold-primary">Upload New Image</h2>
+              <h2 className="font-cinzel text-2xl mb-6 text-gold-primary">Upload Media</h2>
               <form onSubmit={handleImageUpload} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                 <div>
                   <label className="block font-cinzel text-sm text-text-dark mb-2">Title</label>
@@ -184,8 +188,8 @@ export default function Admin() {
                   </select>
                 </div>
                 <div>
-                  <label className="block font-cinzel text-sm text-text-dark mb-2">Image File</label>
-                  <input type="file" onChange={e => setImgForm({...imgForm, file: e.target.files[0]})} className="w-full text-sm font-cormorant" accept="image/*" required />
+                  <label className="block font-cinzel text-sm text-text-dark mb-2">Media Files</label>
+                  <input id="gallery-file-upload" type="file" multiple onChange={e => setImgForm({...imgForm, files: e.target.files})} className="w-full text-sm font-cormorant" accept="image/*,video/*" required />
                 </div>
                 <button type="submit" disabled={uploadingImg} className="btn-gold h-[42px] disabled:opacity-50">
                   {uploadingImg ? 'Uploading...' : 'Upload'}
@@ -194,14 +198,21 @@ export default function Admin() {
             </div>
 
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
-              {images.map(img => (
-                <div key={img._id} className="bg-white border border-gold-light p-2 relative group">
-                  <img src={img.url} alt={img.title} className="w-full aspect-square object-cover mb-2" />
-                  <p className="font-cinzel text-sm truncate">{img.title}</p>
-                  <span className="text-xs bg-gold-pale text-gold-primary px-2 py-0.5 mt-1 inline-block">{img.category}</span>
-                  <button onClick={() => handleImageDelete(img._id)} className="absolute top-4 right-4 bg-red-500 text-white w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-lg">X</button>
-                </div>
-              ))}
+              {images.map(img => {
+                const isVideo = img.url.match(/\.(mp4|webm|ogg|mov)$/i);
+                return (
+                  <div key={img._id} className="bg-white border border-gold-light p-2 relative group">
+                    {isVideo ? (
+                      <video src={img.url} className="w-full aspect-square object-cover mb-2" muted loop playsInline />
+                    ) : (
+                      <img src={img.url} alt={img.title} className="w-full aspect-square object-cover mb-2" />
+                    )}
+                    <p className="font-cinzel text-sm truncate">{img.title}</p>
+                    <span className="text-xs bg-gold-pale text-gold-primary px-2 py-0.5 mt-1 inline-block">{img.category}</span>
+                    <button onClick={() => handleImageDelete(img._id)} className="absolute top-4 right-4 bg-red-500 text-white w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-lg">X</button>
+                  </div>
+                );
+              })}
             </div>
           </motion.div>
         )}

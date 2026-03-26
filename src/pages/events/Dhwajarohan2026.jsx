@@ -38,7 +38,7 @@ export default function Dhwajarohan2026() {
             प्रथम वर्षगांठ एवं ध्वजारोहण उत्सव
           </p>
           <p className="font-cormorant text-xl text-text-muted italic max-w-2xl mx-auto mb-10 leading-relaxed">
-            A grand three-day celebration marking the first anniversary of Pratishtha Mahotsav at Shri Avadhpuri Parasali Tirth — Malwa's Shatrunjay
+            A grand three-day celebration marking the first anniversary of Pratishtha Mahotsav at Shri Avadhpuri Parasali Jain Tirth — Malwa's Shatrunjay
           </p>
           
           <div className="flex flex-col md:flex-row items-center justify-center gap-6">
@@ -67,7 +67,7 @@ export default function Dhwajarohan2026() {
             <h3 className="font-cinzel text-2xl md:text-4xl text-gold-primary mb-3 leading-tight">Pujya Acharya Dev Shri Jin-Hemchandrasagar Surishwarji Maharaja</h3>
             <h4 className="font-noto text-xl text-text-dark mb-6">प.पू. आचार्य देव श्री जिन-हेमचंद्रसागर सूरीश्वरजी महाराजा</h4>
             <p className="font-cormorant text-lg text-text-muted italic max-w-xl mx-auto">
-              Parasali Tirth Pratishthachary, Vartaman Tirth Margdarshak, Shishya Shilpi, Bandhubeldi
+              Avadhpuri Parasali Jain Tirth Pratishthachary, Vartaman Tirth Margdarshak, Shishya Shilpi, Bandhubeldi
             </p>
           </motion.div>
         </div>
@@ -272,7 +272,7 @@ export default function Dhwajarohan2026() {
           </motion.h2>
 
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="card bg-off-white mx-auto">
-            <h3 className="font-cinzel text-2xl md:text-3xl text-gold-primary mb-2">Shri Jain Shwetambar Parasali Tirth Pedhi</h3>
+            <h3 className="font-cinzel text-2xl md:text-3xl text-gold-primary mb-2">Shri Avadhpuri Parasali Jain Tirth Pedhi</h3>
             <p className="font-cormorant text-lg text-text-muted mb-8 pb-8 border-b border-gold-pale">Po. Parasali – 458883, Jila Mandsaur (M.P.)</p>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 font-noto text-text-dark text-left md:text-center">

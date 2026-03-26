@@ -16,7 +16,7 @@ const hardcodedFeaturedEvent = {
   title: "Pratham Varshganth & Dhwajarohan Utsav",
   hindi: "प्रथम वर्षगांठ एवं ध्वजारोहण उत्सव",
   dates: "6 April – 8 April 2026",
-  description: "A grand three-day celebration at Shri Avadhpuri Parasali Tirth marking the first anniversary of Pratishtha Mahotsav. Features Abhishek Mahapujan, Siddha Chakra Puja, Dhwajarohan, Nagar Chaurasi, and Swamivatsalya.",
+  description: "A grand three-day celebration at Shri Avadhpuri Parasali Jain Tirth marking the first anniversary of Pratishtha Mahotsav. Features Abhishek Mahapujan, Siddha Chakra Puja, Dhwajarohan, Nagar Chaurasi, and Swamivatsalya.",
   link: "/events/dhwajarohan-2026"
 };
 
@@ -26,8 +26,8 @@ const hardcodedUpcomingEvents = [
     title: "Varshitap Parnot Utsav",
     hindi: "भव्यतम वर्षीतप पारणोत्सव",
     date: "Upcoming",
-    description: "A magnificent celebration of Varshitap fasting completion at Shri Avadhpuri Parasali Tirth. Main beneficiary contribution: ₹3,33,333 · Sah-Labhaarthi: ₹1,11,111 · Shubhecchu: ₹51,111",
-    location: "Parasali Tirth"
+    description: "A magnificent celebration of Varshitap fasting completion at Shri Avadhpuri Parasali Jain Tirth. Main beneficiary contribution: ₹3,33,333 · Sah-Labhaarthi: ₹1,11,111 · Shubhecchu: ₹51,111",
+    location: "Avadhpuri Parasali Jain Tirth"
   },
   {
     _id: "sheela-2026",
@@ -35,7 +35,7 @@ const hardcodedUpcomingEvents = [
     hindi: "शीला स्थापन कार्यक्रम",
     date: "19 April 2026 (Vaishakh Sudi 2, Ravivaar)",
     description: "Foundation stone laying ceremony for the symbolic Siddha Giriraj construction — including shrines for Thaleti, Shri Shantinath, Shri Rayanvriksha, Shri Pundarikasvami and other structures. Offerings to be announced at Dhwajarohan on 8 April 2026.",
-    location: "Parasali Tirth"
+    location: "Avadhpuri Parasali Jain Tirth"
   }
 ];
 

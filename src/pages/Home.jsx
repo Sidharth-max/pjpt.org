@@ -41,11 +41,11 @@ export default function Home() {
           <motion.div variants={fadeUp} className="font-cinzel text-gold-light text-sm md:text-base tracking-wide uppercase mb-6 drop-shadow-md">
             EST. 631 CE · MANDSAUR, MADHYA PRADESH
           </motion.div>
-          <motion.h1 variants={fadeUp} className="font-cinzel text-white text-5xl md:text-7xl lg:text-[80px] leading-tight drop-shadow-lg mb-2">
-            Prachin Jain
+          <motion.h1 variants={fadeUp} className="font-cinzel text-white text-5xl md:text-7xl lg:text-[80px] leading-tight drop-shadow-lg mb-2 text-center uppercase">
+            AVADHPURI PARASALI
           </motion.h1>
-          <motion.h2 variants={fadeUp} className="font-cormorant italic text-white text-4xl md:text-6xl drop-shadow-lg mb-8">
-            Parasali Tirth
+          <motion.h2 variants={fadeUp} className="font-cormorant italic text-white text-4xl md:text-6xl drop-shadow-lg mb-8 text-center uppercase">
+            JAIN TIRTH
           </motion.h2>
           
           <motion.div variants={fadeUp} className="w-20 h-[1px] bg-gold-light mx-auto mb-8 box-shadow-gold" />
@@ -126,13 +126,13 @@ export default function Home() {
           </motion.div>
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="space-y-6">
             <p className="text-text-muted">
-              Nestled near Shamgarh in the Mandsaur district of Madhya Pradesh, Prachin Jain Parasali Tirth stands as a beacon of unwavering devotion and spiritual history.
+              Nestled near Shamgarh in the Mandsaur district of Madhya Pradesh, AVADHPURI PARASALI JAIN TIRTH stands as a beacon of unwavering devotion and spiritual history.
             </p>
             <p className="text-text-muted">
               For over 1400 years, devotees have traveled to this serene land to seek the blessings of the self-manifested (Swayambhu) idol of Shri Adinath Bhagwan, the first Tirthankara of Jainism.
             </p>
             <p className="text-text-muted pb-4">
-              With 26 divine idols, awe-inspiring miracles, and an atmosphere permeated with peace, Parasali Tirth continues to transform the lives of all who visit.
+              With 26 divine idols, awe-inspiring miracles, and an atmosphere permeated with peace, the tirth continues to transform the lives of all who visit.
             </p>
             <Link to="/about" className="inline-block font-cinzel text-gold-primary uppercase tracking-wide text-sm border-b border-gold-primary pb-1 hover:text-gold-light hover:border-gold-light transition">
               Read Full History &rarr;

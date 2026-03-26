@@ -81,7 +81,7 @@ export default function Contact() {
               </div>
               <h3 className="font-cinzel text-2xl text-text-dark mb-6 uppercase tracking-wide">Contact Information</h3>
               <address className="not-italic font-cormorant text-lg text-text-muted space-y-2 mb-8">
-                <p className="font-bold text-text-dark">Shri Jain Shwetambar Parasali Tirth</p>
+                <p className="font-bold text-text-dark">Shri Avadhpuri Parasali Jain Tirth</p>
                 <p>Parasali, Shamgarh, District Mandsaur</p>
                 <p>Madhya Pradesh — 458883, India</p>
               </address>

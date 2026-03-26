@@ -21,7 +21,7 @@ export default function Footer() {
                 <LotusWatermark opacity={1} />
               </div>
               <span className="font-cinzel text-gold-light text-2xl tracking-wide">
-                PJPT
+                AVADHPURI PARASALI
               </span>
             </div>
             <p className="text-off-white font-cormorant italic text-lg opacity-80">
@@ -47,7 +47,7 @@ export default function Footer() {
             <h4 className="font-cinzel text-gold-light text-lg mb-4 uppercase tracking-wide">Visit Us</h4>
             <address className="not-italic mb-4 font-cormorant">
               <a href="https://share.google/ObJ9vP3gJ7KFJ5Dzg" target="_blank" rel="noopener noreferrer" className="text-white/80 hover:text-gold-light transition-colors block">
-                Shri Jain Shwetambar Parasali Tirth<br/>
+                Shri Avadhpuri Parasali Jain Tirth<br/>
                 Parasali, Shamgarh<br/>
                 District Mandsaur, MP — 458883
               </a>
@@ -63,7 +63,7 @@ export default function Footer() {
         </div>
 
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-white/50 text-sm font-cormorant">
-          <p>© 2025 Prachin Jain Parasali Tirth · All Rights Reserved</p>
+          <p>© 2025 AVADHPURI PARASALI JAIN TIRTH · All Rights Reserved</p>
           <p className="italic">Built with devotion</p>
         </div>
       </div>

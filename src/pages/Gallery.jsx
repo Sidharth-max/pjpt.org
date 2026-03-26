@@ -52,7 +52,7 @@ export default function Gallery() {
           Divine Gallery
         </motion.h1>
         <motion.p initial="hidden" animate="visible" variants={fadeUp} className="font-cormorant text-xl text-text-muted max-w-2xl mx-auto">
-          Experience the serene beauty, ancient architecture, and vibrant festivals of Prachin Jain Parasali Tirth.
+          Experience the serene beauty, ancient architecture, and vibrant festivals of AVADHPURI PARASALI JAIN TIRTH.
         </motion.p>
       </section>
 

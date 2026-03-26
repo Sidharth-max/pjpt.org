@@ -21,7 +21,7 @@ export default function Visit() {
             Plan Your Pilgrimage
           </h1>
           <p className="font-cormorant text-xl text-text-muted">
-            Everything you need to visit Parasali Tirth
+            Everything you need to visit Avadhpuri Parasali Jain Tirth
           </p>
         </motion.div>
       </section>
@@ -88,7 +88,7 @@ export default function Visit() {
         <div className="max-w-[1000px] mx-auto">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="card inline-block w-full max-w-2xl bg-off-white mb-12">
             <h3 className="font-cinzel text-2xl text-gold-primary mb-4 uppercase">Temple Address</h3>
-            <p className="font-cormorant text-xl text-text-dark">Shri Jain Shwetambar Parasali Tirth</p>
+            <p className="font-cormorant text-xl text-text-dark">Shri Avadhpuri Parasali Jain Tirth</p>
             <p className="font-cormorant text-lg text-text-muted">Parasali, Shamgarh, District Mandsaur</p>
             <p className="font-cormorant text-lg text-text-muted">Madhya Pradesh — 458883, India</p>
           </motion.div>

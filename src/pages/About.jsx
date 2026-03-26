@@ -19,7 +19,7 @@ export default function About() {
         <motion.div initial="hidden" animate="visible" variants={fadeUp} className="relative z-10">
           <span className="font-cinzel text-gold-primary text-sm uppercase tracking-wide block mb-4">Our Sacred Heritage</span>
           <h1 className="font-cinzel text-4xl md:text-6xl text-text-dark mb-4 uppercase tracking-wide">
-            History of Parasali Tirth
+            History of AVADHPURI PARASALI JAIN TIRTH
           </h1>
           <p className="font-cormorant text-xl md:text-2xl text-text-muted italic">
             A living pilgrimage since Vikram Samvat 688 · 631 CE
@@ -36,7 +36,7 @@ export default function About() {
             initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
             className="font-cinzel text-3xl md:text-4xl text-center mb-10 text-text-dark uppercase tracking-wide"
           >
-            🔱 Parasali Tirth: A Divine Legacy and Present Glory
+             AVADHPURI PARASALI JAIN TIRTH: A Divine Legacy and Present Glory
           </motion.h2>
           <motion.p initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="font-cormorant text-xl text-text-muted leading-relaxed">
             Parasali is an ancient, miraculous, and spiritual Jain pilgrimage site located in the Malwa region of Madhya Pradesh. It lies in the Mandsaur district, 10 km east of Shamgarh station on the Mumbai-Delhi railway line, and just 42 km from the renowned Nageshwar Tirth.

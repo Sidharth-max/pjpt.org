@@ -49,7 +49,7 @@ export default function Navbar() {
               <LotusWatermark opacity={1} />
             </div>
             <span className="font-cinzel text-gold-primary text-xl md:text-2xl tracking-wide group-hover:text-gold-light transition-colors">
-              PJPT
+              AVADHPURI PARASALI
             </span>
           </Link>
 

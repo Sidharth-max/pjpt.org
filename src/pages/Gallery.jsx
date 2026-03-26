@@ -28,6 +28,7 @@ export default function Gallery() {
       // Give each an alternating aspect ratio to maintain masonry feel
       const itemsWithAspect = data.map((item, i) => ({
         ...item,
+        url: item.url.replace(/\+/g, '%20') + '?v=2',
         aspectRatio: i % 3 === 0 ? 'aspect-square' : i % 2 === 0 ? 'aspect-video' : 'aspect-[3/4]'
       }));
       setGalleryItems(itemsWithAspect);
@@ -42,6 +43,7 @@ export default function Gallery() {
   const closeLightbox = () => setLightboxIndex(null);
   const prevImage = (e) => { e.stopPropagation(); setLightboxIndex(prev => prev > 0 ? prev - 1 : galleryItems.length - 1); };
   const nextImage = (e) => { e.stopPropagation(); setLightboxIndex(prev => prev < galleryItems.length - 1 ? prev + 1 : 0); };
+  const currentItem = lightboxIndex !== null ? galleryItems[lightboxIndex] : null;
 
   return (
     <div className="w-full pt-20 bg-bg-section min-h-screen">
@@ -107,7 +109,7 @@ export default function Gallery() {
                     className={`relative w-full ${item.aspectRatio} bg-white border border-gold-light overflow-hidden group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300`}
                     onClick={() => openLightbox(index)}
                   >
-                    {item.url.match(/\.(mp4|webm|ogg|mov)$/i) ? (
+                    {item.url.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i) ? (
                       <video 
                         src={item.url} 
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
@@ -145,7 +147,7 @@ export default function Gallery() {
 
       {/* Lightbox Modal */}
       <AnimatePresence>
-        {lightboxIndex !== null && galleryItems.length > 0 && (
+        {lightboxIndex !== null && galleryItems.length > 0 && currentItem && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -168,25 +170,25 @@ export default function Gallery() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
-              className={`relative bg-black w-full max-w-5xl max-h-[85vh] ${galleryItems[lightboxIndex].aspectRatio} min-h-[50vh] flex flex-col border border-gold-primary/30`}
+              className={`relative bg-black w-full max-w-5xl max-h-[85vh] ${currentItem.aspectRatio} min-h-[50vh] flex flex-col border border-gold-primary/30`}
               onClick={e => e.stopPropagation()}
             >
-              {galleryItems[lightboxIndex].url.match(/\.(mp4|webm|ogg|mov)$/i) ? (
+              {isVideo(currentItem.url) ? (
                 <video 
-                  src={galleryItems[lightboxIndex].url}
+                  src={currentItem.url}
                   className="w-full h-full object-contain" 
                   controls autoPlay
                 />
               ) : (
                 <img 
-                  src={galleryItems[lightboxIndex].url} 
-                  alt={galleryItems[lightboxIndex].title} 
+                  src={currentItem.url} 
+                  alt={currentItem.title} 
                   className="w-full h-full object-contain" 
                 />
               )}
               <div className="absolute bottom-0 inset-x-0 bg-black/70 backdrop-blur p-4 text-center">
-                <h3 className="font-cinzel text-xl text-white uppercase tracking-wide">{galleryItems[lightboxIndex].title}</h3>
-                <p className="font-cormorant text-gold-light mt-1">Category: {galleryItems[lightboxIndex].category}</p>
+                <h3 className="font-cinzel text-xl text-white uppercase tracking-wide">{currentItem.title}</h3>
+                <p className="font-cormorant text-gold-light mt-1">Category: {currentItem.category}</p>
               </div>
             </motion.div>
           </motion.div>

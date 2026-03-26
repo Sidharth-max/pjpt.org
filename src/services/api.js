@@ -8,10 +8,13 @@ const api = axios.create({ baseURL: BASE_URL });
 export const getImages = (category) => 
   api.get(`/api/images${category && category !== 'All' ? `?category=${category}` : ''}`).then(res => res.data);
 
-export const uploadImage = (formData) => 
-  api.post('/api/images/upload', formData, {
-    headers: { 'Content-Type': 'multipart/form-data' }
+export const uploadImage = (formData, options = {}) => {
+  const { headers, ...rest } = options;
+  return api.post('/api/images/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data', ...(headers || {}) },
+    ...rest
   }).then(res => res.data);
+};
 
 export const deleteImage = (id) => 
   api.delete(`/api/images/${id}`).then(res => res.data);

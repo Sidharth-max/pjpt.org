@@ -1,6 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { Loader2, CheckCircle2, AlertTriangle, XCircle } from 'lucide-react';
 import { getImages, uploadImage, deleteImage, getEvents, createEvent, updateEvent, deleteEvent, getMessages, deleteMessage } from '../services/api';
+
+const formatBytes = (bytes = 0) => {
+  if (!bytes) return '0 B';
+  const units = ['B', 'KB', 'MB', 'GB'];
+  const power = Math.min(Math.floor(Math.log(bytes) / Math.log(1024)), units.length - 1);
+  const value = bytes / Math.pow(1024, power);
+  return `${value.toFixed(value >= 10 ? 0 : 1)} ${units[power]}`;
+};
+
+const formatDuration = (seconds = 0) => {
+  if (!seconds || !isFinite(seconds)) return '—';
+  if (seconds < 1) return '<1s';
+  const mins = Math.floor(seconds / 60);
+  const secs = Math.round(seconds % 60);
+  return mins > 0 ? `${mins}m ${secs.toString().padStart(2, '0')}s` : `${secs}s`;
+};
 
 export default function Admin() {
   const [auth, setAuth] = useState(false);
@@ -10,6 +27,9 @@ export default function Admin() {
   const [images, setImages] = useState([]);
   const [imgForm, setImgForm] = useState({ title: '', category: 'All', files: [] });
   const [uploadingImg, setUploadingImg] = useState(false);
+  const [activeUploads, setActiveUploads] = useState([]);
+  const uploadControllers = useRef(new Map());
+  const removalTimers = useRef(new Map());
 
   const [events, setEvents] = useState([]);
   const [messages, setMessages] = useState([]);
@@ -27,9 +47,53 @@ export default function Admin() {
     }
   }, [auth]);
 
+  useEffect(() => {
+    return () => {
+      uploadControllers.current.forEach(controller => controller.abort());
+      removalTimers.current.forEach(timer => clearTimeout(timer));
+    };
+  }, []);
+
   const showToast = (msg) => {
     setNotification(msg);
     setTimeout(() => setNotification(''), 3000);
+  };
+
+  const getStatusMeta = (status) => {
+    switch (status) {
+      case 'completed':
+        return { label: 'Completed', color: 'text-green-600', icon: <CheckCircle2 size={18} /> };
+      case 'canceled':
+        return { label: 'Cancelled', color: 'text-text-muted', icon: <XCircle size={18} /> };
+      case 'error':
+        return { label: 'Failed', color: 'text-red-500', icon: <AlertTriangle size={18} /> };
+      default:
+        return { label: 'Uploading', color: 'text-gold-primary', icon: <Loader2 size={18} className="animate-spin" /> };
+    }
+  };
+
+  const updateUploadState = (uploadId, updates) => {
+    setActiveUploads(prev => prev.map(upload => upload.id === uploadId ? { ...upload, ...updates } : upload));
+  };
+
+  const scheduleUploadRemoval = (uploadId, delay = 4000) => {
+    if (removalTimers.current.has(uploadId)) {
+      clearTimeout(removalTimers.current.get(uploadId));
+    }
+    const timer = setTimeout(() => {
+      setActiveUploads(prev => prev.filter(upload => upload.id !== uploadId));
+      removalTimers.current.delete(uploadId);
+    }, delay);
+    removalTimers.current.set(uploadId, timer);
+  };
+
+  const cancelUpload = (uploadId) => {
+    const controller = uploadControllers.current.get(uploadId);
+    if (controller) controller.abort();
+  };
+
+  const cancelAllUploads = () => {
+    uploadControllers.current.forEach(controller => controller.abort());
   };
 
   const fetchMessages = async () => {
@@ -62,22 +126,83 @@ export default function Admin() {
   // Gallery Handlers
   const handleImageUpload = async (e) => {
     e.preventDefault();
-    if (!imgForm.files || imgForm.files.length === 0 || !imgForm.title) return alert('File(s) and Title required');
+    const files = Array.from(imgForm.files || []);
+    if (!files.length || !imgForm.title) return alert('File(s) and Title required');
     setUploadingImg(true);
-    
+
+    const uploadTasks = files.map((file, index) => {
+      const uploadId = `${file.name}-${Date.now()}-${index}`;
+      const controller = new AbortController();
+      const startedAt = Date.now();
+
+      uploadControllers.current.set(uploadId, controller);
+      setActiveUploads(prev => ([
+        ...prev,
+        {
+          id: uploadId,
+          name: file.name,
+          size: file.size,
+          progress: 0,
+          eta: 'Calculating…',
+          status: 'uploading'
+        }
+      ]));
+
+      const fd = new FormData();
+      fd.append('title', files.length > 1 ? `${imgForm.title} - ${file.name}` : imgForm.title);
+      fd.append('category', imgForm.category);
+      fd.append('file', file);
+
+      return uploadImage(fd, {
+        signal: controller.signal,
+        onUploadProgress: (event) => {
+          if (!event.total) return;
+          const progress = Math.round((event.loaded / event.total) * 100);
+          const elapsedSeconds = (Date.now() - startedAt) / 1000;
+          const speed = event.loaded / Math.max(elapsedSeconds, 0.001);
+          const remainingSeconds = speed > 0 ? (event.total - event.loaded) / speed : 0;
+          updateUploadState(uploadId, {
+            progress,
+            eta: remainingSeconds ? `${formatDuration(remainingSeconds)} remaining` : 'Finishing…'
+          });
+        }
+      })
+        .then(() => {
+          updateUploadState(uploadId, { progress: 100, eta: 'Completed', status: 'completed' });
+          scheduleUploadRemoval(uploadId);
+          return true;
+        })
+        .catch(error => {
+          if (controller.signal.aborted) {
+            updateUploadState(uploadId, { status: 'canceled', eta: 'Cancelled' });
+            scheduleUploadRemoval(uploadId);
+            return 'aborted';
+          }
+          updateUploadState(uploadId, { status: 'error', eta: 'Failed' });
+          scheduleUploadRemoval(uploadId);
+          throw error;
+        })
+        .finally(() => {
+          uploadControllers.current.delete(uploadId);
+        });
+    });
+
     try {
-      await Promise.all(Array.from(imgForm.files).map(file => {
-        const fd = new FormData();
-        fd.append('title', imgForm.files.length > 1 ? `${imgForm.title} - ${file.name}` : imgForm.title);
-        fd.append('category', imgForm.category);
-        fd.append('file', file);
-        return uploadImage(fd);
-      }));
-      showToast(imgForm.files.length > 1 ? 'Media files uploaded successfully' : 'Media uploaded successfully');
-      setImgForm({ title: '', category: 'All', files: [] });
-      const fileInput = document.getElementById('gallery-file-upload');
-      if (fileInput) fileInput.value = '';
-      fetchImages();
+      const results = await Promise.allSettled(uploadTasks);
+      const hasFailure = results.some(result => result.status === 'rejected');
+      const successfulUploads = results.filter(result => result.status === 'fulfilled' && result.value === true).length;
+
+      if (successfulUploads > 0) {
+        showToast(successfulUploads > 1 ? 'Media files uploaded successfully' : 'Media uploaded successfully');
+        setImgForm({ title: '', category: 'All', files: [] });
+        const fileInput = document.getElementById('gallery-file-upload');
+        if (fileInput) fileInput.value = '';
+        fetchImages();
+      }
+
+      if (hasFailure) {
+        alert('Some uploads failed. Please try again.');
+      }
     } catch (err) {
       alert('Upload failed');
     } finally {
@@ -217,6 +342,64 @@ export default function Admin() {
                 </button>
               </form>
             </div>
+
+            {activeUploads.length > 0 && (
+              <div className="bg-white p-6 border border-gold-light shadow-sm mb-12">
+                <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
+                  <div>
+                    <h3 className="font-cinzel text-xl text-text-dark">Live Uploads</h3>
+                    <p className="text-sm text-text-muted font-cormorant">Track progress, ETA, and cancel uploads in real time.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={cancelAllUploads}
+                    disabled={!activeUploads.some(upload => upload.status === 'uploading')}
+                    className="font-cinzel text-sm uppercase tracking-wide border px-4 py-2 transition disabled:opacity-40 disabled:cursor-not-allowed border-gold-light text-text-dark hover:bg-gold-primary hover:text-white"
+                  >
+                    Cancel All
+                  </button>
+                </div>
+
+                <div className="space-y-4">
+                  {activeUploads.map(upload => {
+                    const statusMeta = getStatusMeta(upload.status);
+                    const isInProgress = upload.status === 'uploading';
+                    return (
+                      <div key={upload.id} className="p-4 border border-gold-pale bg-bg-section rounded-sm shadow-inner">
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                          <div>
+                            <p className="font-cinzel text-base text-text-dark break-all">{upload.name}</p>
+                            <p className="text-xs text-text-muted font-cormorant mt-1">
+                              {formatBytes(upload.size)} • {upload.eta || 'Calculating…'}
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <div className={`flex items-center gap-1 text-sm ${statusMeta.color}`}>
+                              {statusMeta.icon}
+                              <span className="font-cinzel text-xs uppercase tracking-wide">{statusMeta.label}</span>
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => cancelUpload(upload.id)}
+                              disabled={!isInProgress}
+                              className="font-cinzel text-xs uppercase tracking-wide border px-3 py-1 transition disabled:opacity-40 disabled:cursor-not-allowed border-red-200 text-red-600 hover:bg-red-500 hover:text-white"
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                        <div className="mt-3 h-2 bg-white/60 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full transition-all duration-300 ${upload.status === 'error' ? 'bg-red-400' : upload.status === 'canceled' ? 'bg-text-muted' : 'bg-gold-primary'}`}
+                            style={{ width: `${upload.progress}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
               {images.map(img => {

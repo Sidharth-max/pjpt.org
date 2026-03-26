@@ -325,7 +325,7 @@ export default function Dhwajarohan2026() {
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="bg-white p-6 border-l-4 border-[#E1306C] shadow-sm flex flex-col justify-center">
               <span className="font-noto font-bold text-lg text-text-dark mb-1">Follow us on Instagram</span>
-              <a href="https://www.instagram.com/avadhpuri_parasli_jain_tirth?igsh=MTVlb21mNHZ6cXlqbQ==" target="_blank" rel="noopener noreferrer" className="font-cinzel text-gold-primary hover:text-gold-light transition-colors mb-2 inline-block">@AVADHPURI_PARASALI_JAIN_TIRTH</a>
+              <a href="https://www.instagram.com/avadhpuri_parasli_jain_tirth?igsh=MTVlb21mNHZ6cXlqbQ==" target="_blank" rel="noopener noreferrer" className="font-cinzel text-gold-primary hover:text-gold-light transition-colors mb-2 inline-block break-words break-all">@AVADHPURI_PARASALI_JAIN_TIRTH</a>
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="bg-white p-6 border-l-4 border-[#EA4335] shadow-sm flex flex-col justify-center">
               <span className="font-noto font-bold text-lg text-text-dark mb-1">Find Us on Google Maps</span>

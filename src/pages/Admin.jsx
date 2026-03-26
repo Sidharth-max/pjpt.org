@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, CheckCircle2, AlertTriangle, XCircle, Copy, Eye, Filter, Search, Image as ImageIcon, Video as VideoIcon } from 'lucide-react';
+import { Loader2, CheckCircle2, AlertTriangle, XCircle, Copy, Eye, Filter, Search, Trash2, Check, Image as ImageIcon, Video as VideoIcon } from 'lucide-react';
 import { getImages, uploadImage, deleteImage, getEvents, createEvent, updateEvent, deleteEvent, getMessages, deleteMessage } from '../services/api';
 
 const formatBytes = (bytes = 0) => {
@@ -46,6 +46,9 @@ export default function Admin() {
   const [galleryLoading, setGalleryLoading] = useState(false);
   const [galleryError, setGalleryError] = useState('');
   const [copiedImageId, setCopiedImageId] = useState(null);
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedImageIds, setSelectedImageIds] = useState([]);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
   const uploadControllers = useRef(new Map());
   const removalTimers = useRef(new Map());
   const fileInputRef = useRef(null);
@@ -84,6 +87,16 @@ export default function Admin() {
       if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    if (!isSelectionMode && selectedImageIds.length) {
+      setSelectedImageIds([]);
+    }
+  }, [isSelectionMode, selectedImageIds.length]);
+
+  useEffect(() => {
+    setSelectedImageIds(prev => prev.filter(id => images.some(img => img._id === id)));
+  }, [images]);
 
   const showToast = (msg) => {
     setNotification(msg);
@@ -197,6 +210,8 @@ export default function Admin() {
     };
   }, [images]);
 
+  const selectionCount = selectedImageIds.length;
+
   const fetchMessages = async () => {
     try {
       const data = await getMessages();
@@ -280,6 +295,76 @@ export default function Admin() {
   const clearSelectedFiles = () => {
     setSelectedFiles([]);
     if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const enableSelectionMode = () => {
+    if (!allowMediaDelete) {
+      showAlert('Media deletion is disabled in this environment configurations.', 'Action Blocked');
+      return;
+    }
+    setIsSelectionMode(true);
+  };
+
+  const exitSelectionMode = () => {
+    setIsSelectionMode(false);
+    setSelectedImageIds([]);
+  };
+
+  const toggleImageSelection = (imageId) => {
+    setSelectedImageIds(prev => (
+      prev.includes(imageId)
+        ? prev.filter(id => id !== imageId)
+        : [...prev, imageId]
+    ));
+  };
+
+  const selectAllFiltered = () => {
+    if (!allowMediaDelete) {
+      showAlert('Media deletion is disabled in this environment configurations.', 'Action Blocked');
+      return;
+    }
+    if (!isSelectionMode) setIsSelectionMode(true);
+    setSelectedImageIds(filteredImages.map(img => img._id));
+  };
+
+  const handleBulkDelete = () => {
+    if (!allowMediaDelete) {
+      showAlert('Media deletion is disabled in this environment configurations.', 'Action Blocked');
+      return;
+    }
+    if (selectedImageIds.length === 0) {
+      showAlert('Please select at least one media item to delete.', 'No Media Selected');
+      return;
+    }
+
+    showConfirm(
+      `Are you sure you want to delete ${selectedImageIds.length} media item${selectedImageIds.length > 1 ? 's' : ''}? This action cannot be undone.`,
+      async () => {
+        try {
+          setBulkDeleting(true);
+          const ids = [...selectedImageIds];
+          const results = await Promise.allSettled(ids.map(id => deleteImage(id)));
+          const successes = results.filter(result => result.status === 'fulfilled').length;
+          const failures = ids.length - successes;
+
+          if (successes) {
+            showToast(successes > 1 ? 'Selected media deleted successfully' : 'Media deleted successfully');
+            await fetchImages();
+          }
+
+          if (failures) {
+            showAlert('Some media could not be deleted. Please try again.', 'Partial Deletion');
+          }
+        } catch (error) {
+          console.error(error);
+          showAlert('Failed to delete the selected media. Please try again.', 'Deletion Failed');
+        } finally {
+          setBulkDeleting(false);
+          exitSelectionMode();
+        }
+      },
+      'Delete Selected Media'
+    );
   };
 
   // Gallery Handlers
@@ -567,45 +652,6 @@ export default function Admin() {
             <div className="bg-white p-8 border border-gold-light shadow-sm mb-12">
               <h2 className="font-cinzel text-2xl mb-6 text-gold-primary">Upload Media</h2>
               <form onSubmit={handleImageUpload} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block font-cinzel text-sm text-text-dark mb-2">Title</label>
-                    <input type="text" value={imgForm.title} onChange={e => setImgForm({...imgForm, title: e.target.value})} className="w-full border-b-2 border-gold-pale focus:border-gold-primary focus:outline-none p-2 font-cormorant" required />
-                  </div>
-                  <div>
-                    <label className="block font-cinzel text-sm text-text-dark mb-2">Category</label>
-                    <select value={imgForm.category} onChange={e => setImgForm({...imgForm, category: e.target.value})} className="w-full border-b-2 border-gold-pale focus:border-gold-primary focus:outline-none p-2 font-cormorant">
-                      {GALLERY_CATEGORIES.filter(c => c !== 'All').map(c => <option key={c}>{c}</option>)}
-                    </select>
-                  </div>
-                </div>
-
-                <div
-                  onDrop={handleDropFiles}
-                  onDragOver={handleDragOver}
-                  className="border-2 border-dashed border-gold-light rounded-sm bg-bg-section/60 p-6 text-center transition hover:border-gold-primary"
-                >
-                  <input
-                    ref={fileInputRef}
-                    id="gallery-file-upload"
-                    type="file"
-                    multiple
-                    onChange={handleFileInputChange}
-                    className="hidden"
-                    accept="image/*,video/*"
-                  />
-                  <label htmlFor="gallery-file-upload" className="flex flex-col items-center gap-3 cursor-pointer">
-                    <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-white border border-gold-light text-gold-primary">
-                      <ImageIcon size={22} />
-                    </span>
-                    <div>
-                      <p className="font-cinzel text-base text-text-dark">Drop files here or click to browse</p>
-                      <p className="text-sm font-cormorant text-text-muted">JPEG, PNG, WEBP, MP4 up to 100MB each</p>
-                    </div>
-                    <span className="btn-gold mt-2 inline-flex items-center gap-2 px-5 py-2 text-sm">Browse Files</span>
-                  </label>
-                </div>
-
                 {selectedFiles.length > 0 && (
                   <div className="border border-gold-light bg-white rounded-sm p-4">
                     <div className="flex items-center justify-between mb-4">
@@ -641,90 +687,21 @@ export default function Admin() {
                     </div>
                   </div>
                 )}
-
-                <div className="flex flex-wrap gap-3 justify-end">
-                  <button
-                    type="button"
-                    onClick={clearSelectedFiles}
-                    disabled={selectedFiles.length === 0}
-                    className="font-cinzel text-sm uppercase tracking-wide border px-5 py-2 transition border-gold-light text-text-dark disabled:opacity-40 disabled:cursor-not-allowed"
-                  >
-                    Clear Selection
-                  </button>
-                  <button type="submit" disabled={uploadingImg || selectedFiles.length === 0} className="btn-gold h-[42px] disabled:opacity-50 flex items-center gap-2">
-                    {uploadingImg && <Loader2 size={18} className="animate-spin" />}
-                    {uploadingImg ? 'Uploading…' : selectedFiles.length > 1 ? `Upload ${selectedFiles.length} files` : 'Upload'}
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            {activeUploads.length > 0 && (
-              <div className="bg-white p-6 border border-gold-light shadow-sm mb-12">
-                <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
-                  <div>
-                    <h3 className="font-cinzel text-xl text-text-dark">Live Uploads</h3>
-                    <p className="text-sm text-text-muted font-cormorant">Track progress, ETA, and cancel uploads in real time.</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={cancelAllUploads}
-                    disabled={!activeUploads.some(upload => upload.status === 'uploading')}
-                    className="font-cinzel text-sm uppercase tracking-wide border px-4 py-2 transition disabled:opacity-40 disabled:cursor-not-allowed border-gold-light text-text-dark hover:bg-gold-primary hover:text-white"
-                  >
-                    Cancel All
-                  </button>
-                </div>
-
-                <div className="space-y-4">
-                  <AnimatePresence>
-                  {activeUploads.map(upload => {
-                    const statusMeta = getStatusMeta(upload.status);
-                    const isInProgress = upload.status === 'uploading';
-                    return (
-                      <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        key={upload.id} 
-                        className={`p-5 border bg-white rounded-sm hover:shadow-md transition-shadow relative overflow-hidden group ${
-                          upload.status === 'completed' ? 'border-green-200' :
-                          upload.status === 'error' ? 'border-red-200' :
-                          upload.status === 'canceled' ? 'border-gray-200' :
-                          'border-gold-light'
-                        }`}
-                      >
-                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 relative z-10">
-                          <div className="flex-1 min-w-0 pr-4">
-                            <p className="font-cinzel text-base text-text-dark truncate font-semibold" title={upload.name}>{upload.name}</p>
-                            <div className="flex flex-wrap items-center gap-x-3 text-xs font-cormorant mt-2 text-text-muted">
-                              <span className="font-medium bg-bg-section px-2 py-0.5 rounded-sm">{formatBytes(upload.size)}</span>
-                              {upload.category && (
-                                <span className="px-2 py-0.5 bg-gold-pale text-gold-primary font-cinzel uppercase tracking-wide text-[10px] rounded-sm">
-                                  {upload.category}
-                                </span>
-                              )}
-                              <span className={upload.status === 'uploading' ? 'text-gold-primary animate-pulse font-medium' : ''}>
-                                {upload.eta || 'Calculating…'}
-                              </span>
-                              <span>•</span>
-                              <span className="tabular-nums font-bold tracking-wide">
-                                {upload.progress}%
-                              </span>
-                            </div>
-                          </div>
-                          
-                          <div className="flex items-center gap-5">
-                            <div className={`flex items-center gap-1.5 text-sm ${statusMeta.color}`}>
-                              {statusMeta.icon}
-                              <span className="font-cinzel text-xs uppercase tracking-wider font-bold">{statusMeta.label}</span>
-                            </div>
-                            {isInProgress && (
-                              <button
-                                type="button"
-                                onClick={() => cancelUpload(upload.id)}
-                                className="font-cinzel text-[11px] uppercase tracking-wider border px-4 py-1.5 transition border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300 active:bg-red-100"
-                              >
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={enableSelectionMode}
+                              disabled={filteredImages.length === 0}
+                              className="text-xs font-cinzel uppercase tracking-wide border px-4 py-2 transition border-gold-light text-text-dark hover:bg-bg-section disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                              Enable Selection
+                            </button>
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-xs font-cormorant text-red-600 ml-auto">Media deletion is disabled for this deployment.</p>
+                      )}
+                    </div>
                                 Cancel
                               </button>
                             )}
@@ -855,6 +832,57 @@ export default function Admin() {
               </div>
             </div>
 
+            <div className="bg-white p-5 border border-gold-light shadow-sm mb-8 flex flex-wrap items-center gap-4">
+              <div>
+                <p className="font-cinzel text-sm text-text-dark uppercase tracking-wide">Bulk Actions</p>
+                <p className="text-xs text-text-muted font-cormorant">Select multiple media items to delete them together.</p>
+              </div>
+              {allowMediaDelete ? (
+                <div className="flex flex-wrap items-center gap-2 ml-auto">
+                  {isSelectionMode ? (
+                    <>
+                      <span className="text-sm font-cinzel text-text-dark uppercase tracking-wide">Selected: {selectionCount}</span>
+                      <button
+                        type="button"
+                        onClick={selectAllFiltered}
+                        disabled={filteredImages.length === 0 || selectionCount === filteredImages.length}
+                        className="text-xs font-cinzel uppercase tracking-wide border px-3 py-1.5 transition border-gold-light text-text-dark disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        Select Visible
+                      </button>
+                      <button
+                        type="button"
+                        onClick={exitSelectionMode}
+                        className="text-xs font-cinzel uppercase tracking-wide border px-3 py-1.5 transition border-gold-light text-text-dark"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleBulkDelete}
+                        disabled={selectionCount === 0 || bulkDeleting}
+                        className="flex items-center gap-2 text-xs font-cinzel uppercase tracking-wide border px-4 py-2 transition border-red-500 text-red-600 hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                      >
+                        {bulkDeleting && <Loader2 size={14} className="animate-spin" />}
+                        <Trash2 size={14} /> Delete Selected
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={enableSelectionMode}
+                      disabled={filteredImages.length === 0}
+                      className="text-xs font-cinzel uppercase tracking-wide border px-4 py-2 transition border-gold-light text-text-dark hover:bg-bg-section disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      Enable Selection
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <p className="text-xs font-cormorant text-red-600 ml-auto">Media deletion is disabled for this deployment.</p>
+              )}
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
               {galleryLoading && (
                 <div className="col-span-full flex justify-center py-12 text-gold-primary">
@@ -873,8 +901,17 @@ export default function Admin() {
 
               {filteredImages.map(img => {
                 const isVideo = VIDEO_EXTENSIONS.test(img.url || '');
+                const isSelected = selectedImageIds.includes(img._id);
+                const cardClasses = `bg-white rounded-sm shadow-sm overflow-hidden group relative ${
+                  isSelected ? 'border-2 border-gold-primary ring-1 ring-gold-primary/40' : 'border border-gold-light'
+                } ${isSelectionMode ? 'cursor-pointer' : ''}`;
+
                 return (
-                  <div key={img._id} className="bg-white border border-gold-light rounded-sm shadow-sm overflow-hidden group">
+                  <div
+                    key={img._id}
+                    className={cardClasses}
+                    onClick={isSelectionMode ? () => toggleImageSelection(img._id) : undefined}
+                  >
                     <div className="relative">
                       {isVideo ? (
                         <video
@@ -888,14 +925,34 @@ export default function Admin() {
                         <img src={img.url} alt={img.title} className="w-full aspect-square object-cover" loading="lazy" />
                       )}
                       <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-3">
-                        <button type="button" onClick={() => handleOpenMedia(img.url)} className="bg-white/90 text-text-dark px-3 py-1 text-xs font-cinzel uppercase tracking-wide flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={event => { event.stopPropagation(); handleOpenMedia(img.url); }}
+                          className="bg-white/90 text-text-dark px-3 py-1 text-xs font-cinzel uppercase tracking-wide flex items-center gap-1"
+                        >
                           <Eye size={14} /> View
                         </button>
-                        <button type="button" onClick={() => handleCopyImageUrl(img)} className="bg-white/90 text-text-dark px-3 py-1 text-xs font-cinzel uppercase tracking-wide flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={event => { event.stopPropagation(); handleCopyImageUrl(img); }}
+                          className="bg-white/90 text-text-dark px-3 py-1 text-xs font-cinzel uppercase tracking-wide flex items-center gap-1"
+                        >
                           <Copy size={14} /> {copiedImageId === img._id ? 'Copied' : 'Copy'}
                         </button>
                       </div>
                       {isVideo && <span className="absolute top-3 left-3 bg-black/70 text-white text-[10px] font-cinzel px-2 py-0.5 uppercase tracking-wide">Video</span>}
+                      {isSelectionMode && (
+                        <button
+                          type="button"
+                          aria-pressed={isSelected}
+                          onClick={event => { event.stopPropagation(); toggleImageSelection(img._id); }}
+                          className={`absolute top-3 right-3 w-7 h-7 rounded-full border-2 flex items-center justify-center transition ${
+                            isSelected ? 'bg-gold-primary border-gold-primary text-white' : 'bg-white border-gold-light text-transparent'
+                          }`}
+                        >
+                          <Check size={14} />
+                        </button>
+                      )}
                     </div>
                     <div className="p-3 space-y-2">
                       <div className="flex items-baseline justify-between gap-2">
@@ -907,7 +964,7 @@ export default function Admin() {
                           {img.category || 'Uncategorized'}
                         </span>
                         <button
-                          onClick={() => handleImageDelete(img._id)}
+                          onClick={event => { event.stopPropagation(); handleImageDelete(img._id); }}
                           disabled={!allowMediaDelete}
                           className={`text-xs font-cinzel uppercase tracking-wide border px-2 py-1 transition ${
                             allowMediaDelete ? 'border-red-300 text-red-500 hover:bg-red-50' : 'border-gold-light text-text-muted cursor-not-allowed'

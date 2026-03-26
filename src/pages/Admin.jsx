@@ -38,6 +38,7 @@ export default function Admin() {
   const [notification, setNotification] = useState('');
 
   const adminPass = import.meta.env.VITE_ADMIN_PASSWORD;
+  const allowMediaDelete = import.meta.env.VITE_ALLOW_MEDIA_DELETE === 'true';
 
   useEffect(() => {
     if (auth) {
@@ -211,6 +212,10 @@ export default function Admin() {
   };
 
   const handleImageDelete = async (id) => {
+    if (!allowMediaDelete) {
+      alert('Media deletion is disabled in this environment.');
+      return;
+    }
     if (!window.confirm('Delete this image?')) return;
     try {
       await deleteImage(id);
@@ -312,7 +317,7 @@ export default function Admin() {
       <div className="max-w-[1200px] mx-auto px-4">
         <h1 className="font-cinzel text-4xl text-text-dark mb-8 uppercase tracking-wide">Admin Dashboard</h1>
 
-        <div className="flex space-x-4 mb-8">
+        <div className="flex flex-wrap gap-4 mb-8">
           <button onClick={() => setActiveTab('gallery')} className={`font-cinzel uppercase px-6 py-2 transition-colors ${activeTab === 'gallery' ? 'bg-gold-primary text-white' : 'border border-gold-light text-text-dark bg-white'}`}>Gallery</button>
           <button onClick={() => setActiveTab('events')} className={`font-cinzel uppercase px-6 py-2 transition-colors ${activeTab === 'events' ? 'bg-gold-primary text-white' : 'border border-gold-light text-text-dark bg-white'}`}>Events</button>
           <button onClick={() => setActiveTab('messages')} className={`font-cinzel uppercase px-6 py-2 transition-colors ${activeTab === 'messages' ? 'bg-gold-primary text-white' : 'border border-gold-light text-text-dark bg-white'}`}>Messages</button>
@@ -322,7 +327,7 @@ export default function Admin() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="bg-white p-8 border border-gold-light shadow-sm mb-12">
               <h2 className="font-cinzel text-2xl mb-6 text-gold-primary">Upload Media</h2>
-              <form onSubmit={handleImageUpload} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+              <form onSubmit={handleImageUpload} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
                 <div>
                   <label className="block font-cinzel text-sm text-text-dark mb-2">Title</label>
                   <input type="text" value={imgForm.title} onChange={e => setImgForm({...imgForm, title: e.target.value})} className="w-full border-b-2 border-gold-pale focus:border-gold-primary focus:outline-none p-2 font-cormorant" required />
@@ -401,19 +406,34 @@ export default function Admin() {
               </div>
             )}
 
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
               {images.map(img => {
                 const isVideo = img.url.match(/\.(mp4|webm|ogg|mov)$/i);
                 return (
                   <div key={img._id} className="bg-white border border-gold-light p-2 relative group">
                     {isVideo ? (
-                      <video src={img.url} className="w-full aspect-square object-cover mb-2" muted loop playsInline />
+                      <div className="w-full bg-black/80 rounded-sm overflow-hidden mb-2">
+                        <video
+                          src={img.url}
+                          className="w-full h-auto max-h-[320px] object-contain"
+                          controls
+                          playsInline
+                          preload="metadata"
+                        />
+                      </div>
                     ) : (
-                      <img src={img.url} alt={img.title} className="w-full aspect-square object-cover mb-2" />
+                      <img src={img.url} alt={img.title} className="w-full aspect-square object-cover mb-2 rounded-sm" />
                     )}
                     <p className="font-cinzel text-sm truncate">{img.title}</p>
                     <span className="text-xs bg-gold-pale text-gold-primary px-2 py-0.5 mt-1 inline-block">{img.category}</span>
-                    <button onClick={() => handleImageDelete(img._id)} className="absolute top-4 right-4 bg-red-500 text-white w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-lg">X</button>
+                    <button
+                      onClick={() => handleImageDelete(img._id)}
+                      disabled={!allowMediaDelete}
+                      className={`absolute top-4 right-4 bg-red-500 text-white w-8 h-8 flex items-center justify-center opacity-0 group-hover:opacity-100 transition shadow-lg ${!allowMediaDelete ? 'cursor-not-allowed opacity-40 group-hover:opacity-40' : ''}`}
+                      title={allowMediaDelete ? 'Delete media' : 'Deletion disabled in this environment'}
+                    >
+                      X
+                    </button>
                   </div>
                 );
               })}

@@ -11,6 +11,13 @@ const fadeUp = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
 };
 
+const VIDEO_REGEX = /\.(mp4|webm|ogg|mov)(\?.*)?$/i;
+const normalizeMediaUrl = (url = '') => {
+  const sanitized = (url ?? '').replace(/\+/g, '%20');
+  return sanitized.includes('?') ? `${sanitized}&v=2` : `${sanitized}?v=2`;
+};
+const isVideo = (url = '') => VIDEO_REGEX.test(url);
+
 export default function Gallery() {
   const [activeFilter, setActiveFilter] = useState('All');
   const [lightboxIndex, setLightboxIndex] = useState(null);
@@ -25,10 +32,10 @@ export default function Gallery() {
     setLoading(true);
     try {
       const data = await getImages(activeFilter);
-      // Give each an alternating aspect ratio to maintain masonry feel
+      // Give each an alternating aspect ratio to maintain masonry feel (images only)
       const itemsWithAspect = data.map((item, i) => ({
         ...item,
-        url: item.url.replace(/\+/g, '%20') + '?v=2',
+        url: normalizeMediaUrl(item.url),
         aspectRatio: i % 3 === 0 ? 'aspect-square' : i % 2 === 0 ? 'aspect-video' : 'aspect-[3/4]'
       }));
       setGalleryItems(itemsWithAspect);
@@ -95,42 +102,49 @@ export default function Gallery() {
         ) : galleryItems.length > 0 ? (
           <motion.div layout className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6">
             <AnimatePresence>
-              {galleryItems.map((item, index) => (
-                <motion.div
-                  layout
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  transition={{ duration: 0.3 }}
-                  key={item._id}
-                  className="break-inside-avoid"
-                >
-                  <div 
-                    className={`relative w-full ${item.aspectRatio} bg-white border border-gold-light overflow-hidden group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300`}
-                    onClick={() => openLightbox(index)}
+              {galleryItems.map((item, index) => {
+                const videoItem = isVideo(item.url);
+                const ratioClass = videoItem ? '' : item.aspectRatio;
+                return (
+                  <motion.div
+                    layout
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
+                    transition={{ duration: 0.3 }}
+                    key={item._id}
+                    className="break-inside-avoid"
                   >
-                    {item.url.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i) ? (
-                      <video 
-                        src={item.url} 
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-                        muted loop playsInline autoPlay
-                      />
-                    ) : (
-                      <img 
-                        src={item.url} 
-                        alt={item.title} 
-                        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
-                      />
-                    )}
-                    
-                    {/* Hover Overlay */}
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center pointer-events-none">
-                      <ZoomIn className="text-white mb-2" size={32} />
-                      <span className="font-cinzel text-white tracking-widest text-sm">{item.category}</span>
+                    <div 
+                      className={`relative w-full ${ratioClass} bg-white border border-gold-light overflow-hidden group cursor-pointer shadow-sm hover:shadow-lg transition-all duration-300`}
+                      onClick={() => openLightbox(index)}
+                    >
+                      {videoItem ? (
+                        <video 
+                          src={item.url} 
+                          className="w-full h-auto block transition-transform duration-700 group-hover:scale-[1.01]"
+                          muted
+                          loop
+                          playsInline
+                          autoPlay
+                        />
+                      ) : (
+                        <img 
+                          src={item.url} 
+                          alt={item.title} 
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                        />
+                      )}
+                      
+                      {/* Hover Overlay */}
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center pointer-events-none">
+                        <ZoomIn className="text-white mb-2" size={32} />
+                        <span className="font-cinzel text-white tracking-widest text-sm">{item.category}</span>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                );
+              })}
             </AnimatePresence>
           </motion.div>
         ) : (
@@ -166,14 +180,18 @@ export default function Gallery() {
               <ChevronRight size={48} />
             </button>
 
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className={`relative bg-black w-full max-w-5xl max-h-[85vh] ${currentItem.aspectRatio} min-h-[50vh] flex flex-col border border-gold-primary/30`}
-              onClick={e => e.stopPropagation()}
-            >
-              {isVideo(currentItem.url) ? (
+            {(() => {
+              const currentIsVideo = isVideo(currentItem.url);
+              const modalRatio = currentIsVideo ? '' : currentItem.aspectRatio;
+              return (
+                <motion.div
+                  initial={{ scale: 0.9, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0.9, opacity: 0 }}
+                  className={`relative bg-black w-full max-w-5xl max-h-[85vh] ${modalRatio} min-h-[50vh] flex flex-col border border-gold-primary/30`}
+                  onClick={e => e.stopPropagation()}
+                >
+                  {currentIsVideo ? (
                 <video 
                   src={currentItem.url}
                   className="w-full h-full object-contain" 
@@ -190,7 +208,9 @@ export default function Gallery() {
                 <h3 className="font-cinzel text-xl text-white uppercase tracking-wide">{currentItem.title}</h3>
                 <p className="font-cormorant text-gold-light mt-1">Category: {currentItem.category}</p>
               </div>
-            </motion.div>
+                </motion.div>
+              );
+            })()}
           </motion.div>
         )}
       </AnimatePresence>

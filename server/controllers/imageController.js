@@ -1,6 +1,8 @@
 import Image from '../models/Image.js';
 import cloudinary from '../config/cloudinary.js';
 
+const allowMediaDelete = (process.env.ALLOW_MEDIA_DELETE || '').toLowerCase() === 'true';
+
 export const getImages = async (req, res) => {
   try {
     const { category } = req.query;
@@ -35,6 +37,10 @@ export const uploadImage = async (req, res) => {
 };
 
 export const deleteImage = async (req, res) => {
+  if (!allowMediaDelete) {
+    return res.status(403).json({ message: 'Media deletion is disabled in this environment' });
+  }
+
   try {
     const image = await Image.findById(req.params.id);
     if (!image) return res.status(404).json({ message: 'Image not found' });

@@ -61,6 +61,9 @@ app.use('/api/events', eventRoutes);
 app.use('/api/messages', messageRoutes);
 
 // Static files for production
+const uploadsPath = path.join(__dirname, '../uploads');
+app.use('/uploads', express.static(uploadsPath));
+
 const distPath = path.join(__dirname, '../dist');
 app.use(express.static(distPath));
 

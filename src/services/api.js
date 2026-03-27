@@ -19,6 +19,9 @@ export const uploadImage = (formData, options = {}) => {
 export const deleteImage = (id) => 
   api.delete(`/api/images/${id}`).then(res => res.data);
 
+export const getMediaSettings = () => 
+  api.get('/api/images/settings').then(res => res.data);
+
 
 // Event API
 export const getEvents = () => 

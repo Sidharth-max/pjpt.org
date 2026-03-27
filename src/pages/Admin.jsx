@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, CheckCircle2, AlertTriangle, XCircle, Copy, Eye, Filter, Search, Trash2, Check, Image as ImageIcon, Video as VideoIcon, UploadCloud } from 'lucide-react';
-import { getImages, uploadImage, deleteImage, getEvents, createEvent, updateEvent, deleteEvent, getMessages, deleteMessage } from '../services/api';
+import { getImages, uploadImage, deleteImage, getEvents, createEvent, updateEvent, deleteEvent, getMessages, deleteMessage, getMediaSettings } from '../services/api';
 
 const formatBytes = (bytes = 0) => {
   if (!bytes) return '0 B';
@@ -70,9 +70,42 @@ export default function Admin() {
   });
 
   const adminPass = import.meta.env.VITE_ADMIN_PASSWORD;
-  const allowMediaDelete = import.meta.env.VITE_ALLOW_MEDIA_DELETE === 'true';
-  const allowMediaUpload = import.meta.env.VITE_ALLOW_MEDIA_UPLOAD === 'true';
-  const uploadsDisabledMessage = 'Media uploads are disabled in this environment. Please contact the administrator to re-enable them.';
+  const uploadsDisabledFallbackMessage = 'Media uploads are disabled in this environment. Please contact the administrator to re-enable them.';
+  const deleteDisabledFallbackMessage = 'Media deletion is disabled in this environment configurations.';
+  const initialUploadAllowed = import.meta.env.VITE_ALLOW_MEDIA_UPLOAD === 'true';
+  const initialDeleteAllowed = import.meta.env.VITE_ALLOW_MEDIA_DELETE === 'true';
+
+  const [mediaSettings, setMediaSettings] = useState({
+    allowUpload: initialUploadAllowed,
+    uploadReason: initialUploadAllowed ? '' : uploadsDisabledFallbackMessage,
+    allowDelete: initialDeleteAllowed,
+    deleteReason: initialDeleteAllowed ? '' : deleteDisabledFallbackMessage,
+    missingUploadEnv: []
+  });
+
+  const allowMediaUpload = mediaSettings.allowUpload;
+  const allowMediaDelete = mediaSettings.allowDelete;
+  const uploadsDisabledMessage = mediaSettings.uploadReason || uploadsDisabledFallbackMessage;
+  const deleteDisabledMessage = mediaSettings.deleteReason || deleteDisabledFallbackMessage;
+
+  useEffect(() => {
+    const syncMediaSettings = async () => {
+      try {
+        const settings = await getMediaSettings();
+        setMediaSettings(prev => ({
+          allowUpload: typeof settings.allowUpload === 'boolean' ? settings.allowUpload : prev.allowUpload,
+          uploadReason: settings.allowUpload ? '' : settings.uploadReason || uploadsDisabledFallbackMessage,
+          allowDelete: typeof settings.allowDelete === 'boolean' ? settings.allowDelete : prev.allowDelete,
+          deleteReason: settings.allowDelete ? '' : settings.deleteReason || deleteDisabledFallbackMessage,
+          missingUploadEnv: Array.isArray(settings.missingUploadEnv) ? settings.missingUploadEnv : prev.missingUploadEnv
+        }));
+      } catch (error) {
+        console.warn('Unable to fetch media settings from server', error);
+      }
+    };
+
+    syncMediaSettings();
+  }, [uploadsDisabledFallbackMessage, deleteDisabledFallbackMessage]);
 
   useEffect(() => {
     if (auth) {
@@ -309,7 +342,7 @@ export default function Admin() {
 
   const enableSelectionMode = () => {
     if (!allowMediaDelete) {
-      showAlert('Media deletion is disabled in this environment configurations.', 'Action Blocked');
+      showAlert(deleteDisabledMessage, 'Action Blocked');
       return;
     }
     setIsSelectionMode(true);
@@ -330,7 +363,7 @@ export default function Admin() {
 
   const selectAllFiltered = () => {
     if (!allowMediaDelete) {
-      showAlert('Media deletion is disabled in this environment configurations.', 'Action Blocked');
+      showAlert(deleteDisabledMessage, 'Action Blocked');
       return;
     }
     if (!isSelectionMode) setIsSelectionMode(true);
@@ -339,7 +372,7 @@ export default function Admin() {
 
   const handleBulkDelete = () => {
     if (!allowMediaDelete) {
-      showAlert('Media deletion is disabled in this environment configurations.', 'Action Blocked');
+      showAlert(deleteDisabledMessage, 'Action Blocked');
       return;
     }
     if (selectedImageIds.length === 0) {
@@ -470,7 +503,7 @@ export default function Admin() {
 
   const handleImageDelete = async (id) => {
     if (!allowMediaDelete) {
-      showAlert('Media deletion is disabled in this environment configurations.', 'Action Blocked');
+      showAlert(deleteDisabledMessage, 'Action Blocked');
       return;
     }
     
@@ -1009,7 +1042,7 @@ export default function Admin() {
                   )}
                 </div>
               ) : (
-                <p className="text-xs font-cormorant text-red-600 ml-auto">Media deletion is disabled for this deployment.</p>
+                <p className="text-xs font-cormorant text-red-600 ml-auto">{deleteDisabledMessage}</p>
               )}
             </div>
 

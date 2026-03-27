@@ -4,6 +4,7 @@ import { uploadFileToS3, deleteFileFromS3 } from '../utils/s3Media.js';
 const allowMediaDelete = (process.env.ALLOW_MEDIA_DELETE || '').toLowerCase() === 'true';
 const allowMediaUpload = (process.env.ALLOW_MEDIA_UPLOAD || '').toLowerCase() === 'true';
 const requiredUploadEnv = ['AWS_REGION', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_BUCKET_NAME'];
+const mediaDeletionDisabledMessage = 'Media deletion is disabled in this environment.';
 
 const getUploadAvailability = () => {
   if (!allowMediaUpload) {
@@ -17,11 +18,24 @@ const getUploadAvailability = () => {
   if (missing.length) {
     return {
       allowed: false,
-      reason: `Media uploads are blocked until the following environment variables are configured: ${missing.join(', ')}`
+      reason: `Media uploads are blocked until the following environment variables are configured: ${missing.join(', ')}`,
+      missingEnv: missing
     };
   }
 
-  return { allowed: true };
+  return { allowed: true, missingEnv: [] };
+};
+
+export const getMediaSettings = (_req, res) => {
+  const availability = getUploadAvailability();
+
+  res.json({
+    allowUpload: availability.allowed,
+    uploadReason: availability.allowed ? null : availability.reason,
+    missingUploadEnv: availability.missingEnv || [],
+    allowDelete: allowMediaDelete,
+    deleteReason: allowMediaDelete ? null : mediaDeletionDisabledMessage
+  });
 };
 
 export const getImages = async (req, res) => {
@@ -66,7 +80,7 @@ export const uploadImage = async (req, res) => {
 
 export const deleteImage = async (req, res) => {
   if (!allowMediaDelete) {
-    return res.status(403).json({ message: 'Media deletion is disabled in this environment' });
+    return res.status(403).json({ message: mediaDeletionDisabledMessage });
   }
 
   try {

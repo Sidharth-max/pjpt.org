@@ -1,3 +1,4 @@
+import './env.js';
 import { S3Client } from '@aws-sdk/client-s3';
 
 const requiredEnv = ['AWS_REGION', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_BUCKET_NAME'];

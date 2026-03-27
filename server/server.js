@@ -1,8 +1,7 @@
+import './config/env.js';
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import path from 'path';
-import fs from 'fs';
 import { fileURLToPath } from 'url';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -15,16 +14,6 @@ import messageRoutes from './routes/messageRoutes.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const envFiles = [
-  { file: path.join(__dirname, '../.env'), override: false },
-  { file: path.join(__dirname, '.env'), override: true }
-];
-
-envFiles.forEach(({ file, override }) => {
-  if (fs.existsSync(file)) {
-    dotenv.config({ path: file, override });
-  }
-});
 connectDB();
 
 const app = express();

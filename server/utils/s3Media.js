@@ -1,3 +1,4 @@
+import '../config/env.js';
 import { PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import crypto from 'crypto';
 import s3Client from '../config/s3Client.js';

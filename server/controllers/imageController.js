@@ -2,6 +2,27 @@ import Image from '../models/Image.js';
 import { uploadFileToS3, deleteFileFromS3 } from '../utils/s3Media.js';
 
 const allowMediaDelete = (process.env.ALLOW_MEDIA_DELETE || '').toLowerCase() === 'true';
+const allowMediaUpload = (process.env.ALLOW_MEDIA_UPLOAD || '').toLowerCase() === 'true';
+const requiredUploadEnv = ['AWS_REGION', 'AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_BUCKET_NAME'];
+
+const getUploadAvailability = () => {
+  if (!allowMediaUpload) {
+    return {
+      allowed: false,
+      reason: 'Media uploads are disabled in this environment.'
+    };
+  }
+
+  const missing = requiredUploadEnv.filter((key) => !process.env[key]);
+  if (missing.length) {
+    return {
+      allowed: false,
+      reason: `Media uploads are blocked until the following environment variables are configured: ${missing.join(', ')}`
+    };
+  }
+
+  return { allowed: true };
+};
 
 export const getImages = async (req, res) => {
   try {
@@ -19,6 +40,11 @@ export const getImages = async (req, res) => {
 
 export const uploadImage = async (req, res) => {
   try {
+    const availability = getUploadAvailability();
+    if (!availability.allowed) {
+      return res.status(503).json({ message: availability.reason });
+    }
+
     const { title, category } = req.body;
     if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
 

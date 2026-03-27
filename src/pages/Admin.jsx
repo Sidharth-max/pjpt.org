@@ -71,6 +71,8 @@ export default function Admin() {
 
   const adminPass = import.meta.env.VITE_ADMIN_PASSWORD;
   const allowMediaDelete = import.meta.env.VITE_ALLOW_MEDIA_DELETE === 'true';
+  const allowMediaUpload = import.meta.env.VITE_ALLOW_MEDIA_UPLOAD === 'true';
+  const uploadsDisabledMessage = 'Media uploads are disabled in this environment. Please contact the administrator to re-enable them.';
 
   useEffect(() => {
     if (auth) {
@@ -256,6 +258,10 @@ export default function Admin() {
   const generateFileKey = (file) => `${file.name}-${file.lastModified}-${file.size}`;
 
   const handleFileSelection = (filesList) => {
+    if (!allowMediaUpload) {
+      showAlert(uploadsDisabledMessage, 'Uploads Disabled');
+      return;
+    }
     const incoming = Array.from(filesList || []);
     if (!incoming.length) return;
     setSelectedFiles(prev => {
@@ -279,13 +285,17 @@ export default function Admin() {
 
   const handleDropFiles = (event) => {
     event.preventDefault();
+    if (!allowMediaUpload) {
+      showAlert(uploadsDisabledMessage, 'Uploads Disabled');
+      return;
+    }
     handleFileSelection(event.dataTransfer.files);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleDragOver = (event) => {
     event.preventDefault();
-    event.dataTransfer.dropEffect = 'copy';
+    event.dataTransfer.dropEffect = allowMediaUpload ? 'copy' : 'none';
   };
 
   const removeSelectedFile = (fileKey) => {
@@ -370,6 +380,10 @@ export default function Admin() {
   // Gallery Handlers
   const handleImageUpload = async (e) => {
     e.preventDefault();
+    if (!allowMediaUpload) {
+      showAlert(uploadsDisabledMessage, 'Uploads Disabled');
+      return;
+    }
     const files = [...selectedFiles];
     if (!files.length || !imgForm.title) return showAlert('Please select file(s) and provide a title before uploading.', 'Missing Requirements');
     setUploadingImg(true);
@@ -651,6 +665,11 @@ export default function Admin() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="bg-white p-8 border border-gold-light shadow-sm mb-12">
               <h2 className="font-cinzel text-2xl mb-6 text-gold-primary">Upload Media</h2>
+              {!allowMediaUpload && (
+                <div className="mb-6 border border-amber-200 bg-amber-50 text-amber-900 px-4 py-3 rounded-sm font-cormorant text-lg">
+                  {uploadsDisabledMessage}
+                </div>
+              )}
               <form onSubmit={handleImageUpload} className="space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
@@ -681,7 +700,8 @@ export default function Admin() {
                 <div
                   onDrop={handleDropFiles}
                   onDragOver={handleDragOver}
-                  className="border-2 border-dashed border-gold-light rounded-sm bg-bg-section/60 px-6 py-10 text-center transition hover:border-gold-primary"
+                  aria-disabled={!allowMediaUpload}
+                  className={`border-2 border-dashed border-gold-light rounded-sm bg-bg-section/60 px-6 py-10 text-center transition ${allowMediaUpload ? 'hover:border-gold-primary' : 'opacity-50 cursor-not-allowed'}`}
                 >
                   <div className="flex flex-col items-center gap-3">
                     <UploadCloud size={40} className="text-gold-primary" />
@@ -690,7 +710,8 @@ export default function Admin() {
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="btn-gold px-6 py-2"
+                      disabled={!allowMediaUpload}
+                      className={`btn-gold px-6 py-2 ${!allowMediaUpload ? 'opacity-50 cursor-not-allowed' : ''}`}
                     >
                       Browse Files
                     </button>
@@ -700,6 +721,7 @@ export default function Admin() {
                       multiple
                       accept="image/*,video/*"
                       onChange={handleFileInputChange}
+                      disabled={!allowMediaUpload}
                       className="hidden"
                     />
                   </div>
@@ -744,7 +766,7 @@ export default function Admin() {
                 <div className="flex flex-wrap items-center gap-3">
                   <button
                     type="submit"
-                    disabled={uploadingImg || selectedFiles.length === 0}
+                    disabled={uploadingImg || selectedFiles.length === 0 || !allowMediaUpload}
                     className="btn-gold px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {uploadingImg ? 'Uploading…' : selectedFiles.length ? `Upload ${selectedFiles.length} File${selectedFiles.length > 1 ? 's' : ''}` : 'Upload Files'}

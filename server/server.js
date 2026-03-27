@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
+import fs from 'fs';
 import { fileURLToPath } from 'url';
 import helmet from 'helmet';
 import compression from 'compression';
@@ -14,7 +15,16 @@ import messageRoutes from './routes/messageRoutes.js';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-dotenv.config({ path: path.join(__dirname, '.env') });
+const envFiles = [
+  { file: path.join(__dirname, '../.env'), override: false },
+  { file: path.join(__dirname, '.env'), override: true }
+];
+
+envFiles.forEach(({ file, override }) => {
+  if (fs.existsSync(file)) {
+    dotenv.config({ path: file, override });
+  }
+});
 connectDB();
 
 const app = express();
@@ -30,7 +40,7 @@ const resolveMediaHost = () => {
 const mediaHost = resolveMediaHost();
 const imgSources = ["'self'", 'data:', 'https://fonts.gstatic.com', 'https://www.google-analytics.com'];
 const mediaSources = ["'self'"];
-const connectSources = ["'self'", 'https://www.google-analytics.com', 'https://region1.google-analytics.com'];
+const connectSources = ["'self'", 'https://www.google-analytics.com', 'https://region1.google-analytics.com', 'https://analytics.google.com'];
 
 if (mediaHost) {
   imgSources.push(mediaHost);

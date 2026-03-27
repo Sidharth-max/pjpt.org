@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, CheckCircle2, AlertTriangle, XCircle, Copy, Eye, Filter, Search, Trash2, Check, Image as ImageIcon, Video as VideoIcon, UploadCloud } from 'lucide-react';
-import { getImages, uploadImage, deleteImage, getEvents, createEvent, updateEvent, deleteEvent, getMessages, deleteMessage, getMediaSettings } from '../services/api';
+import { getImages, uploadImage, deleteImage, getEvents, createEvent, updateEvent, deleteEvent, getMessages, deleteMessage } from '../services/api';
 
 const formatBytes = (bytes = 0) => {
   if (!bytes) return '0 B';
@@ -70,42 +70,6 @@ export default function Admin() {
   });
 
   const adminPass = import.meta.env.VITE_ADMIN_PASSWORD;
-  const uploadsDisabledFallbackMessage = 'Media uploads are disabled in this environment. Please contact the administrator to re-enable them.';
-  const deleteDisabledFallbackMessage = 'Media deletion is disabled in this environment configurations.';
-  const initialUploadAllowed = import.meta.env.VITE_ALLOW_MEDIA_UPLOAD === 'true';
-  const initialDeleteAllowed = import.meta.env.VITE_ALLOW_MEDIA_DELETE === 'true';
-
-  const [mediaSettings, setMediaSettings] = useState({
-    allowUpload: initialUploadAllowed,
-    uploadReason: initialUploadAllowed ? '' : uploadsDisabledFallbackMessage,
-    allowDelete: initialDeleteAllowed,
-    deleteReason: initialDeleteAllowed ? '' : deleteDisabledFallbackMessage,
-    missingUploadEnv: []
-  });
-
-  const allowMediaUpload = mediaSettings.allowUpload;
-  const allowMediaDelete = mediaSettings.allowDelete;
-  const uploadsDisabledMessage = mediaSettings.uploadReason || uploadsDisabledFallbackMessage;
-  const deleteDisabledMessage = mediaSettings.deleteReason || deleteDisabledFallbackMessage;
-
-  useEffect(() => {
-    const syncMediaSettings = async () => {
-      try {
-        const settings = await getMediaSettings();
-        setMediaSettings(prev => ({
-          allowUpload: typeof settings.allowUpload === 'boolean' ? settings.allowUpload : prev.allowUpload,
-          uploadReason: settings.allowUpload ? '' : settings.uploadReason || uploadsDisabledFallbackMessage,
-          allowDelete: typeof settings.allowDelete === 'boolean' ? settings.allowDelete : prev.allowDelete,
-          deleteReason: settings.allowDelete ? '' : settings.deleteReason || deleteDisabledFallbackMessage,
-          missingUploadEnv: Array.isArray(settings.missingUploadEnv) ? settings.missingUploadEnv : prev.missingUploadEnv
-        }));
-      } catch (error) {
-        console.warn('Unable to fetch media settings from server', error);
-      }
-    };
-
-    syncMediaSettings();
-  }, [uploadsDisabledFallbackMessage, deleteDisabledFallbackMessage]);
 
   useEffect(() => {
     if (auth) {
@@ -291,10 +255,6 @@ export default function Admin() {
   const generateFileKey = (file) => `${file.name}-${file.lastModified}-${file.size}`;
 
   const handleFileSelection = (filesList) => {
-    if (!allowMediaUpload) {
-      showAlert(uploadsDisabledMessage, 'Uploads Disabled');
-      return;
-    }
     const incoming = Array.from(filesList || []);
     if (!incoming.length) return;
     setSelectedFiles(prev => {
@@ -318,17 +278,13 @@ export default function Admin() {
 
   const handleDropFiles = (event) => {
     event.preventDefault();
-    if (!allowMediaUpload) {
-      showAlert(uploadsDisabledMessage, 'Uploads Disabled');
-      return;
-    }
     handleFileSelection(event.dataTransfer.files);
     if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const handleDragOver = (event) => {
     event.preventDefault();
-    event.dataTransfer.dropEffect = allowMediaUpload ? 'copy' : 'none';
+    event.dataTransfer.dropEffect = 'copy';
   };
 
   const removeSelectedFile = (fileKey) => {
@@ -341,10 +297,6 @@ export default function Admin() {
   };
 
   const enableSelectionMode = () => {
-    if (!allowMediaDelete) {
-      showAlert(deleteDisabledMessage, 'Action Blocked');
-      return;
-    }
     setIsSelectionMode(true);
   };
 
@@ -362,19 +314,11 @@ export default function Admin() {
   };
 
   const selectAllFiltered = () => {
-    if (!allowMediaDelete) {
-      showAlert(deleteDisabledMessage, 'Action Blocked');
-      return;
-    }
     if (!isSelectionMode) setIsSelectionMode(true);
     setSelectedImageIds(filteredImages.map(img => img._id));
   };
 
   const handleBulkDelete = () => {
-    if (!allowMediaDelete) {
-      showAlert(deleteDisabledMessage, 'Action Blocked');
-      return;
-    }
     if (selectedImageIds.length === 0) {
       showAlert('Please select at least one media item to delete.', 'No Media Selected');
       return;
@@ -413,10 +357,6 @@ export default function Admin() {
   // Gallery Handlers
   const handleImageUpload = async (e) => {
     e.preventDefault();
-    if (!allowMediaUpload) {
-      showAlert(uploadsDisabledMessage, 'Uploads Disabled');
-      return;
-    }
     const files = [...selectedFiles];
     if (!files.length || !imgForm.title) return showAlert('Please select file(s) and provide a title before uploading.', 'Missing Requirements');
     setUploadingImg(true);
@@ -502,11 +442,6 @@ export default function Admin() {
   };
 
   const handleImageDelete = async (id) => {
-    if (!allowMediaDelete) {
-      showAlert(deleteDisabledMessage, 'Action Blocked');
-      return;
-    }
-    
     showConfirm('Are you sure you want to delete this image? This action cannot be undone.', async () => {
       try {
         await deleteImage(id);
@@ -698,11 +633,6 @@ export default function Admin() {
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="bg-white p-8 border border-gold-light shadow-sm mb-12">
               <h2 className="font-cinzel text-2xl mb-6 text-gold-primary">Upload Media</h2>
-              {!allowMediaUpload && (
-                <div className="mb-6 border border-amber-200 bg-amber-50 text-amber-900 px-4 py-3 rounded-sm font-cormorant text-lg">
-                  {uploadsDisabledMessage}
-                </div>
-              )}
               <form onSubmit={handleImageUpload} className="space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
@@ -733,8 +663,7 @@ export default function Admin() {
                 <div
                   onDrop={handleDropFiles}
                   onDragOver={handleDragOver}
-                  aria-disabled={!allowMediaUpload}
-                  className={`border-2 border-dashed border-gold-light rounded-sm bg-bg-section/60 px-6 py-10 text-center transition ${allowMediaUpload ? 'hover:border-gold-primary' : 'opacity-50 cursor-not-allowed'}`}
+                  className="border-2 border-dashed border-gold-light rounded-sm bg-bg-section/60 px-6 py-10 text-center transition hover:border-gold-primary"
                 >
                   <div className="flex flex-col items-center gap-3">
                     <UploadCloud size={40} className="text-gold-primary" />
@@ -743,8 +672,7 @@ export default function Admin() {
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      disabled={!allowMediaUpload}
-                      className={`btn-gold px-6 py-2 ${!allowMediaUpload ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      className="btn-gold px-6 py-2"
                     >
                       Browse Files
                     </button>
@@ -754,7 +682,6 @@ export default function Admin() {
                       multiple
                       accept="image/*,video/*"
                       onChange={handleFileInputChange}
-                      disabled={!allowMediaUpload}
                       className="hidden"
                     />
                   </div>
@@ -799,7 +726,7 @@ export default function Admin() {
                 <div className="flex flex-wrap items-center gap-3">
                   <button
                     type="submit"
-                    disabled={uploadingImg || selectedFiles.length === 0 || !allowMediaUpload}
+                    disabled={uploadingImg || selectedFiles.length === 0}
                     className="btn-gold px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {uploadingImg ? 'Uploading…' : selectedFiles.length ? `Upload ${selectedFiles.length} File${selectedFiles.length > 1 ? 's' : ''}` : 'Upload Files'}
@@ -1000,50 +927,46 @@ export default function Admin() {
                 <p className="font-cinzel text-sm text-text-dark uppercase tracking-wide">Bulk Actions</p>
                 <p className="text-xs text-text-muted font-cormorant">Select multiple media items to delete them together.</p>
               </div>
-              {allowMediaDelete ? (
-                <div className="flex flex-wrap items-center gap-2 ml-auto">
-                  {isSelectionMode ? (
-                    <>
-                      <span className="text-sm font-cinzel text-text-dark uppercase tracking-wide">Selected: {selectionCount}</span>
-                      <button
-                        type="button"
-                        onClick={selectAllFiltered}
-                        disabled={filteredImages.length === 0 || selectionCount === filteredImages.length}
-                        className="text-xs font-cinzel uppercase tracking-wide border px-3 py-1.5 transition border-gold-light text-text-dark disabled:opacity-40 disabled:cursor-not-allowed"
-                      >
-                        Select Visible
-                      </button>
-                      <button
-                        type="button"
-                        onClick={exitSelectionMode}
-                        className="text-xs font-cinzel uppercase tracking-wide border px-3 py-1.5 transition border-gold-light text-text-dark"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="button"
-                        onClick={handleBulkDelete}
-                        disabled={selectionCount === 0 || bulkDeleting}
-                        className="flex items-center gap-2 text-xs font-cinzel uppercase tracking-wide border px-4 py-2 transition border-red-500 text-red-600 hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed"
-                      >
-                        {bulkDeleting && <Loader2 size={14} className="animate-spin" />}
-                        <Trash2 size={14} /> Delete Selected
-                      </button>
-                    </>
-                  ) : (
+              <div className="flex flex-wrap items-center gap-2 ml-auto">
+                {isSelectionMode ? (
+                  <>
+                    <span className="text-sm font-cinzel text-text-dark uppercase tracking-wide">Selected: {selectionCount}</span>
                     <button
                       type="button"
-                      onClick={enableSelectionMode}
-                      disabled={filteredImages.length === 0}
-                      className="text-xs font-cinzel uppercase tracking-wide border px-4 py-2 transition border-gold-light text-text-dark hover:bg-bg-section disabled:opacity-40 disabled:cursor-not-allowed"
+                      onClick={selectAllFiltered}
+                      disabled={filteredImages.length === 0 || selectionCount === filteredImages.length}
+                      className="text-xs font-cinzel uppercase tracking-wide border px-3 py-1.5 transition border-gold-light text-text-dark disabled:opacity-40 disabled:cursor-not-allowed"
                     >
-                      Enable Selection
+                      Select Visible
                     </button>
-                  )}
-                </div>
-              ) : (
-                <p className="text-xs font-cormorant text-red-600 ml-auto">{deleteDisabledMessage}</p>
-              )}
+                    <button
+                      type="button"
+                      onClick={exitSelectionMode}
+                      className="text-xs font-cinzel uppercase tracking-wide border px-3 py-1.5 transition border-gold-light text-text-dark"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleBulkDelete}
+                      disabled={selectionCount === 0 || bulkDeleting}
+                      className="flex items-center gap-2 text-xs font-cinzel uppercase tracking-wide border px-4 py-2 transition border-red-500 text-red-600 hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                    >
+                      {bulkDeleting && <Loader2 size={14} className="animate-spin" />}
+                      <Trash2 size={14} /> Delete Selected
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={enableSelectionMode}
+                    disabled={filteredImages.length === 0}
+                    className="text-xs font-cinzel uppercase tracking-wide border px-4 py-2 transition border-gold-light text-text-dark hover:bg-bg-section disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    Enable Selection
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6">
@@ -1128,10 +1051,7 @@ export default function Admin() {
                         </span>
                         <button
                           onClick={event => { event.stopPropagation(); handleImageDelete(img._id); }}
-                          disabled={!allowMediaDelete}
-                          className={`text-xs font-cinzel uppercase tracking-wide border px-2 py-1 transition ${
-                            allowMediaDelete ? 'border-red-300 text-red-500 hover:bg-red-50' : 'border-gold-light text-text-muted cursor-not-allowed'
-                          }`}
+                          className="text-xs font-cinzel uppercase tracking-wide border px-2 py-1 transition border-red-300 text-red-500 hover:bg-red-50"
                         >
                           Delete
                         </button>

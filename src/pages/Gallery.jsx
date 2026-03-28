@@ -277,23 +277,32 @@ export default function Gallery() {
                   onClick={e => e.stopPropagation()}
                 >
                   {currentIsVideo ? (
-                <video
-                  src={currentItem.url}
-                  className="w-full max-h-[85vh] object-contain"
-                  controls
-                  playsInline
-                />
+                <>
+                  <video
+                    src={currentItem.url}
+                    className="w-full object-contain"
+                    style={{ maxHeight: 'calc(85vh - 72px)' }}
+                    controls
+                    playsInline
+                  />
+                  <div className="bg-black/70 backdrop-blur p-4 text-center shrink-0">
+                    <h3 className="font-cinzel text-xl text-white uppercase tracking-wide">{currentItem.title}</h3>
+                    <p className="font-cormorant text-gold-light mt-1">Category: {currentItem.category}</p>
+                  </div>
+                </>
               ) : (
-                <img 
-                  src={currentItem.url} 
-                  alt={currentItem.title} 
-                  className="w-full h-full object-contain" 
+                <img
+                  src={currentItem.url}
+                  alt={currentItem.title}
+                  className="w-full h-full object-contain"
                 />
               )}
-              <div className="absolute bottom-0 inset-x-0 bg-black/70 backdrop-blur p-4 text-center">
-                <h3 className="font-cinzel text-xl text-white uppercase tracking-wide">{currentItem.title}</h3>
-                <p className="font-cormorant text-gold-light mt-1">Category: {currentItem.category}</p>
-              </div>
+              {!currentIsVideo && (
+                <div className="absolute bottom-0 inset-x-0 bg-black/70 backdrop-blur p-4 text-center">
+                  <h3 className="font-cinzel text-xl text-white uppercase tracking-wide">{currentItem.title}</h3>
+                  <p className="font-cormorant text-gold-light mt-1">Category: {currentItem.category}</p>
+                </div>
+              )}
                 </motion.div>
               );
             })()}

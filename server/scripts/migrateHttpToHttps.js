@@ -10,7 +10,8 @@ const run = async () => {
 
   const result = await Image.updateMany(
     { url: /^http:\/\// },
-    [{ $set: { url: { $replaceAll: { input: '$url', find: 'http://', replacement: 'https://' } } } }]
+    [{ $set: { url: { $replaceAll: { input: '$url', find: 'http://', replacement: 'https://' } } } }],
+    { updatePipeline: true }
   );
 
   console.log(`Updated ${result.modifiedCount} image record(s).`);

@@ -273,13 +273,13 @@ export default function Gallery() {
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0.9, opacity: 0 }}
-                  className={`relative bg-black w-full max-w-5xl max-h-[85vh] ${modalRatio} min-h-[50vh] flex flex-col border border-gold-primary/30`}
+                  className={`relative bg-black w-full max-w-5xl ${modalRatio} ${currentIsVideo ? '' : 'min-h-[50vh]'} flex flex-col border border-gold-primary/30 overflow-hidden`}
                   onClick={e => e.stopPropagation()}
                 >
                   {currentIsVideo ? (
                 <video
                   src={currentItem.url}
-                  className="w-full h-full object-contain"
+                  className="w-full max-h-[85vh] object-contain"
                   controls
                   playsInline
                 />

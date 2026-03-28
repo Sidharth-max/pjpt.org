@@ -281,7 +281,6 @@ export default function Gallery() {
                   src={currentItem.url}
                   className="w-full h-full object-contain"
                   controls
-                  autoPlay
                   playsInline
                 />
               ) : (

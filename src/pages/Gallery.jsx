@@ -185,7 +185,7 @@ export default function Gallery() {
                       onClick={() => openLightbox(index)}
                     >
                       {videoItem ? (
-                        <div className="relative w-full bg-black flex items-center justify-center">
+                        <div className="relative w-full aspect-video bg-black flex items-center justify-center">
                           <video 
                             ref={node => {
                               if (node) {
@@ -277,11 +277,12 @@ export default function Gallery() {
                   onClick={e => e.stopPropagation()}
                 >
                   {currentIsVideo ? (
-                <video 
+                <video
                   src={currentItem.url}
-                  className="w-full h-full object-contain" 
+                  className="w-full h-full object-contain"
                   controls
                   autoPlay
+                  playsInline
                 />
               ) : (
                 <img 

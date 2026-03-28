@@ -122,6 +122,8 @@ export default function Admin() {
         return { label: 'Cancelled', color: 'text-text-muted', icon: <XCircle size={18} /> };
       case 'error':
         return { label: 'Failed', color: 'text-red-500', icon: <AlertTriangle size={18} /> };
+      case 'queued':
+        return { label: 'Queued', color: 'text-text-muted', icon: <Loader2 size={18} className="opacity-40" /> };
       default:
         return { label: 'Uploading', color: 'text-gold-primary', icon: <Loader2 size={18} className="animate-spin" /> };
     }
@@ -361,84 +363,89 @@ export default function Admin() {
     if (!files.length || !imgForm.title) return showAlert('Please select file(s) and provide a title before uploading.', 'Missing Requirements');
     setUploadingImg(true);
 
-    const uploadTasks = files.map((file, index) => {
-      const uploadId = `${file.name}-${Date.now()}-${index}`;
+    // Pre-register all uploads in the queue so the user sees them upfront
+    const uploadMeta = files.map((file, index) => ({
+      id: `${file.name}-${Date.now()}-${index}`,
+      file,
+      index
+    }));
+
+    setActiveUploads(prev => [
+      ...prev,
+      ...uploadMeta.map(({ id, file }, i) => ({
+        id,
+        name: file.name,
+        size: file.size,
+        category: imgForm.category,
+        progress: 0,
+        eta: i === 0 ? 'Calculating…' : `Queued (${i + 1} of ${files.length})`,
+        status: i === 0 ? 'uploading' : 'queued'
+      }))
+    ]);
+
+    let successfulUploads = 0;
+    let hasFailure = false;
+
+    // Upload one file at a time sequentially
+    for (const { id: uploadId, file } of uploadMeta) {
       const controller = new AbortController();
       const startedAt = Date.now();
-
       uploadControllers.current.set(uploadId, controller);
-      setActiveUploads(prev => ([
-        ...prev,
-        {
-          id: uploadId,
-          name: file.name,
-          size: file.size,
-          category: imgForm.category,
-          progress: 0,
-          eta: 'Calculating…',
-          status: 'uploading'
-        }
-      ]));
+
+      // Mark this item as actively uploading
+      updateUploadState(uploadId, { status: 'uploading', eta: 'Calculating…' });
 
       const fd = new FormData();
       fd.append('title', files.length > 1 ? `${imgForm.title} - ${file.name}` : imgForm.title);
       fd.append('category', imgForm.category);
       fd.append('file', file);
 
-      return uploadImage(fd, {
-        signal: controller.signal,
-        onUploadProgress: (event) => {
-          if (!event.total) return;
-          const progress = Math.round((event.loaded / event.total) * 100);
-          const elapsedSeconds = (Date.now() - startedAt) / 1000;
-          const speed = event.loaded / Math.max(elapsedSeconds, 0.001);
-          const remainingSeconds = speed > 0 ? (event.total - event.loaded) / speed : 0;
-          updateUploadState(uploadId, {
-            progress,
-            eta: remainingSeconds ? `${formatDuration(remainingSeconds)} remaining` : 'Finishing…'
-          });
-        }
-      })
-        .then(() => {
-          updateUploadState(uploadId, { progress: 100, eta: 'Completed', status: 'completed' });
-          scheduleUploadRemoval(uploadId);
-          return true;
-        })
-        .catch(error => {
-          if (controller.signal.aborted) {
-            updateUploadState(uploadId, { status: 'canceled', eta: 'Cancelled' });
-            scheduleUploadRemoval(uploadId);
-            return 'aborted';
+      try {
+        await uploadImage(fd, {
+          signal: controller.signal,
+          onUploadProgress: (event) => {
+            if (!event.total) return;
+            const progress = Math.round((event.loaded / event.total) * 100);
+            const elapsedSeconds = (Date.now() - startedAt) / 1000;
+            const speed = event.loaded / Math.max(elapsedSeconds, 0.001);
+            const remainingSeconds = speed > 0 ? (event.total - event.loaded) / speed : 0;
+            updateUploadState(uploadId, {
+              progress,
+              eta: remainingSeconds ? `${formatDuration(remainingSeconds)} remaining` : 'Finishing…'
+            });
           }
-          updateUploadState(uploadId, { status: 'error', eta: 'Failed' });
-          scheduleUploadRemoval(uploadId);
-          throw error;
-        })
-        .finally(() => {
-          uploadControllers.current.delete(uploadId);
         });
-    });
-
-    try {
-      const results = await Promise.allSettled(uploadTasks);
-      const hasFailure = results.some(result => result.status === 'rejected');
-      const successfulUploads = results.filter(result => result.status === 'fulfilled' && result.value === true).length;
-
-      if (successfulUploads > 0) {
-        showToast(successfulUploads > 1 ? 'Media files uploaded successfully' : 'Media uploaded successfully');
-        setImgForm({ title: '', category: 'Temple' });
-        clearSelectedFiles();
-        fetchImages();
+        updateUploadState(uploadId, { progress: 100, eta: 'Completed', status: 'completed' });
+        scheduleUploadRemoval(uploadId);
+        successfulUploads++;
+      } catch (error) {
+        if (controller.signal.aborted) {
+          updateUploadState(uploadId, { status: 'canceled', eta: 'Cancelled' });
+          scheduleUploadRemoval(uploadId);
+          // Cancel remaining queued items too
+          setActiveUploads(prev => prev.map(u => u.status === 'queued' ? { ...u, status: 'canceled', eta: 'Cancelled' } : u));
+          break;
+        }
+        updateUploadState(uploadId, { status: 'error', eta: 'Failed' });
+        scheduleUploadRemoval(uploadId);
+        hasFailure = true;
+      } finally {
+        uploadControllers.current.delete(uploadId);
       }
-
-      if (hasFailure) {
-        showAlert('Some uploads failed. Please clearly check your network and try again.', 'Upload Incomplete');
-      }
-    } catch (err) {
-      showAlert('A critical error occurred while trying to upload media.', 'Upload Failed');
-    } finally {
-      setUploadingImg(false);
     }
+
+    if (successfulUploads > 0) {
+      showToast(successfulUploads > 1 ? `${successfulUploads} media files uploaded successfully` : 'Media uploaded successfully');
+      setImgForm({ title: '', category: 'Temple' });
+      clearSelectedFiles();
+      fetchImages();
+    }
+
+    if (hasFailure) {
+      showAlert('Some uploads failed. Please check your network and try again.', 'Upload Incomplete');
+    }
+
+    setUploadingImg(false);
   };
 
   const handleImageDelete = async (id) => {

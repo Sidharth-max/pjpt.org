@@ -136,14 +136,16 @@ export default function Contact() {
                   </div>
 
                   <div>
-                    <label className="block font-cinzel text-sm text-text-dark mb-2">Email Address *</label>
+                    <label className="block font-cinzel text-sm text-text-dark mb-2">Email Address</label>
                     <input type="email" name="email" value={formData.email} onChange={handleChange} className="w-full bg-off-white border-b-2 border-gold-pale focus:border-gold-primary focus:outline-none p-3 font-cormorant text-lg transition" />
                     {errors.email && <p className="text-gold-primary text-sm mt-1">{errors.email}</p>}
                   </div>
 
                   <div>
-                    <label className="block font-cinzel text-sm text-text-dark mb-2">Phone Number</label>
+                    <label className="block font-cinzel text-sm text-text-dark mb-2">Phone Number <span className="text-gold-primary">*</span></label>
                     <input type="tel" name="phone" value={formData.phone} onChange={handleChange} className="w-full bg-off-white border-b-2 border-gold-pale focus:border-gold-primary focus:outline-none p-3 font-cormorant text-lg transition" />
+                    {errors.phone && <p className="text-gold-primary text-sm mt-1">{errors.phone}</p>}
+                    <p className="text-text-muted font-cormorant text-sm mt-1">Phone or Email required</p>
                   </div>
 
                   <div>

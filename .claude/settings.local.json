@@ -17,7 +17,8 @@
       "Bash(npm install:*)",
       "Bash(git add:*)",
       "Bash(sudo nginx:*)",
-      "Bash(pm2 status:*)"
+      "Bash(pm2 status:*)",
+      "Bash(npm run:*)"
     ]
   }
 }

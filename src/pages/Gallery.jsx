@@ -2,7 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
 import LotusWatermark from '../components/LotusWatermark';
+import VideoPlayer from '../components/VideoPlayer';
 import { getImages } from '../services/api';
+import { useLang } from '../contexts/LanguageContext';
 
 const filters = ['All', 'Temple', 'Idol', 'Festivals', 'Events', 'Nature'];
 
@@ -19,6 +21,8 @@ const normalizeMediaUrl = (url = '') => {
 const isVideo = (url = '') => VIDEO_REGEX.test(url);
 
 export default function Gallery() {
+  const { t, lang } = useLang();
+  const fn = lang === 'hi' ? 'font-noto' : '';
   const [activeFilter, setActiveFilter] = useState('All');
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [galleryItems, setGalleryItems] = useState([]);
@@ -122,11 +126,11 @@ export default function Gallery() {
       
       {/* Header */}
       <section className="py-16 px-4 text-center">
-        <motion.h1 initial="hidden" animate="visible" variants={fadeUp} className="font-cinzel text-4xl md:text-5xl text-gold-primary mb-6 uppercase tracking-wide">
-          Divine Gallery
+        <motion.h1 initial="hidden" animate="visible" variants={fadeUp} className={`font-cinzel text-4xl md:text-5xl text-gold-primary mb-6 uppercase tracking-wide ${fn}`}>
+          {t('gallery.title')}
         </motion.h1>
-        <motion.p initial="hidden" animate="visible" variants={fadeUp} className="font-cormorant text-xl text-text-muted max-w-2xl mx-auto">
-          Experience the serene beauty, ancient architecture, and vibrant festivals of AVADHPURI PARASALI JAIN TIRTH.
+        <motion.p initial="hidden" animate="visible" variants={fadeUp} className={`font-cormorant text-xl text-text-muted max-w-2xl mx-auto ${fn}`}>
+          {t('gallery.subtitle')}
         </motion.p>
       </section>
 
@@ -185,8 +189,8 @@ export default function Gallery() {
                       onClick={() => openLightbox(index)}
                     >
                       {videoItem ? (
-                        <div className="relative w-full aspect-video bg-black flex items-center justify-center">
-                          <video 
+                        <div className="relative w-full aspect-video bg-black flex items-center justify-center" onClick={e => e.stopPropagation()}>
+                          <VideoPlayer
                             ref={node => {
                               if (node) {
                                 videoRefs.current[item._id] = node;
@@ -194,25 +198,18 @@ export default function Gallery() {
                                 delete videoRefs.current[item._id];
                               }
                             }}
-                            src={item.url} 
+                            src={item.url}
                             className="w-full h-full max-h-[460px] object-contain"
-                            playsInline
-                            preload="metadata"
-                            controls={false}
                             onEnded={() => pauseVideo(item._id)}
                           />
-                          <button
-                            onClick={(event) => toggleVideoPlayback(event, item._id)}
-                            className="absolute bottom-4 right-4 px-4 py-2 bg-white/90 text-text-dark font-cinzel text-xs tracking-widest uppercase shadow-lg hover:bg-gold-primary hover:text-white transition pointer-events-auto"
-                          >
-                            {playingVideos[item._id] ? 'Pause' : 'Play'}
-                          </button>
                         </div>
                       ) : (
-                        <img 
-                          src={item.url} 
-                          alt={item.title} 
-                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" 
+                        <img
+                          src={item.url}
+                          alt={item.altText || item.title}
+                          className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                          onContextMenu={e => e.preventDefault()}
+                          onDragStart={e => e.preventDefault()}
                         />
                       )}
                       
@@ -234,10 +231,10 @@ export default function Gallery() {
             <div className="w-32 h-32 text-gold-primary opacity-30 mb-6">
               <LotusWatermark opacity={1} />
             </div>
-            <p className="font-cormorant italic text-2xl text-gold-primary max-w-md mx-auto">
-              {activeFilter === 'All' 
-                ? 'Gallery coming soon. Check back after Pratishtha Mahotsav 2025.'
-                : `No media found for the "${activeFilter}" category.`}
+            <p className={`font-cormorant italic text-2xl text-gold-primary max-w-md mx-auto ${fn}`}>
+              {activeFilter === 'All'
+                ? t('gallery.empty.all')
+                : t('gallery.empty.filter').replace('%filter%', activeFilter)}
             </p>
           </div>
         )}
@@ -278,12 +275,10 @@ export default function Gallery() {
                 >
                   {currentIsVideo ? (
                 <>
-                  <video
+                  <VideoPlayer
                     src={currentItem.url}
                     className="w-full object-contain"
                     style={{ maxHeight: 'calc(85vh - 72px)' }}
-                    controls
-                    playsInline
                   />
                   <div className="bg-black/70 backdrop-blur p-4 text-center shrink-0">
                     <h3 className="font-cinzel text-xl text-white uppercase tracking-wide">{currentItem.title}</h3>
@@ -293,8 +288,10 @@ export default function Gallery() {
               ) : (
                 <img
                   src={currentItem.url}
-                  alt={currentItem.title}
+                  alt={currentItem.altText || currentItem.title}
                   className="w-full h-full object-contain"
+                  onContextMenu={e => e.preventDefault()}
+                  onDragStart={e => e.preventDefault()}
                 />
               )}
               {!currentIsVideo && (

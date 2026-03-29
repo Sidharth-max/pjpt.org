@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, forwardRef } from 'react';
+import React, { useState, useRef, useCallback, useEffect, forwardRef } from 'react';
 
 const formatTime = (seconds) => {
   if (!seconds || !isFinite(seconds)) return '0:00';
@@ -43,9 +43,10 @@ const ExitFullscreenIcon = () => (
   </svg>
 );
 
-const VideoPlayer = forwardRef(function VideoPlayer({ src, className, style, onEnded }, ref) {
-  const internalRef = useRef(null);
-  const videoRef = ref || internalRef;
+const VideoPlayer = forwardRef(function VideoPlayer({ src, className, style, onEnded, autoPlay }, forwardedRef) {
+  // Always use this internal ref for controls — never use forwardedRef.current directly
+  // because forwardedRef may be a callback ref (function), which has no .current property.
+  const videoRef = useRef(null);
   const containerRef = useRef(null);
 
   const [isPlaying, setIsPlaying] = useState(false);
@@ -54,6 +55,46 @@ const VideoPlayer = forwardRef(function VideoPlayer({ src, className, style, onE
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [hasError, setHasError] = useState(false);
+
+  // Attach both the internal ref and the forwarded ref (object or callback) to the video element.
+  const setVideoRef = useCallback((node) => {
+    videoRef.current = node;
+    if (typeof forwardedRef === 'function') {
+      forwardedRef(node);
+    } else if (forwardedRef) {
+      forwardedRef.current = node;
+    }
+  }, [forwardedRef]);
+
+  // Reset state when src changes. If a play() is in-flight, Chrome throws an
+  // unhandled rejection if we pause() or swap src before it settles — absorb it first.
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video && !video.paused) {
+      const p = video.play();
+      if (p !== undefined) {
+        p.catch(() => {}).finally(() => video.pause());
+      } else {
+        video.pause();
+      }
+    }
+    setIsPlaying(false);
+    setProgress(0);
+    setDuration(0);
+    setHasError(false);
+  }, [src]);
+
+  // Sync fullscreen state from browser events (e.g. user presses Esc)
+  useEffect(() => {
+    const onFsChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', onFsChange);
+    document.addEventListener('webkitfullscreenchange', onFsChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', onFsChange);
+      document.removeEventListener('webkitfullscreenchange', onFsChange);
+    };
+  }, []);
 
   const togglePlay = useCallback((e) => {
     e.stopPropagation();
@@ -65,18 +106,22 @@ const VideoPlayer = forwardRef(function VideoPlayer({ src, className, style, onE
       video.pause();
       setIsPlaying(false);
     }
-  }, [videoRef]);
+  }, []);
 
   const handleTimeUpdate = useCallback(() => {
     const video = videoRef.current;
     if (!video || !video.duration) return;
     setProgress((video.currentTime / video.duration) * 100);
-  }, [videoRef]);
+  }, []);
 
   const handleLoadedMetadata = useCallback(() => {
     const video = videoRef.current;
-    if (video) setDuration(video.duration);
-  }, [videoRef]);
+    if (!video) return;
+    setDuration(video.duration);
+    if (autoPlay) {
+      video.play().then(() => setIsPlaying(true)).catch(() => {});
+    }
+  }, [autoPlay]);
 
   const handleEnded = useCallback(() => {
     setIsPlaying(false);
@@ -90,7 +135,7 @@ const VideoPlayer = forwardRef(function VideoPlayer({ src, className, style, onE
     const val = parseFloat(e.target.value);
     video.currentTime = (val / 100) * video.duration;
     setProgress(val);
-  }, [videoRef]);
+  }, []);
 
   const toggleMute = useCallback((e) => {
     e.stopPropagation();
@@ -98,7 +143,7 @@ const VideoPlayer = forwardRef(function VideoPlayer({ src, className, style, onE
     if (!video) return;
     video.muted = !video.muted;
     setIsMuted(video.muted);
-  }, [videoRef]);
+  }, []);
 
   const handleVolume = useCallback((e) => {
     e.stopPropagation();
@@ -109,22 +154,37 @@ const VideoPlayer = forwardRef(function VideoPlayer({ src, className, style, onE
     video.muted = val === 0;
     setVolume(val);
     setIsMuted(val === 0);
-  }, [videoRef]);
+  }, []);
 
   const toggleFullscreen = useCallback((e) => {
     e.stopPropagation();
     const container = containerRef.current;
     if (!container) return;
     if (!document.fullscreenElement) {
-      (container.requestFullscreen?.() || container.webkitRequestFullscreen?.())
-        ?.then(() => setIsFullscreen(true)).catch(() => {});
+      (container.requestFullscreen?.() ?? container.webkitRequestFullscreen?.())
+        ?.catch(() => {});
     } else {
-      (document.exitFullscreen?.() || document.webkitExitFullscreen?.())
-        ?.then(() => setIsFullscreen(false)).catch(() => {});
+      (document.exitFullscreen?.() ?? document.webkitExitFullscreen?.())
+        ?.catch(() => {});
     }
   }, []);
 
   const currentTime = duration ? (progress / 100) * duration : 0;
+  const seekStyle = {
+    background: `linear-gradient(to right, #B8960C 0%, #B8960C ${progress}%, rgba(255,255,255,0.3) ${progress}%, rgba(255,255,255,0.3) 100%)`
+  };
+  const volumeVal = isMuted ? 0 : volume;
+  const volumeStyle = {
+    background: `linear-gradient(to right, #B8960C 0%, #B8960C ${volumeVal * 100}%, rgba(255,255,255,0.3) ${volumeVal * 100}%, rgba(255,255,255,0.3) 100%)`
+  };
+
+  if (hasError) {
+    return (
+      <div className={`flex items-center justify-center bg-black text-white/50 text-sm font-cinzel ${className ?? ''}`} style={style}>
+        Video unavailable
+      </div>
+    );
+  }
 
   return (
     <div
@@ -134,7 +194,7 @@ const VideoPlayer = forwardRef(function VideoPlayer({ src, className, style, onE
       onClick={togglePlay}
     >
       <video
-        ref={videoRef}
+        ref={setVideoRef}
         src={src}
         className={className}
         style={style}
@@ -146,6 +206,7 @@ const VideoPlayer = forwardRef(function VideoPlayer({ src, className, style, onE
         onEnded={handleEnded}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}
+        onError={() => setHasError(true)}
         onContextMenu={e => e.preventDefault()}
       />
 
@@ -165,6 +226,7 @@ const VideoPlayer = forwardRef(function VideoPlayer({ src, className, style, onE
             onChange={handleSeek}
             onClick={e => e.stopPropagation()}
             className="video-seekbar w-full mb-2 cursor-pointer"
+            style={seekStyle}
           />
 
           {/* Bottom controls row */}
@@ -198,10 +260,11 @@ const VideoPlayer = forwardRef(function VideoPlayer({ src, className, style, onE
               min="0"
               max="1"
               step="0.05"
-              value={isMuted ? 0 : volume}
+              value={volumeVal}
               onChange={handleVolume}
               onClick={e => e.stopPropagation()}
               className="video-seekbar w-16 cursor-pointer hidden sm:block"
+              style={volumeStyle}
             />
 
             {/* Fullscreen */}

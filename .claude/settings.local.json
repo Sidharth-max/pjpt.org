@@ -1,7 +1,18 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:pjpt.org)"
+      "WebFetch(domain:pjpt.org)",
+      "Bash(ls -la /home/ggu/pjpt.org/.env*)",
+      "Bash(ls -la /home/ggu/pjpt.org/server/.env*)",
+      "Bash(pm2 logs:*)",
+      "Bash(node -e \":*)",
+      "Bash(pm2 restart:*)",
+      "Bash(sudo systemctl:*)",
+      "Bash(mongo --eval \"db.runCommand\\({ping:1}\\)\")",
+      "Bash(nc -zv 127.0.0.1 27017)",
+      "Bash(curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc)",
+      "Bash(sudo gpg:*)",
+      "Bash(sudo apt-get:*)"
     ]
   }
 }

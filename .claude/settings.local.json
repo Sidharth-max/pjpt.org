@@ -15,7 +15,8 @@
       "Bash(sudo apt-get:*)",
       "Bash(git checkout:*)",
       "Bash(npm install:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(sudo nginx:*)"
     ]
   }
 }

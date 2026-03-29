@@ -7,9 +7,11 @@ import helmet from 'helmet';
 import compression from 'compression';
 
 import connectDB from './config/db.js';
+import authRoutes from './routes/authRoutes.js';
 import imageRoutes from './routes/imageRoutes.js';
 import eventRoutes from './routes/eventRoutes.js';
 import messageRoutes from './routes/messageRoutes.js';
+import sitemapRoutes from './routes/sitemapRoutes.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,7 +31,7 @@ const resolveMediaHost = () => {
 const mediaHost = resolveMediaHost();
 const imgSources = ["'self'", 'data:', 'https://fonts.gstatic.com', 'https://www.google-analytics.com'];
 const mediaSources = ["'self'"];
-const connectSources = ["'self'", 'https://www.google-analytics.com', 'https://region1.google-analytics.com', 'https://analytics.google.com'];
+const connectSources = ["'self'", 'https://www.google-analytics.com', 'https://region1.google-analytics.com', 'https://analytics.google.com', 'https://fonts.googleapis.com', 'https://fonts.gstatic.com'];
 
 if (mediaHost) {
   imgSources.push(mediaHost);
@@ -56,9 +58,13 @@ app.use(cors());
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ limit: '100mb', extended: true }));
 
+app.use('/api/auth', authRoutes);
 app.use('/api/images', imageRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/messages', messageRoutes);
+
+// Sitemap & robots.txt (before static files so catch-all doesn't intercept)
+app.use('/', sitemapRoutes);
 
 // Static files for production
 const uploadsPath = path.join(__dirname, '../uploads');

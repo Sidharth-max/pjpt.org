@@ -1,0 +1,17 @@
+{
+  "name": "Avadhpuri Parasali Jain Tirth",
+  "short_name": "PJPT",
+  "description": "A sacred Jain pilgrimage site since 631 CE, Mandsaur, Madhya Pradesh",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAFAF7",
+  "theme_color": "#B8960C",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any maskable"
+    }
+  ]
+}

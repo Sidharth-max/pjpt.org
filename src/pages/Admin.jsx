@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Loader2, CheckCircle2, AlertTriangle, XCircle, Copy, Eye, Filter, Search, Trash2, Check, Image as ImageIcon, Video as VideoIcon, UploadCloud } from 'lucide-react';
-import { getImages, uploadImage, deleteImage, getEvents, createEvent, updateEvent, deleteEvent, getMessages, deleteMessage } from '../services/api';
+import { login, getImages, uploadImage, deleteImage, getEvents, createEvent, updateEvent, deleteEvent, getMessages, deleteMessage } from '../services/api';
 
 const formatBytes = (bytes = 0) => {
   if (!bytes) return '0 B';
@@ -38,7 +38,7 @@ export default function Admin() {
   const [activeTab, setActiveTab] = useState('gallery');
 
   const [images, setImages] = useState([]);
-  const [imgForm, setImgForm] = useState({ title: '', category: 'Temple' });
+  const [imgForm, setImgForm] = useState({ title: '', category: 'Temple', altText: '' });
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [uploadingImg, setUploadingImg] = useState(false);
   const [activeUploads, setActiveUploads] = useState([]);
@@ -69,7 +69,9 @@ export default function Admin() {
     onConfirm: null 
   });
 
-  const adminPass = import.meta.env.VITE_ADMIN_PASSWORD;
+  useEffect(() => {
+    if (sessionStorage.getItem('adminToken')) setAuth(true);
+  }, []);
 
   useEffect(() => {
     if (auth) {
@@ -248,10 +250,21 @@ export default function Admin() {
     }
   };
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-    if (password === adminPass) setAuth(true);
-    else showAlert('Incorrect password. Please try again.', 'Authentication Failed');
+    try {
+      const { token } = await login(password);
+      sessionStorage.setItem('adminToken', token);
+      setAuth(true);
+    } catch {
+      showAlert('Incorrect password. Please try again.', 'Authentication Failed');
+    }
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('adminToken');
+    setAuth(false);
+    setPassword('');
   };
 
   const generateFileKey = (file) => `${file.name}-${file.lastModified}-${file.size}`;
@@ -398,6 +411,7 @@ export default function Admin() {
       const fd = new FormData();
       fd.append('title', files.length > 1 ? `${imgForm.title} - ${file.name}` : imgForm.title);
       fd.append('category', imgForm.category);
+      fd.append('altText', imgForm.altText);
       fd.append('file', file);
 
       try {
@@ -436,7 +450,7 @@ export default function Admin() {
 
     if (successfulUploads > 0) {
       showToast(successfulUploads > 1 ? `${successfulUploads} media files uploaded successfully` : 'Media uploaded successfully');
-      setImgForm({ title: '', category: 'Temple' });
+      setImgForm({ title: '', category: 'Temple', altText: '' });
       clearSelectedFiles();
       fetchImages();
     }
@@ -628,7 +642,10 @@ export default function Admin() {
         </AnimatePresence>
 
       <div className="max-w-[1200px] mx-auto px-4">
-        <h1 className="font-cinzel text-4xl text-text-dark mb-8 uppercase tracking-wide">Admin Dashboard</h1>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="font-cinzel text-4xl text-text-dark uppercase tracking-wide">Admin Dashboard</h1>
+          <button onClick={handleLogout} className="font-cinzel text-sm uppercase tracking-wide px-4 py-2 border border-gold-light text-text-muted hover:border-red-400 hover:text-red-500 transition-colors bg-white">Logout</button>
+        </div>
 
         <div className="flex flex-wrap gap-4 mb-8">
           <button onClick={() => setActiveTab('gallery')} className={`font-cinzel uppercase px-6 py-2 transition-colors ${activeTab === 'gallery' ? 'bg-gold-primary text-white' : 'border border-gold-light text-text-dark bg-white'}`}>Gallery</button>
@@ -665,6 +682,16 @@ export default function Admin() {
                       ))}
                     </select>
                   </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="font-cinzel text-sm uppercase tracking-wide text-text-dark">Alt Text <span className="font-cormorant normal-case text-text-muted">(accessibility & SEO description)</span></label>
+                  <input
+                    type="text"
+                    value={imgForm.altText}
+                    onChange={e => setImgForm(prev => ({ ...prev, altText: e.target.value }))}
+                    placeholder="e.g., Lord Adinath idol during Abhishek ceremony"
+                    className="w-full border border-gold-light px-4 py-2 font-cormorant text-lg bg-off-white/60 focus:outline-none focus:border-gold-primary"
+                  />
                 </div>
 
                 <div

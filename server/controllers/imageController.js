@@ -17,7 +17,7 @@ export const getImages = async (req, res) => {
 
 export const uploadImage = async (req, res) => {
   try {
-    const { title, category } = req.body;
+    const { title, category, altText } = req.body;
     if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
 
     const uploadResult = await uploadFileToS3(req.file);
@@ -25,6 +25,7 @@ export const uploadImage = async (req, res) => {
     const newImage = new Image({
       title,
       category,
+      altText: altText || '',
       url: uploadResult.url,
       publicId: uploadResult.key
     });

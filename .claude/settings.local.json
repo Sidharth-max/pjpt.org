@@ -12,7 +12,13 @@
       "Bash(nc -zv 127.0.0.1 27017)",
       "Bash(curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc)",
       "Bash(sudo gpg:*)",
-      "Bash(sudo apt-get:*)"
+      "Bash(sudo apt-get:*)",
+      "Bash(git checkout:*)",
+      "Bash(npm install:*)",
+      "Bash(git add:*)",
+      "Bash(sudo nginx:*)",
+      "Bash(pm2 status:*)",
+      "Bash(npm run:*)"
     ]
   }
 }

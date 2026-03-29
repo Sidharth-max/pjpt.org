@@ -3,11 +3,23 @@ import { uploadFileToS3, deleteFileFromS3 } from '../utils/s3Media.js';
 
 export const getImages = async (req, res) => {
   try {
-    const { category } = req.query;
+    const { category, page, limit } = req.query;
     let query = {};
     if (category && category !== 'All') {
       query.category = category;
     }
+
+    if (page !== undefined) {
+      const pageNum = Math.max(1, parseInt(page) || 1);
+      const limitNum = Math.min(100, Math.max(1, parseInt(limit) || 24));
+      const skip = (pageNum - 1) * limitNum;
+      const [images, total] = await Promise.all([
+        Image.find(query).sort({ uploadedAt: -1 }).skip(skip).limit(limitNum),
+        Image.countDocuments(query)
+      ]);
+      return res.json({ images, total, page: pageNum, limit: limitNum });
+    }
+
     const images = await Image.find(query).sort({ uploadedAt: -1 });
     res.json(images);
   } catch (error) {

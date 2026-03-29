@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:low": "cpulimit -l 40 -- vite build",
     "dev:all": "concurrently \"npm run dev\" \"node server/server.js\"",
     "start": "node server/server.js",
     "build:all": "npm run build"
@@ -13,6 +14,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.716.0",
     "axios": "^1.13.6",
+    "claude": "^0.1.1",
     "compression": "^1.8.1",
     "concurrently": "^9.2.1",
     "cors": "^2.8.6",

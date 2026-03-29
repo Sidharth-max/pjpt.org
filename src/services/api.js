@@ -14,8 +14,13 @@ export const login = (password) =>
   api.post('/api/auth/login', { password }).then(res => res.data);
 
 // Image API
-export const getImages = (category) =>
-  api.get(`/api/images${category && category !== 'All' ? `?category=${category}` : ''}`).then(res => res.data);
+export const getImages = (category, page, limit = 24) => {
+  const params = new URLSearchParams();
+  if (category && category !== 'All') params.set('category', category);
+  if (page !== undefined) { params.set('page', page); params.set('limit', limit); }
+  const qs = params.toString();
+  return api.get(`/api/images${qs ? `?${qs}` : ''}`).then(res => res.data);
+};
 
 export const uploadImage = (formData, options = {}) => {
   const { headers, ...rest } = options;

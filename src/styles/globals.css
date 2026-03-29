@@ -91,3 +91,48 @@ h1, h2, h3, h4, h5, h6, .font-cinzel {
   transform: translateY(-5px);
   box-shadow: 0 8px 32px rgba(184, 150, 12, 0.15);
 }
+
+/* ===== Media Protection ===== */
+img, video {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
+
+/* ===== Custom Video Player Seek Bar ===== */
+.video-seekbar {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.3);
+  outline: none;
+  border-radius: 2px;
+}
+
+.video-seekbar::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--gold-primary);
+  cursor: pointer;
+}
+
+.video-seekbar::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--gold-primary);
+  cursor: pointer;
+  border: none;
+}
+
+.video-seekbar::-webkit-slider-runnable-track {
+  height: 3px;
+  border-radius: 2px;
+}
+
+/* Hindi heading font override */
+h1.font-noto, h2.font-noto, h3.font-noto {
+  font-family: 'Noto Sans Devanagari', sans-serif;
+}

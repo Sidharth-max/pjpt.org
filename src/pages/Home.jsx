@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import LotusWatermark from '../components/LotusWatermark';
 import { highlights } from '../data/content';
+import { useLang } from '../contexts/LanguageContext';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -15,6 +16,9 @@ const staggerContainer = {
 };
 
 export default function Home() {
+  const { t, lang } = useLang();
+  const fontClass = lang === 'hi' ? 'font-noto' : '';
+
   return (
     <div className="w-full">
       {/* Hero Section */}
@@ -27,45 +31,45 @@ export default function Home() {
             </div>
           </div>
         </div>
-        
+
         {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 w-full h-full to-black/50 z-10" />
 
         {/* Hero Content */}
-        <motion.div 
+        <motion.div
           className="relative z-20 text-center px-4 w-full max-w-[1000px]"
           initial="hidden"
           animate="visible"
           variants={staggerContainer}
         >
-          <motion.div variants={fadeUp} className="font-cinzel text-gold-light text-sm md:text-base tracking-wide uppercase mb-6 drop-shadow-md">
-            EST. 631 CE · MANDSAUR, MADHYA PRADESH
+          <motion.div variants={fadeUp} className={`font-cinzel text-gold-light text-sm md:text-base tracking-wide uppercase mb-6 drop-shadow-md ${fontClass}`}>
+            {t('home.hero.badge')}
           </motion.div>
-          <motion.h1 variants={fadeUp} className="font-cinzel text-white text-5xl md:text-7xl lg:text-[80px] leading-tight drop-shadow-lg mb-2 text-center uppercase">
-            AVADHPURI PARASALI
+          <motion.h1 variants={fadeUp} className={`font-cinzel text-white text-5xl md:text-7xl lg:text-[80px] leading-tight drop-shadow-lg mb-2 text-center uppercase ${fontClass}`}>
+            {t('home.hero.title')}
           </motion.h1>
-          <motion.h2 variants={fadeUp} className="font-cormorant italic text-white text-4xl md:text-6xl drop-shadow-lg mb-8 text-center uppercase">
-            JAIN TIRTH
+          <motion.h2 variants={fadeUp} className={`font-cormorant italic text-white text-4xl md:text-6xl drop-shadow-lg mb-8 text-center uppercase ${fontClass}`}>
+            {t('home.hero.subtitle')}
           </motion.h2>
-          
+
           <motion.div variants={fadeUp} className="w-20 h-[1px] bg-gold-light mx-auto mb-8 box-shadow-gold" />
-          
-          <motion.p variants={fadeUp} className="font-cormorant text-white text-lg md:text-2xl mb-12 max-w-[700px] mx-auto opacity-90 drop-shadow-md leading-relaxed">
-            A sacred Jain pilgrimage site of 1400 years, home to the self-manifested idol of Shri Adinath Bhagwan
+
+          <motion.p variants={fadeUp} className={`font-cormorant text-white text-lg md:text-2xl mb-12 max-w-[700px] mx-auto opacity-90 drop-shadow-md leading-relaxed ${fontClass}`}>
+            {t('home.hero.tagline')}
           </motion.p>
-          
+
           <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center gap-6">
             <Link to="/about" className="btn-gold bg-gold-primary hover:bg-gold-light border-gold-primary text-white w-full sm:w-auto text-center px-8 py-3 text-sm">
-              Explore the Tirth
+              {t('home.hero.cta.explore')}
             </Link>
             <Link to="/visit" className="btn-white bg-transparent border-white text-white hover:bg-white hover:text-text-dark w-full sm:w-auto text-center px-8 py-3 text-sm">
-              Plan Your Visit
+              {t('home.hero.cta.visit')}
             </Link>
           </motion.div>
         </motion.div>
 
         {/* Bouncing Chevron */}
-        <motion.div 
+        <motion.div
           className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 text-white opacity-70"
           animate={{ y: [0, 10, 0] }}
           transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
@@ -81,30 +85,30 @@ export default function Home() {
       {/* Quick Info Cards */}
       <section className="py-20 md:py-32 px-4 bg-off-white relative">
         <div className="max-w-[1200px] mx-auto">
-          <motion.h2 
+          <motion.h2
             initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={fadeUp}
-            className="font-cinzel text-3xl md:text-4xl text-center mb-16 text-text-dark uppercase tracking-wide"
+            className={`font-cinzel text-3xl md:text-4xl text-center mb-16 text-text-dark uppercase tracking-wide ${fontClass}`}
           >
-            Essential Information
+            {t('home.info.title')}
           </motion.h2>
 
-          <motion.div 
+          <motion.div
             className="grid grid-cols-1 md:grid-cols-3 gap-8"
             initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={staggerContainer}
           >
             {[
-              { title: 'Darshan Timings', icon: '🕘', line1: 'Morning: 5:30 AM', line2: 'Evening: 8:30 PM' },
-              { title: 'How To Reach', icon: '📍', line1: 'Station: Shamgarh (12km)', line2: 'Local transport available' },
-              { title: 'Bhojanshala', icon: '🍽️', line1: 'Lunch: 11:00 AM – 1:30 PM', line2: 'Dinner: 4:00 PM – 6:30 PM' },
+              { title: t('home.info.darshan.title'), icon: '🕘', line1: t('home.info.darshan.line1'), line2: t('home.info.darshan.line2') },
+              { title: t('home.info.reach.title'), icon: '📍', line1: t('home.info.reach.line1'), line2: t('home.info.reach.line2') },
+              { title: t('home.info.bhojan.title'), icon: '🍽️', line1: t('home.info.bhojan.line1'), line2: t('home.info.bhojan.line2') },
             ].map((info, idx) => (
               <motion.div key={idx} variants={fadeUp} className="card text-center group">
                 <div className="absolute inset-0 pointer-events-none text-gold-primary opacity-[0.03] flex items-center justify-center">
                   <div className="w-48 h-48"><LotusWatermark opacity={1}/></div>
                 </div>
                 <div className="text-4xl mb-6">{info.icon}</div>
-                <h3 className="font-cinzel text-lg mb-4 text-gold-primary uppercase">{info.title}</h3>
-                <p className="font-cormorant text-text-muted mb-2">{info.line1}</p>
-                <p className="font-cormorant text-text-muted">{info.line2}</p>
+                <h3 className={`font-cinzel text-lg mb-4 text-gold-primary uppercase ${fontClass}`}>{info.title}</h3>
+                <p className={`font-cormorant text-text-muted mb-2 ${fontClass}`}>{info.line1}</p>
+                <p className={`font-cormorant text-text-muted ${fontClass}`}>{info.line2}</p>
               </motion.div>
             ))}
           </motion.div>
@@ -120,22 +124,16 @@ export default function Home() {
         </div>
         <div className="max-w-[1200px] mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}>
-            <blockquote className="font-cormorant italic text-3xl md:text-5xl text-gold-primary leading-tight border-l-2 border-gold-light pl-8">
-              "Where the idol of Adinath emerged from the earth itself, and chose this sacred ground as its eternal home."
+            <blockquote className={`font-cormorant italic text-3xl md:text-5xl text-gold-primary leading-tight border-l-2 border-gold-light pl-8 ${fontClass}`}>
+              {t('home.about.quote')}
             </blockquote>
           </motion.div>
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="space-y-6">
-            <p className="text-text-muted">
-              Nestled near Shamgarh in the Mandsaur district of Madhya Pradesh, AVADHPURI PARASALI JAIN TIRTH stands as a beacon of unwavering devotion and spiritual history.
-            </p>
-            <p className="text-text-muted">
-              For over 1400 years, devotees have traveled to this serene land to seek the blessings of the self-manifested (Swayambhu) idol of Shri Adinath Bhagwan, the first Tirthankara of Jainism.
-            </p>
-            <p className="text-text-muted pb-4">
-              With 26 divine idols, awe-inspiring miracles, and an atmosphere permeated with peace, the tirth continues to transform the lives of all who visit.
-            </p>
-            <Link to="/about" className="inline-block font-cinzel text-gold-primary uppercase tracking-wide text-sm border-b border-gold-primary pb-1 hover:text-gold-light hover:border-gold-light transition">
-              Read Full History &rarr;
+            <p className={`text-text-muted ${fontClass}`}>{t('home.about.p1')}</p>
+            <p className={`text-text-muted ${fontClass}`}>{t('home.about.p2')}</p>
+            <p className={`text-text-muted pb-4 ${fontClass}`}>{t('home.about.p3')}</p>
+            <Link to="/about" className={`inline-block font-cinzel text-gold-primary uppercase tracking-wide text-sm border-b border-gold-primary pb-1 hover:text-gold-light hover:border-gold-light transition ${fontClass}`}>
+              {t('home.about.readmore')}
             </Link>
           </motion.div>
         </div>
@@ -146,14 +144,14 @@ export default function Home() {
       {/* Key Highlights */}
       <section className="py-20 md:py-32 px-4 bg-white relative">
         <div className="max-w-[1200px] mx-auto">
-          <motion.h2 
+          <motion.h2
             initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
-            className="font-cinzel text-3xl md:text-4xl text-center mb-16 uppercase tracking-wide"
+            className={`font-cinzel text-3xl md:text-4xl text-center mb-16 uppercase tracking-wide ${fontClass}`}
           >
-            Why Devotees Come Here
+            {t('home.highlights.title')}
           </motion.h2>
 
-          <motion.div 
+          <motion.div
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8"
             initial="hidden" whileInView="visible" viewport={{ once: true }} variants={staggerContainer}
           >
@@ -162,8 +160,12 @@ export default function Home() {
                 <div className="w-12 h-12 mx-auto mb-6 text-gold-primary">
                   <LotusWatermark opacity={1} />
                 </div>
-                <h3 className="font-cinzel text-lg mb-4 text-text-dark">{item.title}</h3>
-                <p className="font-cormorant text-text-muted text-base leading-relaxed">{item.description}</p>
+                <h3 className={`font-cinzel text-lg mb-4 text-text-dark ${fontClass}`}>
+                  {lang === 'hi' && item.titleHi ? item.titleHi : item.title}
+                </h3>
+                <p className={`font-cormorant text-text-muted text-base leading-relaxed ${fontClass}`}>
+                  {lang === 'hi' && item.descriptionHi ? item.descriptionHi : item.description}
+                </p>
               </motion.div>
             ))}
           </motion.div>
@@ -178,12 +180,10 @@ export default function Home() {
             <LotusWatermark opacity={1} className="w-[1000px] h-[1000px] absolute" />
         </div>
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="relative z-10 max-w-2xl mx-auto">
-          <h2 className="font-cinzel text-4xl mb-6 text-text-dark uppercase tracking-wide">Plan Your Sacred Journey</h2>
-          <p className="font-cormorant text-xl text-text-muted mb-10">
-            The tirth is open year-round. Complete facilities including Bhojanshala and Dharamshala are available for pilgrims.
-          </p>
+          <h2 className={`font-cinzel text-4xl mb-6 text-text-dark uppercase tracking-wide ${fontClass}`}>{t('home.cta.title')}</h2>
+          <p className={`font-cormorant text-xl text-text-muted mb-10 ${fontClass}`}>{t('home.cta.desc')}</p>
           <Link to="/visit" className="btn-gold bg-transparent border-gold-primary text-text-dark hover:text-white px-8 py-4">
-            Get Visiting Info &rarr;
+            {t('home.cta.btn')}
           </Link>
         </motion.div>
       </section>
@@ -193,11 +193,11 @@ export default function Home() {
       {/* Latest Event */}
       <section className="py-20 md:py-32 px-4 bg-white">
         <div className="max-w-[1000px] mx-auto text-center">
-          <motion.h2 
+          <motion.h2
             initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp}
-            className="font-cinzel text-3xl md:text-4xl text-center mb-16 uppercase tracking-wide"
+            className={`font-cinzel text-3xl md:text-4xl text-center mb-16 uppercase tracking-wide ${fontClass}`}
           >
-            Recent Celebrations
+            {t('home.recent.title')}
           </motion.h2>
 
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="card text-left max-w-3xl mx-auto flex flex-col md:flex-row gap-8 items-center group">
@@ -205,14 +205,12 @@ export default function Home() {
                <LotusWatermark opacity={0.2} className="w-32 h-32 transition-transform duration-700 group-hover:scale-110" />
             </div>
             <div className="w-full md:w-2/3">
-              <span className="font-noto text-gold-primary text-sm uppercase tracking-wider block mb-2 font-bold">आगामी महोत्सव · Upcoming</span>
-              <h3 className="font-cinzel text-2xl mb-2 text-text-dark">Pratham Varshganth & Dhwajarohan Utsav 2026</h3>
-              <span className="font-cinzel text-gold-primary text-xs uppercase tracking-wider block mb-4">6–8 April 2026 · Parasali Tirth</span>
-              <p className="font-cormorant text-text-muted mb-6">
-                Join thousands of devotees for the first anniversary celebration — featuring Abhishek Mahapujan, Dhwajarohan, and Swamivatsalya at Malwa's Shatrunjay.
-              </p>
-              <Link to="/events/dhwajarohan-2026" className="font-cinzel text-gold-primary text-sm uppercase tracking-wide hover:text-gold-light transition">
-                View Event Details &rarr;
+              <span className="font-noto text-gold-primary text-sm uppercase tracking-wider block mb-2 font-bold">{t('home.recent.badge')}</span>
+              <h3 className={`font-cinzel text-2xl mb-2 text-text-dark ${fontClass}`}>{t('home.recent.event.title')}</h3>
+              <span className={`font-cinzel text-gold-primary text-xs uppercase tracking-wider block mb-4 ${fontClass}`}>{t('home.recent.event.date')}</span>
+              <p className={`font-cormorant text-text-muted mb-6 ${fontClass}`}>{t('home.recent.event.desc')}</p>
+              <Link to="/events/dhwajarohan-2026" className={`font-cinzel text-gold-primary text-sm uppercase tracking-wide hover:text-gold-light transition ${fontClass}`}>
+                {t('home.recent.event.link')}
               </Link>
             </div>
           </motion.div>

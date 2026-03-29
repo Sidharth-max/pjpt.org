@@ -9,6 +9,7 @@ const imageSchema = mongoose.Schema({
   },
   url: { type: String, required: true },
   publicId: { type: String, required: true },
+  altText: { type: String, default: '' },
   uploadedAt: { type: Date, default: Date.now }
 });
 

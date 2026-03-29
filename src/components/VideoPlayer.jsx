@@ -43,7 +43,7 @@ const ExitFullscreenIcon = () => (
   </svg>
 );
 
-const VideoPlayer = forwardRef(function VideoPlayer({ src, className, style, onEnded }, forwardedRef) {
+const VideoPlayer = forwardRef(function VideoPlayer({ src, className, style, onEnded, autoPlay }, forwardedRef) {
   // Always use this internal ref for controls — never use forwardedRef.current directly
   // because forwardedRef may be a callback ref (function), which has no .current property.
   const videoRef = useRef(null);
@@ -116,8 +116,12 @@ const VideoPlayer = forwardRef(function VideoPlayer({ src, className, style, onE
 
   const handleLoadedMetadata = useCallback(() => {
     const video = videoRef.current;
-    if (video) setDuration(video.duration);
-  }, []);
+    if (!video) return;
+    setDuration(video.duration);
+    if (autoPlay) {
+      video.play().then(() => setIsPlaying(true)).catch(() => {});
+    }
+  }, [autoPlay]);
 
   const handleEnded = useCallback(() => {
     setIsPlaying(false);

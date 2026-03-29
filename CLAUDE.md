@@ -4,7 +4,7 @@
 
 This is a full-stack web application for **Avadhpuri Parasali Jain Tirth**, a Jain pilgrimage site. It features a public-facing site with gallery, events, and contact forms, plus a password-protected admin panel for content management.
 
-**Staging server:** `stg.funcrisp.store` | **Production server:** `pjpt.org`
+**Staging server:** `pjpt.funcrisp.store` | **Production server:** `pjpt.org`
 
 ---
 
@@ -121,7 +121,7 @@ JWT_SECRET=<secret>
 
 **Frontend (Vite — must use `VITE_` prefix):**
 ```
-VITE_API_URL=https://stg.funcrisp.store/
+VITE_API_URL=https://pjpt.funcrisp.store/
 VITE_ADMIN_PASSWORD=<password>
 VITE_ALLOW_MEDIA_UPLOAD=false
 VITE_ALLOW_MEDIA_DELETE=false
@@ -282,4 +282,4 @@ Nginx serves the built `/dist` directory and proxies `/api` to PM2-managed Expre
 - The Dhwajarohan2026 page is a temporary special event page — its routing logic in `App.jsx` has a date condition
 - When modifying API routes, update `src/services/api.js` to match
 - When adding translations, always add both `en` and `hi` entries to `src/i18n/translations.js`
-- The staging URL is `stg.funcrisp.store`; production is `pjpt.org`
+- The staging URL is `pjpt.funcrisp.store`; production is `pjpt.org`

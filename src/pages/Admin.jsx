@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2, CheckCircle2, AlertTriangle, XCircle, Copy, Eye, Filter, Search, Trash2, Check, Image as ImageIcon, Video as VideoIcon, UploadCloud } from 'lucide-react';
+import { Loader2, CheckCircle2, AlertTriangle, XCircle, Copy, Eye, Filter, Search, Trash2, Check, Image as ImageIcon, Video as VideoIcon, UploadCloud, X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { login, getImages, uploadImage, deleteImage, getEvents, createEvent, updateEvent, deleteEvent, getMessages, deleteMessage } from '../services/api';
+import VideoPlayer from '../components/VideoPlayer';
+import VideoThumbnail from '../components/VideoThumbnail';
 
 const formatBytes = (bytes = 0) => {
   if (!bytes) return '0 B';
@@ -45,8 +47,12 @@ export default function Admin() {
   const [galleryFilters, setGalleryFilters] = useState({ category: 'All', search: '', sort: 'newest', mediaType: 'all' });
   const [galleryLoading, setGalleryLoading] = useState(false);
   const [galleryError, setGalleryError] = useState('');
+  const [galleryPage, setGalleryPage] = useState(1);
+  const [galleryTotal, setGalleryTotal] = useState(0);
+  const GALLERY_PAGE_LIMIT = 24;
   const [copiedImageId, setCopiedImageId] = useState(null);
   const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(null);
   const [selectedImageIds, setSelectedImageIds] = useState([]);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const uploadControllers = useRef(new Map());
@@ -225,12 +231,20 @@ export default function Admin() {
     }
   };
 
-  const fetchImages = async () => {
+  const fetchImages = async (page = 1, append = false) => {
     try {
       setGalleryLoading(true);
       setGalleryError('');
-      const data = await getImages('All');
-      setImages(data);
+      const data = await getImages('All', page, GALLERY_PAGE_LIMIT);
+      // Support both paginated ({ images, total }) and legacy (array) responses
+      if (data && data.images) {
+        setImages(prev => append ? [...prev, ...data.images] : data.images);
+        setGalleryTotal(data.total);
+        setGalleryPage(page);
+      } else {
+        setImages(data);
+        setGalleryTotal(data.length);
+      }
     } catch (err) {
       console.error(err);
       setGalleryError('Unable to load media items. Please retry once your connection is stable.');
@@ -432,6 +446,7 @@ export default function Admin() {
         updateUploadState(uploadId, { progress: 100, eta: 'Completed', status: 'completed' });
         scheduleUploadRemoval(uploadId);
         successfulUploads++;
+        fetchImages();
       } catch (error) {
         if (controller.signal.aborted) {
           updateUploadState(uploadId, { status: 'canceled', eta: 'Cancelled' });
@@ -488,10 +503,25 @@ export default function Admin() {
     }
   };
 
-  const handleOpenMedia = (url) => {
-    if (!url) return;
-    window.open(url, '_blank', 'noopener,noreferrer');
-  };
+  const openLightbox = (index) => setLightboxIndex(index);
+  const closeLightbox = () => setLightboxIndex(null);
+  const prevLightbox = (e) => { if (e) e.stopPropagation(); setLightboxIndex(prev => prev > 0 ? prev - 1 : filteredImages.length - 1); };
+  const nextLightbox = (e) => { if (e) e.stopPropagation(); setLightboxIndex(prev => prev < filteredImages.length - 1 ? prev + 1 : 0); };
+
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    const onKey = (e) => {
+      if (e.key === 'Escape') closeLightbox();
+      if (e.key === 'ArrowLeft') prevLightbox();
+      if (e.key === 'ArrowRight') nextLightbox();
+    };
+    window.addEventListener('keydown', onKey);
+    document.body.style.overflow = 'hidden';
+    return () => {
+      window.removeEventListener('keydown', onKey);
+      document.body.style.overflow = '';
+    };
+  }, [lightboxIndex, filteredImages.length]);
 
   const updateGalleryFilter = (key, value) => {
     setGalleryFilters(prev => ({ ...prev, [key]: value }));
@@ -792,7 +822,7 @@ export default function Admin() {
                         Cancel All
                       </button>
                     </div>
-                    <div className="space-y-4">
+                    <div className="space-y-4 max-h-48 overflow-y-auto pr-1">
                       <AnimatePresence initial={false}>
                         {activeUploads.map(upload => {
                           const statusMeta = getStatusMeta(upload.status);
@@ -1034,28 +1064,26 @@ export default function Admin() {
                   >
                     <div className="relative">
                       {isVideo ? (
-                        <video
+                        <VideoThumbnail
                           src={img.url}
-                          className="w-full aspect-square object-cover bg-black"
-                          controls
-                          playsInline
-                          preload="metadata"
+                          className="w-full aspect-square"
+                          onClick={e => { e.stopPropagation(); openLightbox(filteredImages.indexOf(img)); }}
                         />
                       ) : (
                         <img src={img.url} alt={img.title} className="w-full aspect-square object-cover" loading="lazy" />
                       )}
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-3">
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center gap-3 pointer-events-none">
                         <button
                           type="button"
-                          onClick={event => { event.stopPropagation(); handleOpenMedia(img.url); }}
-                          className="bg-white/90 text-text-dark px-3 py-1 text-xs font-cinzel uppercase tracking-wide flex items-center gap-1"
+                          onClick={event => { event.stopPropagation(); openLightbox(filteredImages.indexOf(img)); }}
+                          className="bg-white/90 text-text-dark px-3 py-1 text-xs font-cinzel uppercase tracking-wide flex items-center gap-1 pointer-events-auto"
                         >
                           <Eye size={14} /> View
                         </button>
                         <button
                           type="button"
                           onClick={event => { event.stopPropagation(); handleCopyImageUrl(img); }}
-                          className="bg-white/90 text-text-dark px-3 py-1 text-xs font-cinzel uppercase tracking-wide flex items-center gap-1"
+                          className="bg-white/90 text-text-dark px-3 py-1 text-xs font-cinzel uppercase tracking-wide flex items-center gap-1 pointer-events-auto"
                         >
                           <Copy size={14} /> {copiedImageId === img._id ? 'Copied' : 'Copy'}
                         </button>
@@ -1095,6 +1123,18 @@ export default function Admin() {
                 );
               })}
             </div>
+
+            {galleryTotal > images.length && (
+              <div className="flex justify-center mt-8">
+                <button
+                  onClick={() => fetchImages(galleryPage + 1, true)}
+                  disabled={galleryLoading}
+                  className="btn-gold px-8 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {galleryLoading ? 'Loading…' : `Load More (${images.length} of ${galleryTotal})`}
+                </button>
+              </div>
+            )}
           </motion.div>
         )}
 
@@ -1203,6 +1243,59 @@ export default function Admin() {
         )}
       </div>
       </div>
+
+      {/* Lightbox */}
+      <AnimatePresence>
+        {lightboxIndex !== null && filteredImages[lightboxIndex] && (() => {
+          const item = filteredImages[lightboxIndex];
+          const itemIsVideo = VIDEO_EXTENSIONS.test(item.url || '');
+          return (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[200] bg-black/95 flex items-center justify-center p-4"
+              onClick={closeLightbox}
+            >
+              <button onClick={closeLightbox} className="absolute top-6 right-6 text-white hover:text-gold-light transition z-10">
+                <X size={36} />
+              </button>
+              <button onClick={prevLightbox} className="absolute left-4 top-1/2 -translate-y-1/2 text-white hover:text-gold-light p-2 transition z-10">
+                <ChevronLeft size={48} />
+              </button>
+              <button onClick={nextLightbox} className="absolute right-4 top-1/2 -translate-y-1/2 text-white hover:text-gold-light p-2 transition z-10">
+                <ChevronRight size={48} />
+              </button>
+              <motion.div
+                key={item._id}
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="relative bg-black w-full max-w-5xl flex flex-col border border-gold-primary/30 overflow-hidden"
+                onClick={e => e.stopPropagation()}
+              >
+                {itemIsVideo ? (
+                  <>
+                    <VideoPlayer src={item.url} className="w-full object-contain" style={{ maxHeight: 'calc(85vh - 72px)' }} autoPlay />
+                    <div className="bg-black/70 backdrop-blur p-4 text-center shrink-0">
+                      <h3 className="font-cinzel text-xl text-white uppercase tracking-wide">{item.title}</h3>
+                      <p className="font-cormorant text-gold-light mt-1">{item.category}</p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <img src={item.url} alt={item.altText || item.title} className="w-full object-contain" style={{ maxHeight: 'calc(85vh - 72px)' }} onContextMenu={e => e.preventDefault()} onDragStart={e => e.preventDefault()} />
+                    <div className="bg-black/70 backdrop-blur p-4 text-center shrink-0">
+                      <h3 className="font-cinzel text-xl text-white uppercase tracking-wide">{item.title}</h3>
+                      <p className="font-cormorant text-gold-light mt-1">{item.category}</p>
+                    </div>
+                  </>
+                )}
+              </motion.div>
+            </motion.div>
+          );
+        })()}
+      </AnimatePresence>
     </div>
   );
 }

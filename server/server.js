@@ -31,7 +31,7 @@ const resolveMediaHost = () => {
 const mediaHost = resolveMediaHost();
 const imgSources = ["'self'", 'data:', 'https://fonts.gstatic.com', 'https://www.google-analytics.com'];
 const mediaSources = ["'self'"];
-const connectSources = ["'self'", 'https://www.google-analytics.com', 'https://region1.google-analytics.com', 'https://analytics.google.com'];
+const connectSources = ["'self'", 'https://www.google-analytics.com', 'https://region1.google-analytics.com', 'https://analytics.google.com', 'https://fonts.googleapis.com'];
 
 if (mediaHost) {
   imgSources.push(mediaHost);

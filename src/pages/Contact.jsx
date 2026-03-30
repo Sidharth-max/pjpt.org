@@ -10,11 +10,11 @@ const fadeUp = {
 };
 
 export default function Contact() {
+  const { t, lang } = useLang();
   const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', phone: '', subject: 'General Inquiry', message: '' });
   const [errors, setErrors] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { t, lang } = useLang();
   const fn = lang === 'hi' ? 'font-noto' : '';
 
   const handleChange = (e) => {
@@ -45,7 +45,7 @@ export default function Contact() {
         setIsSubmitted(true);
         setFormData({ firstName: '', lastName: '', email: '', phone: '', subject: 'General Inquiry', message: '' });
       } catch (err) {
-        alert('Failed to send message. Please try again.');
+        alert(t('contact.error.network'));
       } finally {
         setIsSubmitting(false);
       }

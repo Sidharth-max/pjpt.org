@@ -4,6 +4,7 @@ import { Loader2, CheckCircle2, AlertTriangle, XCircle, Copy, Eye, Filter, Searc
 import { login, getImages, uploadImage, deleteImage, getEvents, createEvent, updateEvent, deleteEvent, getMessages, deleteMessage } from '../services/api';
 import VideoPlayer from '../components/VideoPlayer';
 import VideoThumbnail from '../components/VideoThumbnail';
+import { useLang } from '../contexts/LanguageContext';
 
 const formatBytes = (bytes = 0) => {
   if (!bytes) return '0 B';
@@ -35,6 +36,7 @@ const formatDateLabel = (dateString) => {
 };
 
 export default function Admin() {
+  const { t } = useLang();
   const [auth, setAuth] = useState(false);
   const [password, setPassword] = useState('');
   const [activeTab, setActiveTab] = useState('gallery');
@@ -110,12 +112,12 @@ export default function Admin() {
     setTimeout(() => setNotification(''), 3000);
   };
 
-  const showAlert = (message, title = 'Attention') => {
-    setDialogState({ isOpen: true, type: 'alert', title, message, onConfirm: null });
+  const showAlert = (message, title = '') => {
+    setDialogState({ isOpen: true, type: 'alert', title: title || t('admin.toast.attention'), message, onConfirm: null });
   };
 
-  const showConfirm = (message, onConfirm, title = 'Confirm Action') => {
-    setDialogState({ isOpen: true, type: 'confirm', title, message, onConfirm });
+  const showConfirm = (message, onConfirm, title = '') => {
+    setDialogState({ isOpen: true, type: 'confirm', title: title || t('admin.toast.confirmAction'), message, onConfirm });
   };
 
   const closeDialog = () => {
@@ -125,15 +127,15 @@ export default function Admin() {
   const getStatusMeta = (status) => {
     switch (status) {
       case 'completed':
-        return { label: 'Completed', color: 'text-green-600', icon: <CheckCircle2 size={18} /> };
+        return { label: t('admin.ui.uploadStatus.completed'), color: 'text-green-600', icon: <CheckCircle2 size={18} /> };
       case 'canceled':
-        return { label: 'Cancelled', color: 'text-text-muted', icon: <XCircle size={18} /> };
+        return { label: t('admin.ui.uploadStatus.cancelled'), color: 'text-text-muted', icon: <XCircle size={18} /> };
       case 'error':
-        return { label: 'Failed', color: 'text-red-500', icon: <AlertTriangle size={18} /> };
+        return { label: t('admin.ui.uploadStatus.failed'), color: 'text-red-500', icon: <AlertTriangle size={18} /> };
       case 'queued':
-        return { label: 'Queued', color: 'text-text-muted', icon: <Loader2 size={18} className="opacity-40" /> };
+        return { label: t('admin.ui.uploadStatus.queued'), color: 'text-text-muted', icon: <Loader2 size={18} className="opacity-40" /> };
       default:
-        return { label: 'Uploading', color: 'text-gold-primary', icon: <Loader2 size={18} className="animate-spin" /> };
+        return { label: t('admin.ui.uploadStatus.uploading'), color: 'text-gold-primary', icon: <Loader2 size={18} className="animate-spin" /> };
     }
   };
 
@@ -227,7 +229,7 @@ export default function Admin() {
       setMessages(data);
     } catch (err) {
       console.error(err);
-      showAlert('Unable to load contact form submissions right now. Please refresh and try again.', 'Messages Error');
+      showAlert(t('admin.error.loadMessages'), t('admin.toast.messages'));
     }
   };
 
@@ -247,8 +249,8 @@ export default function Admin() {
       }
     } catch (err) {
       console.error(err);
-      setGalleryError('Unable to load media items. Please retry once your connection is stable.');
-      showAlert('Unable to load the gallery items. Please retry after a moment.', 'Gallery Error');
+      setGalleryError(t('admin.error.loadGalleryConnection'));
+      showAlert(t('admin.error.loadGallery'), t('admin.toast.gallery'));
     } finally {
       setGalleryLoading(false);
     }
@@ -260,7 +262,7 @@ export default function Admin() {
       setEvents(data);
     } catch (err) {
       console.error(err);
-      showAlert('Unable to load events at this moment. Please refresh and try again.', 'Events Error');
+      showAlert(t('admin.error.loadEvents'), t('admin.toast.eventsError'));
     }
   };
 
@@ -271,7 +273,7 @@ export default function Admin() {
       sessionStorage.setItem('adminToken', token);
       setAuth(true);
     } catch {
-      showAlert('Incorrect password. Please try again.', 'Authentication Failed');
+      showAlert(t('admin.error.auth'), t('admin.toast.authFailed'));
     }
   };
 
@@ -349,12 +351,12 @@ export default function Admin() {
 
   const handleBulkDelete = () => {
     if (selectedImageIds.length === 0) {
-      showAlert('Please select at least one media item to delete.', 'No Media Selected');
+      showAlert(t('admin.error.noMediaSelected'), t('admin.ui.noMediaSelected'));
       return;
     }
 
     showConfirm(
-      `Are you sure you want to delete ${selectedImageIds.length} media item${selectedImageIds.length > 1 ? 's' : ''}? This action cannot be undone.`,
+      `${t('admin.dialog.selectDeleteMedia').replace('{count}', selectedImageIds.length).replace('{plural}', selectedImageIds.length > 1 ? 's' : '')}`,
       async () => {
         try {
           setBulkDeleting(true);
@@ -364,22 +366,22 @@ export default function Admin() {
           const failures = ids.length - successes;
 
           if (successes) {
-            showToast(successes > 1 ? 'Selected media deleted successfully' : 'Media deleted successfully');
+            showToast(successes > 1 ? t('admin.success.selectedDeleted') : t('admin.success.mediaDeleted'));
             await fetchImages();
           }
 
           if (failures) {
-            showAlert('Some media could not be deleted. Please try again.', 'Partial Deletion');
+            showAlert(t('admin.error.bulkDeleteFailed'), t('admin.toast.partialDelete'));
           }
         } catch (error) {
           console.error(error);
-          showAlert('Failed to delete the selected media. Please try again.', 'Deletion Failed');
+          showAlert(t('admin.error.deleteFailed'), t('admin.toast.deleteFailed'));
         } finally {
           setBulkDeleting(false);
           exitSelectionMode();
         }
       },
-      'Delete Selected Media'
+      t('admin.toast.deleteSelectedMedia')
     );
   };
 
@@ -387,7 +389,7 @@ export default function Admin() {
   const handleImageUpload = async (e) => {
     e.preventDefault();
     const files = [...selectedFiles];
-    if (!files.length || !imgForm.title) return showAlert('Please select file(s) and provide a title before uploading.', 'Missing Requirements');
+    if (!files.length || !imgForm.title) return showAlert(t('admin.error.noFiles'), t('admin.toast.missingReq'));
     setUploadingImg(true);
 
     // Pre-register all uploads in the queue so the user sees them upfront
@@ -405,7 +407,7 @@ export default function Admin() {
         size: file.size,
         category: imgForm.category,
         progress: 0,
-        eta: i === 0 ? 'Calculating…' : `Queued (${i + 1} of ${files.length})`,
+        eta: i === 0 ? t('admin.ui.uploadStatus.calculating') : `${t('admin.ui.uploadStatus.queued')} (${i + 1} of ${files.length})`,
         status: i === 0 ? 'uploading' : 'queued'
       }))
     ]);
@@ -420,7 +422,7 @@ export default function Admin() {
       uploadControllers.current.set(uploadId, controller);
 
       // Mark this item as actively uploading
-      updateUploadState(uploadId, { status: 'uploading', eta: 'Calculating…' });
+      updateUploadState(uploadId, { status: 'uploading', eta: t('admin.ui.uploadStatus.calculating') });
 
       const fd = new FormData();
       fd.append('title', files.length > 1 ? `${imgForm.title} - ${file.name}` : imgForm.title);
@@ -439,23 +441,23 @@ export default function Admin() {
             const remainingSeconds = speed > 0 ? (event.total - event.loaded) / speed : 0;
             updateUploadState(uploadId, {
               progress,
-              eta: remainingSeconds ? `${formatDuration(remainingSeconds)} remaining` : 'Finishing…'
+              eta: remainingSeconds ? `${formatDuration(remainingSeconds)} ${t('admin.ui.inProgress')}` : t('admin.ui.uploadStatus.finishing')
             });
           }
         });
-        updateUploadState(uploadId, { progress: 100, eta: 'Completed', status: 'completed' });
+        updateUploadState(uploadId, { progress: 100, eta: t('admin.ui.uploadStatus.completed'), status: 'completed' });
         scheduleUploadRemoval(uploadId);
         successfulUploads++;
         fetchImages();
       } catch (error) {
         if (controller.signal.aborted) {
-          updateUploadState(uploadId, { status: 'canceled', eta: 'Cancelled' });
+          updateUploadState(uploadId, { status: 'canceled', eta: t('admin.ui.uploadStatus.cancelled') });
           scheduleUploadRemoval(uploadId);
           // Cancel remaining queued items too
-          setActiveUploads(prev => prev.map(u => u.status === 'queued' ? { ...u, status: 'canceled', eta: 'Cancelled' } : u));
+          setActiveUploads(prev => prev.map(u => u.status === 'queued' ? { ...u, status: 'canceled', eta: t('admin.ui.uploadStatus.cancelled') } : u));
           break;
         }
-        updateUploadState(uploadId, { status: 'error', eta: 'Failed' });
+        updateUploadState(uploadId, { status: 'error', eta: t('admin.ui.uploadStatus.failed') });
         scheduleUploadRemoval(uploadId);
         hasFailure = true;
       } finally {
@@ -464,27 +466,27 @@ export default function Admin() {
     }
 
     if (successfulUploads > 0) {
-      showToast(successfulUploads > 1 ? `${successfulUploads} media files uploaded successfully` : 'Media uploaded successfully');
+      showToast(successfulUploads > 1 ? `${successfulUploads} ${t('admin.success.mediaDeleted')}` : t('admin.success.imageDeleted'));
       setImgForm({ title: '', category: 'Temple', altText: '' });
       clearSelectedFiles();
       fetchImages();
     }
 
     if (hasFailure) {
-      showAlert('Some uploads failed. Please check your network and try again.', 'Upload Incomplete');
+      showAlert(t('admin.error.upoadsFailed'), t('admin.toast.uploadIncomplete'));
     }
 
     setUploadingImg(false);
   };
 
   const handleImageDelete = async (id) => {
-    showConfirm('Are you sure you want to delete this image? This action cannot be undone.', async () => {
+    showConfirm(t('admin.dialog.deleteMedia'), async () => {
       try {
         await deleteImage(id);
-        showToast('Image deleted successfully');
+        showToast(t('admin.success.imageDeleted'));
         fetchImages();
       } catch (err) {
-        showAlert('Failed to delete the image. Please try again.', 'Error');
+        showAlert(t('admin.error.imageDeleteFailed'), t('admin.toast.error'));
       }
     });
   };
@@ -496,10 +498,10 @@ export default function Admin() {
       if (copyTimerRef.current) clearTimeout(copyTimerRef.current);
       setCopiedImageId(image._id);
       copyTimerRef.current = setTimeout(() => setCopiedImageId(null), 2000);
-      showToast('Media link copied to clipboard');
+      showToast(t('admin.success.imageCopied'));
     } catch (err) {
       console.error(err);
-      showAlert('Unable to copy the media link automatically. Please copy it manually instead.', 'Copy Failed');
+      showAlert(t('admin.error.copyFailed'), t('admin.toast.attention'));
     }
   };
 
@@ -534,9 +536,9 @@ export default function Admin() {
   // Event Handlers
   const handleEventSubmit = async (e) => {
     e.preventDefault();
-    if (!eventForm.title || !eventForm.date || !eventForm.description) return showAlert('Please fill out the title, date, and description fields.', 'Missing Information');
+    if (!eventForm.title || !eventForm.date || !eventForm.description) return showAlert(t('admin.error.noEventDetails'), t('admin.toast.attention'));
     setUploadingEvent(true);
-    
+
     const fd = new FormData();
     fd.append('title', eventForm.title);
     fd.append('date', eventForm.date);
@@ -548,40 +550,40 @@ export default function Admin() {
     try {
       if (eventForm.id) {
         await updateEvent(eventForm.id, fd);
-        showToast('Event updated successfully');
+        showToast(t('admin.success.eventUpdated'));
       } else {
         await createEvent(fd);
-        showToast('Event created successfully');
+        showToast(t('admin.success.eventCreated'));
       }
       setEventForm({ id: null, title: '', date: '', description: '', category: '', isFeatured: false, file: null });
       fetchEvents();
     } catch (err) {
-      showAlert('Failed to save the event. Please try again.', 'Error');
+      showAlert(t('admin.error.eventSaveFailed'), t('admin.toast.error'));
     } finally {
       setUploadingEvent(false);
     }
   };
 
   const handleEventDelete = async (id) => {
-    showConfirm('Are you sure you want to delete this event? This action cannot be undone.', async () => {
+    showConfirm(t('admin.dialog.deleteEvent'), async () => {
       try {
         await deleteEvent(id);
-        showToast('Event deleted successfully');
+        showToast(t('admin.success.eventDeleted'));
         fetchEvents();
       } catch (err) {
-        showAlert('Failed to delete the event. Please try again.', 'Error');
+        showAlert(t('admin.error.eventDeleteFailed'), t('admin.toast.error'));
       }
     });
   };
 
   const handleMessageDelete = async (id) => {
-    showConfirm('Are you sure you want to delete this message? This action cannot be undone.', async () => {
+    showConfirm(t('admin.dialog.deleteMessage'), async () => {
       try {
         await deleteMessage(id);
-        showToast('Message deleted successfully');
+        showToast(t('admin.success.messageDeleted'));
         fetchMessages();
       } catch (err) {
-        showAlert('Failed to delete the message. Please try again.', 'Error');
+        showAlert(t('admin.error.messageDeleteFailed'), t('admin.toast.error'));
       }
     });
   };
@@ -604,9 +606,9 @@ export default function Admin() {
     return (
       <div className="w-full h-screen flex items-center justify-center bg-bg-section">
         <form onSubmit={handleLogin} className="card text-center max-w-sm w-full">
-          <h2 className="font-cinzel text-2xl text-gold-primary mb-6">Admin Login</h2>
-          <input type="password" placeholder="Password" value={password} onChange={e => setPassword(e.target.value)} className="w-full bg-off-white border-b-2 border-gold-pale focus:border-gold-primary focus:outline-none p-3 font-cormorant text-lg mb-6" />
-          <button type="submit" className="btn-gold w-full">Login</button>
+          <h2 className="font-cinzel text-2xl text-gold-primary mb-6">{t('admin.ui.login')}</h2>
+          <input type="password" placeholder={t('admin.ui.password')} value={password} onChange={e => setPassword(e.target.value)} className="w-full bg-off-white border-b-2 border-gold-pale focus:border-gold-primary focus:outline-none p-3 font-cormorant text-lg mb-6" />
+          <button type="submit" className="btn-gold w-full">{t('admin.ui.loginBtn')}</button>
         </form>
       </div>
     );
@@ -625,14 +627,14 @@ export default function Admin() {
         <AnimatePresence>
           {dialogState.isOpen && (
             <>
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998]"
                 onClick={closeDialog}
               />
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95, y: 20 }} 
-                animate={{ opacity: 1, scale: 1, y: 0 }} 
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
                 className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-sm bg-white border border-gold-light shadow-2xl z-[9999] p-6 overflow-hidden"
               >
@@ -645,17 +647,17 @@ export default function Admin() {
                     <p className="font-cormorant text-text-muted text-lg leading-snug">{dialogState.message}</p>
                   </div>
                 </div>
-                
+
                 <div className="flex justify-end gap-3 mt-6">
                   {dialogState.type === 'confirm' && (
-                    <button 
+                    <button
                       onClick={closeDialog}
                       className="px-5 py-2 font-cinzel text-sm border border-gold-light text-text-muted hover:bg-bg-section transition uppercase tracking-wide"
                     >
-                      Cancel
+                      {t('admin.ui.cancel')}
                     </button>
                   )}
-                  <button 
+                  <button
                     onClick={() => {
                       if (dialogState.onConfirm) dialogState.onConfirm();
                       closeDialog();
@@ -663,7 +665,7 @@ export default function Admin() {
                     className={`px-5 py-2 font-cinzel text-sm text-white transition uppercase tracking-wide
                       ${dialogState.type === 'confirm' ? 'bg-red-500 hover:bg-red-600' : 'bg-gold-primary hover:bg-gold-light'}`}
                   >
-                    {dialogState.type === 'confirm' ? 'Confirm' : 'Okay'}
+                    {dialogState.type === 'confirm' ? t('admin.ui.confirm') : t('admin.ui.okay')}
                   </button>
                 </div>
               </motion.div>
@@ -673,35 +675,35 @@ export default function Admin() {
 
       <div className="max-w-[1200px] mx-auto px-4">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="font-cinzel text-4xl text-text-dark uppercase tracking-wide">Admin Dashboard</h1>
-          <button onClick={handleLogout} className="font-cinzel text-sm uppercase tracking-wide px-4 py-2 border border-gold-light text-text-muted hover:border-red-400 hover:text-red-500 transition-colors bg-white">Logout</button>
+          <h1 className="font-cinzel text-4xl text-text-dark uppercase tracking-wide">{t('admin.ui.title')}</h1>
+          <button onClick={handleLogout} className="font-cinzel text-sm uppercase tracking-wide px-4 py-2 border border-gold-light text-text-muted hover:border-red-400 hover:text-red-500 transition-colors bg-white">{t('admin.ui.logout')}</button>
         </div>
 
         <div className="flex flex-wrap gap-4 mb-8">
-          <button onClick={() => setActiveTab('gallery')} className={`font-cinzel uppercase px-6 py-2 transition-colors ${activeTab === 'gallery' ? 'bg-gold-primary text-white' : 'border border-gold-light text-text-dark bg-white'}`}>Gallery</button>
-          <button onClick={() => setActiveTab('events')} className={`font-cinzel uppercase px-6 py-2 transition-colors ${activeTab === 'events' ? 'bg-gold-primary text-white' : 'border border-gold-light text-text-dark bg-white'}`}>Events</button>
-          <button onClick={() => setActiveTab('messages')} className={`font-cinzel uppercase px-6 py-2 transition-colors ${activeTab === 'messages' ? 'bg-gold-primary text-white' : 'border border-gold-light text-text-dark bg-white'}`}>Messages</button>
+          <button onClick={() => setActiveTab('gallery')} className={`font-cinzel uppercase px-6 py-2 transition-colors ${activeTab === 'gallery' ? 'bg-gold-primary text-white' : 'border border-gold-light text-text-dark bg-white'}`}>{t('admin.ui.gallery')}</button>
+          <button onClick={() => setActiveTab('events')} className={`font-cinzel uppercase px-6 py-2 transition-colors ${activeTab === 'events' ? 'bg-gold-primary text-white' : 'border border-gold-light text-text-dark bg-white'}`}>{t('admin.ui.events')}</button>
+          <button onClick={() => setActiveTab('messages')} className={`font-cinzel uppercase px-6 py-2 transition-colors ${activeTab === 'messages' ? 'bg-gold-primary text-white' : 'border border-gold-light text-text-dark bg-white'}`}>{t('admin.ui.messages')}</button>
         </div>
 
         {activeTab === 'gallery' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="bg-white p-8 border border-gold-light shadow-sm mb-12">
-              <h2 className="font-cinzel text-2xl mb-6 text-gold-primary">Upload Media</h2>
+              <h2 className="font-cinzel text-2xl mb-6 text-gold-primary">{t('admin.ui.uploadMedia')}</h2>
               <form onSubmit={handleImageUpload} className="space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="font-cinzel text-sm uppercase tracking-wide text-text-dark">Title Prefix</label>
+                    <label className="font-cinzel text-sm uppercase tracking-wide text-text-dark">{t('admin.ui.titlePrefix')}</label>
                     <input
                       type="text"
                       value={imgForm.title}
                       onChange={e => setImgForm(prev => ({ ...prev, title: e.target.value }))}
-                      placeholder="e.g., Rath Yatra 2026"
+                      placeholder={t('admin.ui.titlePrefixPlaceholder')}
                       className="w-full border border-gold-light px-4 py-2 font-cormorant text-lg bg-off-white/60 focus:outline-none focus:border-gold-primary"
                       required
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="font-cinzel text-sm uppercase tracking-wide text-text-dark">Category</label>
+                    <label className="font-cinzel text-sm uppercase tracking-wide text-text-dark">{t('admin.ui.category')}</label>
                     <select
                       value={imgForm.category}
                       onChange={e => setImgForm(prev => ({ ...prev, category: e.target.value }))}
@@ -714,12 +716,12 @@ export default function Admin() {
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <label className="font-cinzel text-sm uppercase tracking-wide text-text-dark">Alt Text <span className="font-cormorant normal-case text-text-muted">(accessibility & SEO description)</span></label>
+                  <label className="font-cinzel text-sm uppercase tracking-wide text-text-dark">{t('admin.ui.altText')} <span className="font-cormorant normal-case text-text-muted">{t('admin.ui.altTextDesc')}</span></label>
                   <input
                     type="text"
                     value={imgForm.altText}
                     onChange={e => setImgForm(prev => ({ ...prev, altText: e.target.value }))}
-                    placeholder="e.g., Lord Adinath idol during Abhishek ceremony"
+                    placeholder={t('admin.ui.altTextPlaceholder')}
                     className="w-full border border-gold-light px-4 py-2 font-cormorant text-lg bg-off-white/60 focus:outline-none focus:border-gold-primary"
                   />
                 </div>
@@ -731,14 +733,14 @@ export default function Admin() {
                 >
                   <div className="flex flex-col items-center gap-3">
                     <UploadCloud size={40} className="text-gold-primary" />
-                    <p className="font-cinzel text-lg text-text-dark">Drag & drop media files here</p>
-                    <p className="text-sm text-text-muted font-cormorant">JPG, PNG, WEBP or MP4 up to 40 MB each</p>
+                    <p className="font-cinzel text-lg text-text-dark">{t('admin.ui.dragDropHint')}</p>
+                    <p className="text-sm text-text-muted font-cormorant">{t('admin.ui.fileHint')}</p>
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       className="btn-gold px-6 py-2"
                     >
-                      Browse Files
+                      {t('admin.ui.browseFiles')}
                     </button>
                     <input
                       ref={fileInputRef}
@@ -755,11 +757,11 @@ export default function Admin() {
                   <div className="border border-gold-light bg-white rounded-sm p-4">
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <p className="font-cinzel text-sm text-text-dark uppercase tracking-wide">Selected Files ({selectedFiles.length})</p>
-                        <p className="text-xs text-text-muted font-cormorant">Each file will inherit the title prefix above.</p>
+                        <p className="font-cinzel text-sm text-text-dark uppercase tracking-wide">{t('admin.ui.selectedFiles')} ({selectedFiles.length})</p>
+                        <p className="text-xs text-text-muted font-cormorant">{t('admin.ui.filesInheritTitle')}</p>
                       </div>
                       <button type="button" onClick={clearSelectedFiles} className="text-xs font-cinzel uppercase tracking-wide text-red-500 hover:text-red-600">
-                        Clear All
+                        {t('admin.ui.clearAll')}
                       </button>
                     </div>
                     <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
@@ -778,7 +780,7 @@ export default function Admin() {
                               </div>
                             </div>
                             <button type="button" onClick={() => removeSelectedFile(fileKey)} className="text-xs font-cinzel uppercase tracking-wide text-red-500 hover:text-red-600">
-                              Remove
+                              {t('admin.ui.remove')}
                             </button>
                           </div>
                         );
@@ -793,7 +795,7 @@ export default function Admin() {
                     disabled={uploadingImg || selectedFiles.length === 0}
                     className="btn-gold px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    {uploadingImg ? 'Uploading…' : selectedFiles.length ? `Upload ${selectedFiles.length} File${selectedFiles.length > 1 ? 's' : ''}` : 'Upload Files'}
+                    {uploadingImg ? `${t('admin.ui.uploadStatus.uploading')}…` : selectedFiles.length ? `${t('admin.ui.uploadFiles')} ${selectedFiles.length} ${selectedFiles.length > 1 ? t('admin.ui.files') : t('admin.ui.file')}` : t('admin.ui.uploadFiles')}
                   </button>
                   {selectedFiles.length > 0 && (
                     <button
@@ -801,25 +803,25 @@ export default function Admin() {
                       onClick={clearSelectedFiles}
                       className="text-xs font-cinzel uppercase tracking-wide border px-4 py-2 transition border-gold-light text-text-dark hover:bg-bg-section"
                     >
-                      Clear Selection
+                      {t('admin.ui.clearSelection')}
                     </button>
                   )}
-                  <p className="text-xs text-text-muted font-cormorant">Tip: You can mix images and videos in one batch.</p>
+                  <p className="text-xs text-text-muted font-cormorant">{t('admin.ui.mixFilesHint')}</p>
                 </div>
 
                 {activeUploads.length > 0 && (
                   <div className="border border-gold-light bg-white rounded-sm p-5 space-y-4">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
-                        <p className="font-cinzel text-sm text-text-dark uppercase tracking-wide">Upload Queue</p>
-                        <p className="text-xs text-text-muted font-cormorant">Tracking {activeUploads.length} file{activeUploads.length > 1 ? 's' : ''} in progress</p>
+                        <p className="font-cinzel text-sm text-text-dark uppercase tracking-wide">{t('admin.ui.uploadQueue')}</p>
+                        <p className="text-xs text-text-muted font-cormorant">{t('admin.ui.tracking')} {activeUploads.length} {activeUploads.length > 1 ? t('admin.ui.files') : t('admin.ui.file')} {t('admin.ui.inProgress')}</p>
                       </div>
                       <button
                         type="button"
                         onClick={cancelAllUploads}
                         className="text-xs font-cinzel uppercase tracking-wide border px-3 py-1.5 transition border-red-300 text-red-500 hover:bg-red-50"
                       >
-                        Cancel All
+                        {t('admin.ui.cancelAll')}
                       </button>
                     </div>
                     <div className="space-y-4 max-h-48 overflow-y-auto pr-1">
@@ -850,7 +852,7 @@ export default function Admin() {
                                     onClick={() => cancelUpload(upload.id)}
                                     className="text-xs font-cinzel uppercase tracking-wide border px-3 py-1.5 transition border-gold-light text-text-dark hover:bg-white"
                                   >
-                                    Cancel
+                                    {t('admin.ui.cancel')}
                                   </button>
                                 )}
                               </div>
@@ -881,28 +883,28 @@ export default function Admin() {
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
               <div className="p-4 border border-gold-light bg-white shadow-sm">
-                <p className="text-xs font-cinzel uppercase tracking-widest text-text-muted">Total Media</p>
+                <p className="text-xs font-cinzel uppercase tracking-widest text-text-muted">{t('admin.ui.totalMedia')}</p>
                 <div className="mt-2 flex items-center gap-3">
                   <span className="p-2 rounded-full bg-gold-pale text-gold-primary"><ImageIcon size={18} /></span>
                   <p className="font-cinzel text-3xl text-text-dark">{galleryStats.total}</p>
                 </div>
               </div>
               <div className="p-4 border border-gold-light bg-white shadow-sm">
-                <p className="text-xs font-cinzel uppercase tracking-widest text-text-muted">Photos</p>
+                <p className="text-xs font-cinzel uppercase tracking-widest text-text-muted">{t('admin.ui.photos')}</p>
                 <div className="mt-2 flex items-center gap-3">
                   <span className="p-2 rounded-full bg-green-50 text-green-600"><ImageIcon size={18} /></span>
                   <p className="font-cinzel text-3xl text-text-dark">{galleryStats.photos}</p>
                 </div>
               </div>
               <div className="p-4 border border-gold-light bg-white shadow-sm">
-                <p className="text-xs font-cinzel uppercase tracking-widest text-text-muted">Videos</p>
+                <p className="text-xs font-cinzel uppercase tracking-widest text-text-muted">{t('admin.ui.videos')}</p>
                 <div className="mt-2 flex items-center gap-3">
                   <span className="p-2 rounded-full bg-purple-50 text-purple-600"><VideoIcon size={18} /></span>
                   <p className="font-cinzel text-3xl text-text-dark">{galleryStats.videos}</p>
                 </div>
               </div>
               <div className="p-4 border border-gold-light bg-white shadow-sm">
-                <p className="text-xs font-cinzel uppercase tracking-widest text-text-muted">Last Update</p>
+                <p className="text-xs font-cinzel uppercase tracking-widest text-text-muted">{t('admin.ui.lastUpdate')}</p>
                 <div className="mt-2 flex items-center gap-3">
                   <span className="p-2 rounded-full bg-bg-section text-text-muted"><Loader2 size={18} /></span>
                   <p className="font-cinzel text-lg text-text-dark">{galleryStats.latestUpload ? formatDateLabel(galleryStats.latestUpload) : '—'}</p>
@@ -914,7 +916,7 @@ export default function Admin() {
               <div className="bg-red-50 border border-red-200 p-4 mb-6 flex flex-wrap items-center justify-between gap-3">
                 <p className="text-red-700 font-cormorant">{galleryError}</p>
                 <button type="button" onClick={fetchImages} className="font-cinzel text-xs uppercase tracking-wide text-red-600 border border-red-300 px-4 py-1 hover:bg-red-100">
-                  Retry Loading
+                  {t('admin.ui.retryLoading')}
                 </button>
               </div>
             )}
@@ -922,9 +924,9 @@ export default function Admin() {
             <div className="bg-white p-5 border border-gold-light shadow-sm mb-10">
               <div className="flex flex-wrap items-center gap-3 mb-4">
                 <Filter size={18} className="text-gold-primary" />
-                <h3 className="font-cinzel text-xl text-text-dark">Gallery Filters</h3>
+                <h3 className="font-cinzel text-xl text-text-dark">{t('admin.ui.galleryFilters')}</h3>
                 <button type="button" onClick={resetGalleryFilters} className="ml-auto text-xs font-cinzel uppercase tracking-wide text-text-muted hover:text-text-dark">
-                  Reset
+                  {t('admin.ui.reset')}
                 </button>
               </div>
               <div className="flex flex-wrap gap-2 mb-5">
@@ -948,7 +950,7 @@ export default function Admin() {
                     type="search"
                     value={galleryFilters.search}
                     onChange={e => updateGalleryFilter('search', e.target.value)}
-                    placeholder="Search by title or category"
+                    placeholder={t('admin.ui.searchPlaceholder')}
                     className="w-full border border-gold-light pl-9 pr-3 py-2 font-cormorant focus:outline-none focus:border-gold-primary"
                   />
                 </div>
@@ -958,10 +960,10 @@ export default function Admin() {
                     onChange={e => updateGalleryFilter('sort', e.target.value)}
                     className="w-full border border-gold-light px-3 py-2 font-cormorant focus:outline-none focus:border-gold-primary"
                   >
-                    <option value="newest">Newest first</option>
-                    <option value="oldest">Oldest first</option>
-                    <option value="title-asc">Title A → Z</option>
-                    <option value="title-desc">Title Z → A</option>
+                    <option value="newest">{t('admin.ui.sortNewest')}</option>
+                    <option value="oldest">{t('admin.ui.sortOldest')}</option>
+                    <option value="title-asc">{t('admin.ui.sortTitleAsc')}</option>
+                    <option value="title-desc">{t('admin.ui.sortTitleDesc')}</option>
                   </select>
                 </div>
                 <div className="flex items-center gap-2">
@@ -988,8 +990,8 @@ export default function Admin() {
 
             <div className="bg-white p-5 border border-gold-light shadow-sm mb-8 flex flex-wrap items-center gap-4">
               <div>
-                <p className="font-cinzel text-sm text-text-dark uppercase tracking-wide">Bulk Actions</p>
-                <p className="text-xs text-text-muted font-cormorant">Select multiple media items to delete them together.</p>
+                <p className="font-cinzel text-sm text-text-dark uppercase tracking-wide">{t('admin.ui.bulkActions')}</p>
+                <p className="text-xs text-text-muted font-cormorant">{t('admin.ui.bulkActionsDesc')}</p>
               </div>
               <div className="flex flex-wrap items-center gap-2 ml-auto">
                 {isSelectionMode ? (
@@ -1001,14 +1003,14 @@ export default function Admin() {
                       disabled={filteredImages.length === 0 || selectionCount === filteredImages.length}
                       className="text-xs font-cinzel uppercase tracking-wide border px-3 py-1.5 transition border-gold-light text-text-dark disabled:opacity-40 disabled:cursor-not-allowed"
                     >
-                      Select Visible
+                      {t('admin.ui.selectVisible')}
                     </button>
                     <button
                       type="button"
                       onClick={exitSelectionMode}
                       className="text-xs font-cinzel uppercase tracking-wide border px-3 py-1.5 transition border-gold-light text-text-dark"
                     >
-                      Cancel
+                      {t('admin.ui.cancel')}
                     </button>
                     <button
                       type="button"
@@ -1017,7 +1019,7 @@ export default function Admin() {
                       className="flex items-center gap-2 text-xs font-cinzel uppercase tracking-wide border px-4 py-2 transition border-red-500 text-red-600 hover:bg-red-50 disabled:opacity-40 disabled:cursor-not-allowed"
                     >
                       {bulkDeleting && <Loader2 size={14} className="animate-spin" />}
-                      <Trash2 size={14} /> Delete Selected
+                      <Trash2 size={14} /> {t('admin.ui.deleteSelected')}
                     </button>
                   </>
                 ) : (
@@ -1027,7 +1029,7 @@ export default function Admin() {
                     disabled={filteredImages.length === 0}
                     className="text-xs font-cinzel uppercase tracking-wide border px-4 py-2 transition border-gold-light text-text-dark hover:bg-bg-section disabled:opacity-40 disabled:cursor-not-allowed"
                   >
-                    Enable Selection
+                    {t('admin.ui.enableSelection')}
                   </button>
                 )}
               </div>
@@ -1042,9 +1044,9 @@ export default function Admin() {
 
               {!galleryLoading && filteredImages.length === 0 && (
                 <div className="col-span-full bg-bg-section border border-gold-light p-8 text-center">
-                  <p className="font-cinzel text-lg text-text-dark">No media matches the current filters.</p>
+                  <p className="font-cinzel text-lg text-text-dark">{t('admin.ui.noMediaMatch')}</p>
                   <button type="button" onClick={resetGalleryFilters} className="btn-gold mt-4">
-                    Clear filters
+                    {t('admin.ui.clearFilters')}
                   </button>
                 </div>
               )}
@@ -1078,17 +1080,17 @@ export default function Admin() {
                           onClick={event => { event.stopPropagation(); openLightbox(filteredImages.indexOf(img)); }}
                           className="bg-white/90 text-text-dark px-3 py-1 text-xs font-cinzel uppercase tracking-wide flex items-center gap-1 pointer-events-auto"
                         >
-                          <Eye size={14} /> View
+                          <Eye size={14} /> {t('admin.ui.view')}
                         </button>
                         <button
                           type="button"
                           onClick={event => { event.stopPropagation(); handleCopyImageUrl(img); }}
                           className="bg-white/90 text-text-dark px-3 py-1 text-xs font-cinzel uppercase tracking-wide flex items-center gap-1 pointer-events-auto"
                         >
-                          <Copy size={14} /> {copiedImageId === img._id ? 'Copied' : 'Copy'}
+                          <Copy size={14} /> {copiedImageId === img._id ? t('admin.ui.copied') : t('admin.ui.copy')}
                         </button>
                       </div>
-                      {isVideo && <span className="absolute top-3 left-3 bg-black/70 text-white text-[10px] font-cinzel px-2 py-0.5 uppercase tracking-wide">Video</span>}
+                      {isVideo && <span className="absolute top-3 left-3 bg-black/70 text-white text-[10px] font-cinzel px-2 py-0.5 uppercase tracking-wide">{t('admin.ui.video')}</span>}
                       {isSelectionMode && (
                         <button
                           type="button"
@@ -1104,18 +1106,18 @@ export default function Admin() {
                     </div>
                     <div className="p-3 space-y-2">
                       <div className="flex items-baseline justify-between gap-2">
-                        <p className="font-cinzel text-sm text-text-dark truncate" title={img.title}>{img.title || 'Untitled Media'}</p>
+                        <p className="font-cinzel text-sm text-text-dark truncate" title={img.title}>{img.title || t('admin.ui.untitledMedia')}</p>
                         <span className="text-[10px] font-cinzel uppercase tracking-widest text-text-muted">{formatDateLabel(img.uploadedAt)}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-xs bg-gold-pale text-gold-primary px-2 py-0.5 inline-flex items-center gap-1">
-                          {img.category || 'Uncategorized'}
+                          {img.category || t('admin.ui.uncategorized')}
                         </span>
                         <button
                           onClick={event => { event.stopPropagation(); handleImageDelete(img._id); }}
                           className="text-xs font-cinzel uppercase tracking-wide border px-2 py-1 transition border-red-300 text-red-500 hover:bg-red-50"
                         >
-                          Delete
+                          {t('admin.ui.delete')}
                         </button>
                       </div>
                     </div>
@@ -1131,7 +1133,7 @@ export default function Admin() {
                   disabled={galleryLoading}
                   className="btn-gold px-8 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {galleryLoading ? 'Loading…' : `Load More (${images.length} of ${galleryTotal})`}
+                  {galleryLoading ? `${t('admin.ui.loading')}…` : `${t('admin.ui.loadMore')} (${images.length} of ${galleryTotal})`}
                 </button>
               </div>
             )}
@@ -1141,41 +1143,41 @@ export default function Admin() {
         {activeTab === 'events' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="bg-white p-8 border border-gold-light shadow-sm mb-12">
-              <h2 className="font-cinzel text-2xl mb-6 text-gold-primary">{eventForm.id ? 'Edit Event' : 'Create New Event'}</h2>
+              <h2 className="font-cinzel text-2xl mb-6 text-gold-primary">{eventForm.id ? t('admin.ui.editEvent') : t('admin.ui.createNewEvent')}</h2>
               <form onSubmit={handleEventSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="block font-cinzel text-sm text-text-dark mb-2">Title</label>
+                    <label className="block font-cinzel text-sm text-text-dark mb-2">{t('admin.ui.title')}</label>
                     <input type="text" value={eventForm.title} onChange={e => setEventForm({...eventForm, title: e.target.value})} className="w-full border-b-2 border-gold-pale focus:outline-none p-2 font-cormorant" required />
                   </div>
                   <div>
-                    <label className="block font-cinzel text-sm text-text-dark mb-2">Date (e.g., March 2025)</label>
+                    <label className="block font-cinzel text-sm text-text-dark mb-2">{t('admin.ui.dateLabel')}</label>
                     <input type="text" value={eventForm.date} onChange={e => setEventForm({...eventForm, date: e.target.value})} className="w-full border-b-2 border-gold-pale focus:outline-none p-2 font-cormorant" required />
                   </div>
                   <div className="md:col-span-2">
-                    <label className="block font-cinzel text-sm text-text-dark mb-2">Description</label>
+                    <label className="block font-cinzel text-sm text-text-dark mb-2">{t('admin.ui.description')}</label>
                     <textarea value={eventForm.description} onChange={e => setEventForm({...eventForm, description: e.target.value})} className="w-full border-b-2 border-gold-pale focus:outline-none p-2 font-cormorant resize-none" rows="3" required />
                   </div>
                   <div>
-                    <label className="block font-cinzel text-sm text-text-dark mb-2">Category (Optional)</label>
+                    <label className="block font-cinzel text-sm text-text-dark mb-2">{t('admin.ui.categoryOptional')}</label>
                     <input type="text" value={eventForm.category} onChange={e => setEventForm({...eventForm, category: e.target.value})} className="w-full border-b-2 border-gold-pale focus:outline-none p-2 font-cormorant" />
                   </div>
                   <div>
-                    <label className="block font-cinzel text-sm text-text-dark mb-2">Image (Optional)</label>
+                    <label className="block font-cinzel text-sm text-text-dark mb-2">{t('admin.ui.imageOptional')}</label>
                     <input type="file" onChange={e => setEventForm({...eventForm, file: e.target.files[0]})} className="w-full text-sm font-cormorant" accept="image/*" />
                   </div>
                   <div className="flex items-center mt-6">
                     <input type="checkbox" id="isFeatured" checked={eventForm.isFeatured} onChange={e => setEventForm({...eventForm, isFeatured: e.target.checked})} className="mr-2 w-4 h-4 accent-gold-primary" />
-                    <label htmlFor="isFeatured" className="font-cinzel text-sm text-text-dark">Mark as Featured Event</label>
+                    <label htmlFor="isFeatured" className="font-cinzel text-sm text-text-dark">{t('admin.ui.markFeatured')}</label>
                   </div>
                 </div>
                 <div className="flex gap-4 pt-4">
                   <button type="submit" disabled={uploadingEvent} className="btn-gold disabled:opacity-50">
-                    {uploadingEvent ? 'Saving...' : 'Save Event'}
+                    {uploadingEvent ? `${t('admin.ui.saving')}...` : t('admin.ui.saveEvent')}
                   </button>
                   {eventForm.id && (
                     <button type="button" onClick={() => setEventForm({ id: null, title: '', date: '', description: '', category: '', isFeatured: false, file: null })} className="font-cinzel text-sm text-text-muted hover:text-text-dark transition">
-                      Cancel Edit
+                      {t('admin.ui.cancelEdit')}
                     </button>
                   )}
                 </div>
@@ -1188,16 +1190,16 @@ export default function Admin() {
                   {evt.image ? (
                     <img src={evt.image} className="w-32 h-32 object-cover border border-gold-pale" alt={evt.title} />
                   ) : (
-                    <div className="w-32 h-32 bg-bg-section flex items-center justify-center text-gold-primary/30 text-xs font-cinzel text-center border border-gold-pale">No Image</div>
+                    <div className="w-32 h-32 bg-bg-section flex items-center justify-center text-gold-primary/30 text-xs font-cinzel text-center border border-gold-pale">{t('admin.ui.noImage')}</div>
                   )}
                   <div className="flex-grow">
-                    {evt.isFeatured && <span className="bg-gold-primary text-white text-xs font-cinzel px-2 py-1 mb-2 inline-block">Featured</span>}
+                    {evt.isFeatured && <span className="bg-gold-primary text-white text-xs font-cinzel px-2 py-1 mb-2 inline-block">{t('admin.ui.featured')}</span>}
                     <h3 className="font-cinzel text-xl text-text-dark">{evt.title} <span className="text-sm text-gold-primary ml-2">{evt.date}</span></h3>
                     <p className="font-cormorant text-text-muted mt-2 max-w-2xl line-clamp-2">{evt.description}</p>
                   </div>
                   <div className="flex flex-col gap-2 min-w-[100px]">
-                    <button onClick={() => editEvent(evt)} className="btn-gold px-4 py-1 text-center w-full">Edit</button>
-                    <button onClick={() => handleEventDelete(evt._id)} className="border-1.5 border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition font-cinzel uppercase text-sm px-4 py-1 text-center w-full">Delete</button>
+                    <button onClick={() => editEvent(evt)} className="btn-gold px-4 py-1 text-center w-full">{t('admin.ui.edit')}</button>
+                    <button onClick={() => handleEventDelete(evt._id)} className="border-1.5 border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition font-cinzel uppercase text-sm px-4 py-1 text-center w-full">{t('admin.ui.delete')}</button>
                   </div>
                 </div>
               ))}
@@ -1208,9 +1210,9 @@ export default function Admin() {
         {activeTab === 'messages' && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="bg-white p-8 border border-gold-light shadow-sm mb-12">
-              <h2 className="font-cinzel text-2xl mb-6 text-gold-primary">Contact Form Submissions</h2>
+              <h2 className="font-cinzel text-2xl mb-6 text-gold-primary">{t('admin.ui.submissions')}</h2>
               {messages.length === 0 ? (
-                <p className="text-text-muted font-cormorant text-lg">No messages received yet.</p>
+                <p className="text-text-muted font-cormorant text-lg">{t('admin.ui.noMessages')}</p>
               ) : (
                 <div className="space-y-6">
                   {messages.map(msg => (
@@ -1219,11 +1221,11 @@ export default function Admin() {
                         <div>
                           <h3 className="font-noto font-bold text-lg text-text-dark">{msg.name}</h3>
                           <p className="text-sm font-cormorant text-text-muted">
-                            <span className="font-bold">Email:</span> {msg.email} <span className="mx-2">|</span>
-                            <span className="font-bold">Phone:</span> {msg.phone}
+                            <span className="font-bold">{t('admin.ui.email')}:</span> {msg.email} <span className="mx-2">|</span>
+                            <span className="font-bold">{t('admin.ui.phone')}:</span> {msg.phone}
                           </p>
                           <p className="text-sm font-cormorant text-gold-primary mt-1">
-                            <span className="font-bold">Subject:</span> {msg.subject}
+                            <span className="font-bold">{t('admin.ui.subject')}:</span> {msg.subject}
                           </p>
                         </div>
                         <p className="text-xs text-text-muted font-cormorant">

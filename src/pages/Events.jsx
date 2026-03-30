@@ -11,34 +11,7 @@ const fadeUp = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
 };
 
-const hardcodedFeaturedEvent = {
-  isFeatured: true,
-  badge: "UPCOMING · अप्रैल 2026",
-  title: "Pratham Varshganth & Dhwajarohan Utsav",
-  hindi: "प्रथम वर्षगांठ एवं ध्वजारोहण उत्सव",
-  dates: "6 April – 8 April 2026",
-  description: "A grand three-day celebration at Shri Avadhpuri Parasali Jain Tirth marking the first anniversary of Pratishtha Mahotsav. Features Abhishek Mahapujan, Siddha Chakra Puja, Dhwajarohan, Nagar Chaurasi, and Swamivatsalya.",
-  link: "/events/dhwajarohan-2026"
-};
-
-const hardcodedUpcomingEvents = [
-  {
-    _id: "varshitap-2026",
-    title: "Varshitap Parnot Utsav",
-    hindi: "भव्यतम वर्षीतप पारणोत्सव",
-    date: "Upcoming",
-    description: "A magnificent celebration of Varshitap fasting completion at Shri Avadhpuri Parasali Jain Tirth. Main beneficiary contribution: ₹3,33,333 · Sah-Labhaarthi: ₹1,11,111 · Shubhecchu: ₹51,111",
-    location: "Avadhpuri Parasali Jain Tirth"
-  },
-  {
-    _id: "sheela-2026",
-    title: "Sheela Sthaapan Ceremony",
-    hindi: "शीला स्थापन कार्यक्रम",
-    date: "19 April 2026 (Vaishakh Sudi 2, Ravivaar)",
-    description: "Foundation stone laying ceremony for the symbolic Siddha Giriraj construction — including shrines for Thaleti, Shri Shantinath, Shri Rayanvriksha, Shri Pundarikasvami and other structures. Offerings to be announced at Dhwajarohan on 8 April 2026.",
-    location: "Avadhpuri Parasali Jain Tirth"
-  }
-];
+// Hardcoded events will be translated in JSX using t() function
 
 export default function Events() {
   const [events, setEvents] = useState([]);
@@ -60,6 +33,26 @@ export default function Events() {
       setLoading(false);
     }
   };
+
+  // Build hardcoded upcoming events from translations
+  const hardcodedUpcomingEvents = [
+    {
+      _id: "varshitap-2026",
+      title: t('events.upcoming.varshitap.title'),
+      hindi: t('events.upcoming.varshitap.title.hi'),
+      date: t('events.upcoming.varshitap.date'),
+      description: t('events.upcoming.varshitap.description'),
+      location: t('events.upcoming.varshitap.location')
+    },
+    {
+      _id: "sheela-2026",
+      title: t('events.upcoming.sheela.title'),
+      hindi: t('events.upcoming.sheela.title.hi'),
+      date: t('events.upcoming.sheela.date'),
+      description: t('events.upcoming.sheela.description'),
+      location: t('events.upcoming.sheela.location')
+    }
+  ];
 
   const regularEventsFromAPI = events.filter(e => !e.isFeatured);
   const allRegularEvents = [...hardcodedUpcomingEvents, ...regularEventsFromAPI];
@@ -89,7 +82,7 @@ export default function Events() {
             {/* Image Placeholder */}
             <div className="w-full md:w-2/5 bg-off-white flex items-center justify-center min-h-[300px] relative border-b md:border-b-0 md:border-r border-gold-pale overflow-hidden group">
               <div className="absolute top-4 left-4 bg-gold-primary text-white font-cinzel text-xs py-1 px-3 uppercase tracking-wider z-10">
-                {hardcodedFeaturedEvent.badge}
+                {t('events.featured.badge')}
               </div>
               <div className="text-gold-primary opacity-10">
                 <LotusWatermark opacity={1} className="w-48 h-48" />
@@ -101,18 +94,18 @@ export default function Events() {
               <div className="absolute bottom-0 right-0 w-48 h-48 text-gold-primary opacity-[0.03] pointer-events-none -mr-10 -mb-10 rotate-45">
                 <LotusWatermark opacity={1} />
               </div>
-              <span className="font-cinzel text-gold-primary text-sm uppercase tracking-wide block mb-2">{hardcodedFeaturedEvent.dates}</span>
+              <span className="font-cinzel text-gold-primary text-sm uppercase tracking-wide block mb-2">{t('events.featured.dates')}</span>
               <h2 className={`font-cinzel text-3xl md:text-4xl text-text-dark mb-1 ${fn}`}>
-                {lang === 'hi' ? hardcodedFeaturedEvent.hindi : hardcodedFeaturedEvent.title}
+                {lang === 'hi' ? t('events.featured.title.hi') : t('events.featured.title')}
               </h2>
               {lang !== 'hi' && (
-                <h3 className="font-noto text-xl text-gold-primary mb-4 font-medium">{hardcodedFeaturedEvent.hindi}</h3>
+                <h3 className="font-noto text-xl text-gold-primary mb-4 font-medium">{t('events.featured.title.hi')}</h3>
               )}
               <p className={`font-cormorant text-lg text-text-muted mb-6 leading-relaxed ${fn}`}>
-                {hardcodedFeaturedEvent.description}
+                {t('events.featured.description')}
               </p>
               <div>
-                <Link to={hardcodedFeaturedEvent.link} className={`btn-gold inline-block uppercase text-sm ${fn}`}>{t('events.viewdetails')}</Link>
+                <Link to="/events/dhwajarohan-2026" className={`btn-gold inline-block uppercase text-sm ${fn}`}>{t('events.viewdetails')}</Link>
               </div>
             </div>
           </motion.div>

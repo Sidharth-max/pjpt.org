@@ -18,7 +18,19 @@
       "Bash(git add:*)",
       "Bash(sudo nginx:*)",
       "Bash(pm2 status:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(ls /home/ggu/pjpt.org/*.md)",
+      "Bash(git -C /home/ggu/pjpt.org ls-files)",
+      "Bash(git:*)",
+      "Bash(ls /home/ggu/pjpt.org/*.md /home/ggu/pjpt.org/docs/)",
+      "Bash(pm2 serve:*)",
+      "Bash(pm2 save:*)",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(node -c src/i18n/translations.js)",
+      "Bash(mongosh --eval \":*)",
+      "Bash(node -e \"console.log\\(require\\(''crypto''\\).randomBytes\\(32\\).toString\\(''hex''\\)\\)\")",
+      "Bash(curl -s http://localhost:5000/api/events)",
+      "Bash(curl -s \"http://localhost:5000/api/images?page=1&limit=6\")"
     ]
   }
 }

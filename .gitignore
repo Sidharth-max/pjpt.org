@@ -33,3 +33,5 @@ mongo-data/
 
 uploads/
 uploads/
+dist/sitemap.xml
+public/sitemap.xml

@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import LotusWatermark from '../../components/LotusWatermark';
+import { useLang } from '../../contexts/LanguageContext';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -9,14 +10,16 @@ const fadeUp = {
 };
 
 export default function Dhwajarohan2026() {
+  const { t, lang } = useLang();
+  const fn = lang === 'hi' ? 'font-noto' : '';
   return (
     <div className="w-full pt-20 bg-bg-section pb-20 relative">
       {/* Mobile Sticky Back Button */}
-      <Link 
-        to="/events" 
+      <Link
+        to="/events"
         className="md:hidden fixed bottom-4 right-4 z-50 bg-white border-2 border-gold-primary text-gold-primary px-4 py-2 font-cinzel text-xs uppercase tracking-wider shadow-lg"
       >
-        &larr; Back to Events
+        &larr; {t('dhwajarohan.backButton')}
       </Link>
 
       {/* SECTION 1 — Hero */}
@@ -26,27 +29,27 @@ export default function Dhwajarohan2026() {
         </div>
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="relative z-10 max-w-4xl mx-auto">
           <span className="font-noto text-gold-primary text-sm md:text-base tracking-wide block mb-6">
-            श्री अवधपुरी परासली तीर्थ · मालवा का शत्रुंजय
+            {t('dhwajarohan.subheader')}
           </span>
           <h1 className="font-cinzel text-5xl md:text-7xl text-text-dark mb-2 uppercase tracking-wide">
-            Pratham Varshganth &
+            {t('dhwajarohan.title1')}
           </h1>
           <h2 className="font-cinzel text-4xl md:text-6xl text-text-dark mb-6 uppercase tracking-wide">
-            Dhwajarohan Utsav 2026
+            {t('dhwajarohan.title2')}
           </h2>
           <p className="font-noto text-xl md:text-3xl text-gold-primary mb-8 font-medium">
-            प्रथम वर्षगांठ एवं ध्वजारोहण उत्सव
+            {t('dhwajarohan.subtitle')}
           </p>
           <p className="font-cormorant text-xl text-text-muted italic max-w-2xl mx-auto mb-10 leading-relaxed">
-            A grand three-day celebration marking the first anniversary of Pratishtha Mahotsav at Shri Avadhpuri Parasali Jain Tirth — Malwa's Shatrunjay
+            {t('dhwajarohan.heroDescription')}
           </p>
           
           <div className="flex flex-col md:flex-row items-center justify-center gap-6">
             <div className="border border-gold-primary bg-gold-pale px-6 py-3 font-noto text-gold-primary text-sm md:text-base shadow-sm">
-              <span className="font-bold">महोत्सव प्रारंभ</span><br/>Vaishakh Vadi 4, Somvar · 6 April 2026
+              <span className="font-bold">{t('dhwajarohan.date1Label')}</span><br/>{t('dhwajarohan.date1')}
             </div>
             <div className="border border-gold-primary bg-gold-pale px-6 py-3 font-noto text-gold-primary text-sm md:text-base shadow-sm">
-              <span className="font-bold">मंगल ध्वजारोहण</span><br/>Vaishakh Vadi 6, Budhwar · 8 April 2026
+              <span className="font-bold">{t('dhwajarohan.date2Label')}</span><br/>{t('dhwajarohan.date2')}
             </div>
           </div>
         </motion.div>
@@ -56,18 +59,18 @@ export default function Dhwajarohan2026() {
       <section className="py-20 px-4 bg-off-white">
         <div className="max-w-[1000px] mx-auto text-center">
           <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="font-cinzel text-3xl md:text-4xl text-gold-primary mb-12 uppercase tracking-wide">
-            <span className="font-noto mr-3">शुभ आज्ञा</span>· Spiritual Guidance
+            <span className="font-noto mr-3">{t('dhwajarohan.spiritualGuidanceLabel')}</span>· {t('dhwajarohan.spiritualGuidance')}
           </motion.h2>
-          
+
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="card bg-white mx-auto max-w-3xl relative">
             <div className="absolute top-0 left-0 w-24 h-24 text-gold-primary opacity-[0.03] pointer-events-none -ml-4 -mt-4">
               <LotusWatermark opacity={1} />
             </div>
-            <span className="font-noto text-text-muted text-sm block mb-4 uppercase tracking-wider">परासली तीर्थ प्रतिष्ठाचार्य, वर्तमान तीर्थ मार्गदर्शक</span>
-            <h3 className="font-cinzel text-2xl md:text-4xl text-gold-primary mb-3 leading-tight">Pujya Acharya Dev Shri Jin-Hemchandrasagar Surishwarji Maharaja</h3>
-            <h4 className="font-noto text-xl text-text-dark mb-6">प.पू. आचार्य देव श्री जिन-हेमचंद्रसागर सूरीश्वरजी महाराजा</h4>
+            <span className="font-noto text-text-muted text-sm block mb-4 uppercase tracking-wider">{t('dhwajarohan.spiritualTitle')}</span>
+            <h3 className="font-cinzel text-2xl md:text-4xl text-gold-primary mb-3 leading-tight">{t('dhwajarohan.spiritualName')}</h3>
+            <h4 className="font-noto text-xl text-text-dark mb-6">{t('dhwajarohan.spiritualNameHi')}</h4>
             <p className="font-cormorant text-lg text-text-muted italic max-w-xl mx-auto">
-              Avadhpuri Parasali Jain Tirth Pratishthachary, Vartaman Tirth Margdarshak, Shishya Shilpi, Bandhubeldi
+              {t('dhwajarohan.spiritualDescription')}
             </p>
           </motion.div>
         </div>
@@ -77,14 +80,14 @@ export default function Dhwajarohan2026() {
       <section className="py-20 px-4 bg-bg-section border-y border-gold-light">
         <div className="max-w-[1200px] mx-auto text-center">
           <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="font-cinzel text-3xl md:text-4xl text-gold-primary mb-12 uppercase tracking-wide">
-            <span className="font-noto mr-3">भवनिस्तारक निश्था</span>· Presiding Spiritual Guide
+            <span className="font-noto mr-3">{t('dhwajarohan.presidingLabel')}</span>· {t('dhwajarohan.presiding')}
           </motion.h2>
-          
+
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="card bg-white border-t-4 border-t-gold-primary mx-auto max-w-4xl mb-12">
-            <h3 className="font-cinzel text-2xl md:text-3xl text-text-dark mb-2">P.P. Acharya Dev Shri Anandchandrasagar Surishwarji M.Sa.</h3>
-            <h4 className="font-noto text-xl md:text-2xl text-gold-primary mb-4">प.पू. आचार्य देव श्री आनंदचंद्रसागर सूरिजी म.सा.</h4>
+            <h3 className="font-cinzel text-2xl md:text-3xl text-text-dark mb-2">{t('dhwajarohan.presidingName')}</h3>
+            <h4 className="font-noto text-xl md:text-2xl text-gold-primary mb-4">{t('dhwajarohan.presidingNameHi')}</h4>
             <p className="font-cormorant text-lg text-text-muted">
-              Siddhaachal Samadhi Sadhak P.P. Ganivarya Shri Meghchandrasagarji M.Sa. ke Shishyaratna, P.P. Aa. Shri Padmachandrasagarsurishwarji M.Sa. ke Shishyaratna, Prabhar Pravachankaar
+              {t('dhwajarohan.presidingDescription')}
             </p>
           </motion.div>
 
@@ -103,7 +106,7 @@ export default function Dhwajarohan2026() {
       <section className="py-20 px-4 bg-white">
         <div className="max-w-[1200px] mx-auto text-center">
           <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="font-cinzel text-3xl md:text-4xl text-gold-primary mb-12 uppercase tracking-wide">
-            <span className="font-noto mr-3">दिव्याशीष</span>· Divine Blessings
+            <span className="font-noto mr-3">{t('dhwajarohan.blessingsLabel')}</span>· {t('dhwajarohan.blessings')}
           </motion.h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
@@ -134,17 +137,17 @@ export default function Dhwajarohan2026() {
       <section className="py-20 px-4 bg-bg-section border-t border-gold-light">
         <div className="max-w-[1200px] mx-auto text-center">
           <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="font-cinzel text-3xl md:text-4xl text-gold-primary mb-16 uppercase tracking-wide">
-            <span className="font-noto mr-3">महोत्सव का मंगल कार्यक्रम</span>· Festival Schedule
+            <span className="font-noto mr-3">{t('dhwajarohan.scheduleLabel')}</span>· {t('dhwajarohan.schedule')}
           </motion.h2>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 text-left">
             {/* Day 1 */}
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="card bg-white flex flex-col">
               <div className="bg-gold-pale text-gold-primary font-noto font-bold p-4 -mx-8 -mt-8 mb-6 border-b border-gold-primary text-center">
-                Vaishakh Vadi 4, Somvar · 6 April 2026
+                {t('dhwajarohan.day1Date')}
               </div>
-              <h3 className="font-cinzel text-xl text-text-dark mb-2">Shri Atharah Abhishek Mahapujan</h3>
-              <span className="font-cinzel text-gold-primary text-sm mb-6 block">Time: 12:39 PM</span>
+              <h3 className="font-cinzel text-xl text-text-dark mb-2">{t('dhwajarohan.day1Event')}</h3>
+              <span className="font-cinzel text-gold-primary text-sm mb-6 block">{t('dhwajarohan.day1Time')}</span>
               <div className="mt-auto">
                 <span className="font-noto text-text-muted text-sm block mb-1">महापूजन के लाभार्थी:</span>
                 <p className="font-cormorant text-text-dark leading-tight italic">
@@ -156,10 +159,10 @@ export default function Dhwajarohan2026() {
             {/* Day 2 */}
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="card bg-white flex flex-col">
               <div className="bg-gold-pale text-gold-primary font-noto font-bold p-4 -mx-8 -mt-8 mb-6 border-b border-gold-primary text-center">
-                Vaishakh Vadi 5, Mangalvar · 7 April 2026
+                {t('dhwajarohan.day2Date')}
               </div>
-              <h3 className="font-cinzel text-xl text-text-dark mb-2">Shri Siddha Chakra Mahapujan</h3>
-              <span className="font-cinzel text-gold-primary text-sm mb-6 block">Time: 12:39 PM</span>
+              <h3 className="font-cinzel text-xl text-text-dark mb-2">{t('dhwajarohan.day2Event')}</h3>
+              <span className="font-cinzel text-gold-primary text-sm mb-6 block">{t('dhwajarohan.day2Time')}</span>
               <div className="mt-auto">
                 <span className="font-noto text-text-muted text-sm block mb-1">महापूजन के लाभार्थी:</span>
                 <p className="font-cormorant text-text-dark leading-tight italic">
@@ -172,7 +175,7 @@ export default function Dhwajarohan2026() {
             {/* Day 3 */}
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="card bg-white flex flex-col border-2 border-gold-primary shadow-lg transform lg:-translate-y-4">
               <div className="bg-gold-primary text-white font-noto font-bold p-4 -mx-8 -mt-8 mb-6 text-center">
-                Vaishakh Vadi 6, Budhwar · 8 April 2026 (Main Day)
+                {t('dhwajarohan.day3Date')}
               </div>
               <ul className="space-y-4 font-noto text-text-dark mb-8">
                 <li className="flex gap-4 border-b border-gold-pale pb-2"><span className="font-cinzel text-gold-primary w-20 shrink-0">8:30 AM</span> <span>ध्वजा की शोभायात्रा (Dhwaja Shobhayatra)</span></li>
@@ -196,7 +199,7 @@ export default function Dhwajarohan2026() {
       <section className="py-20 px-4 bg-white">
         <div className="max-w-[1200px] mx-auto text-center">
           <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="font-cinzel text-3xl md:text-4xl text-gold-primary mb-12 uppercase tracking-wide">
-            <span className="font-noto mr-3">महोत्सव के आकर्षण</span>· Festival Highlights
+            <span className="font-noto mr-3">{t('dhwajarohan.highlightsLabel')}</span>· {t('dhwajarohan.highlights')}
           </motion.h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10 text-left">
@@ -242,7 +245,7 @@ export default function Dhwajarohan2026() {
       <section className="py-20 px-4 bg-bg-section border-t border-gold-light">
         <div className="max-w-[1200px] mx-auto text-center">
           <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="font-cinzel text-3xl md:text-4xl text-gold-primary mb-12 uppercase tracking-wide">
-            <span className="font-noto mr-3">समारोह के मुख्य अतिथि</span>· Chief Guests
+            <span className="font-noto mr-3">{t('dhwajarohan.guestsLabel')}</span>· {t('dhwajarohan.guests')}
           </motion.h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-left">
@@ -268,7 +271,7 @@ export default function Dhwajarohan2026() {
       <section className="py-20 px-4 bg-white">
         <div className="max-w-[1000px] mx-auto text-center">
           <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="font-cinzel text-3xl md:text-4xl text-gold-primary mb-12 uppercase tracking-wide">
-            <span className="font-noto mr-3">निमंत्रक</span>· Organiser
+            <span className="font-noto mr-3">{t('dhwajarohan.organiserLabel')}</span>· {t('dhwajarohan.organiser')}
           </motion.h2>
 
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="card bg-off-white mx-auto">
@@ -315,22 +318,22 @@ export default function Dhwajarohan2026() {
       <section className="py-20 px-4 bg-bg-section border-t border-gold-light">
         <div className="max-w-[1200px] mx-auto text-center">
           <motion.h2 initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="font-noto text-3xl md:text-4xl text-gold-primary mb-12 tracking-wide">
-            श्री जैन श्वेताम्बर परासली तीर्थ से जुड़े
+            {t('dhwajarohan.connectTitle')}
           </motion.h2>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 text-left">
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="bg-white p-6 border-l-4 border-[#25D366] shadow-sm flex flex-col justify-center">
-              <span className="font-noto font-bold text-lg text-text-dark mb-1">Join our WhatsApp Community</span>
+              <span className="font-noto font-bold text-lg text-text-dark mb-1">{t('dhwajarohan.whatsappLabel')}</span>
               <a href="https://chat.whatsapp.com/EZJTMgrnbUN1nx9JgcCDe8" target="_blank" rel="noopener noreferrer" className="font-cinzel text-gold-primary hover:text-gold-light transition-colors mb-2 inline-block">AVADHPURI PARASALI</a>
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="bg-white p-6 border-l-4 border-[#E1306C] shadow-sm flex flex-col justify-center">
-              <span className="font-noto font-bold text-lg text-text-dark mb-1">Follow us on Instagram</span>
+              <span className="font-noto font-bold text-lg text-text-dark mb-1">{t('dhwajarohan.instagramLabel')}</span>
               <a href="https://www.instagram.com/avadhpuri_parasli_jain_tirth?igsh=MTVlb21mNHZ6cXlqbQ==" target="_blank" rel="noopener noreferrer" className="font-cinzel text-gold-primary hover:text-gold-light transition-colors mb-2 inline-block break-words break-all">@AVADHPURI_PARASALI_JAIN_TIRTH</a>
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="bg-white p-6 border-l-4 border-[#EA4335] shadow-sm flex flex-col justify-center">
-              <span className="font-noto font-bold text-lg text-text-dark mb-1">Find Us on Google Maps</span>
-              <a href="https://share.google/ObJ9vP3gJ7KFJ5Dzg" target="_blank" rel="noopener noreferrer" className="font-cinzel text-gold-primary hover:text-gold-light transition-colors mb-2 inline-block">TIRTH LOCATION</a>
-              <p className="font-cormorant text-text-muted text-sm mt-1">Parasali, Shamgarh, Mandsaur, MP</p>
+              <span className="font-noto font-bold text-lg text-text-dark mb-1">{t('dhwajarohan.mapsLabel')}</span>
+              <a href="https://share.google/ObJ9vP3gJ7KFJ5Dzg" target="_blank" rel="noopener noreferrer" className="font-cinzel text-gold-primary hover:text-gold-light transition-colors mb-2 inline-block">{t('dhwajarohan.mapsLink')}</a>
+              <p className="font-cormorant text-text-muted text-sm mt-1">{t('dhwajarohan.mapsLocation')}</p>
             </motion.div>
           </div>
         </div>

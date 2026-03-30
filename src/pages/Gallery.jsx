@@ -6,7 +6,7 @@ import VideoPlayer from '../components/VideoPlayer';
 import { getImages } from '../services/api';
 import { useLang } from '../contexts/LanguageContext';
 
-const filters = ['All', 'Temple', 'Idol', 'Festivals', 'Events', 'Nature'];
+const filterKeys = ['all', 'temple', 'idol', 'festivals', 'events', 'nature'];
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -23,7 +23,7 @@ const isVideo = (url = '') => VIDEO_REGEX.test(url);
 export default function Gallery() {
   const { t, lang } = useLang();
   const fn = lang === 'hi' ? 'font-noto' : '';
-  const [activeFilter, setActiveFilter] = useState('All');
+  const [activeFilter, setActiveFilter] = useState(t('gallery.filter.all'));
   const [lightboxIndex, setLightboxIndex] = useState(null);
   const [galleryItems, setGalleryItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -35,7 +35,17 @@ export default function Gallery() {
   const fetchImages = async () => {
     setLoading(true);
     try {
-      const data = await getImages(activeFilter);
+      // Map translated filter back to API category
+      const categoryMap = {
+        [t('gallery.filter.all')]: 'All',
+        [t('gallery.filter.temple')]: 'Temple',
+        [t('gallery.filter.idol')]: 'Idol',
+        [t('gallery.filter.festivals')]: 'Festivals',
+        [t('gallery.filter.events')]: 'Events',
+        [t('gallery.filter.nature')]: 'Nature'
+      };
+      const apiCategory = categoryMap[activeFilter] || 'All';
+      const data = await getImages(apiCategory);
       // Give each an alternating aspect ratio to maintain masonry feel (images only)
       const itemsWithAspect = data.map((item, i) => ({
         ...item,
@@ -96,19 +106,22 @@ export default function Gallery() {
       {/* Filters */}
       <section className="px-4 mb-12">
         <div className="flex flex-wrap justify-center gap-4 max-w-[1000px] mx-auto">
-          {filters.map(filter => (
-            <button
-              key={filter}
-              onClick={() => setActiveFilter(filter)}
-              className={`font-cinzel text-sm uppercase tracking-wider px-6 py-2 border transition-all duration-300 ${
-                activeFilter === filter 
-                  ? 'border-gold-primary bg-gold-primary text-white' 
-                  : 'border-gold-light text-text-dark hover:border-gold-primary hover:text-gold-primary bg-white'
-              }`}
-            >
-              {filter}
-            </button>
-          ))}
+          {filterKeys.map(key => {
+            const label = t(`gallery.filter.${key}`);
+            return (
+              <button
+                key={key}
+                onClick={() => setActiveFilter(label)}
+                className={`font-cinzel text-sm uppercase tracking-wider px-6 py-2 border transition-all duration-300 ${
+                  activeFilter === label
+                    ? 'border-gold-primary bg-gold-primary text-white'
+                    : 'border-gold-light text-text-dark hover:border-gold-primary hover:text-gold-primary bg-white'
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
       </section>
 
@@ -191,7 +204,7 @@ export default function Gallery() {
               <LotusWatermark opacity={1} />
             </div>
             <p className={`font-cormorant italic text-2xl text-gold-primary max-w-md mx-auto ${fn}`}>
-              {activeFilter === 'All'
+              {activeFilter === t('gallery.filter.all')
                 ? t('gallery.empty.all')
                 : t('gallery.empty.filter').replace('%filter%', activeFilter)}
             </p>
@@ -242,7 +255,7 @@ export default function Gallery() {
                   />
                   <div className="bg-black/70 backdrop-blur p-4 text-center shrink-0">
                     <h3 className="font-cinzel text-xl text-white uppercase tracking-wide">{currentItem.title}</h3>
-                    <p className="font-cormorant text-gold-light mt-1">Category: {currentItem.category}</p>
+                    <p className="font-cormorant text-gold-light mt-1">{t('gallery.category')}: {currentItem.category}</p>
                   </div>
                 </>
               ) : (
@@ -257,7 +270,7 @@ export default function Gallery() {
               {!currentIsVideo && (
                 <div className="absolute bottom-0 inset-x-0 bg-black/70 backdrop-blur p-4 text-center">
                   <h3 className="font-cinzel text-xl text-white uppercase tracking-wide">{currentItem.title}</h3>
-                  <p className="font-cormorant text-gold-light mt-1">Category: {currentItem.category}</p>
+                  <p className="font-cormorant text-gold-light mt-1">{t('gallery.category')}: {currentItem.category}</p>
                 </div>
               )}
                 </motion.div>

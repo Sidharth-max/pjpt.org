@@ -1,10 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
 import LotusWatermark from '../components/LotusWatermark';
 import VideoPlayer from '../components/VideoPlayer';
 import { getImages } from '../services/api';
 import { useLang } from '../contexts/LanguageContext';
+
+const DOMAIN = 'https://pjpt.org';
+const SITE_NAME = 'Avadhpuri Parasali Jain Tirth';
+const SITE_THUMBNAIL = `${DOMAIN}/og-image.jpg`;
+
+const deriveThumbnail = (videoUrl) => {
+  const clean = (videoUrl || '').split('?')[0];
+  const candidate = clean.replace(/\.(mp4|webm|ogg|mov)$/i, '.jpg');
+  return candidate !== clean ? candidate : SITE_THUMBNAIL;
+};
 
 const filterKeys = ['all', 'temple', 'idol', 'festivals', 'events', 'nature'];
 
@@ -31,6 +41,66 @@ export default function Gallery() {
   useEffect(() => {
     fetchImages();
   }, [activeFilter]);
+
+  // Inject VideoObject JSON-LD structured data for all loaded videos so
+  // Google can discover and index them (SPA pages aren't crawled for <video> tags).
+  const jsonLdRef = useRef(null);
+  useEffect(() => {
+    const videos = galleryItems.filter(item => isVideo(item.url));
+    if (jsonLdRef.current) {
+      jsonLdRef.current.remove();
+      jsonLdRef.current = null;
+    }
+    if (videos.length === 0) return;
+
+    const schema = {
+      '@context': 'https://schema.org',
+      '@type': 'ItemList',
+      name: `${SITE_NAME} — Video Gallery`,
+      url: `${DOMAIN}/gallery`,
+      numberOfItems: videos.length,
+      itemListElement: videos.map((v, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        item: {
+          '@type': 'VideoObject',
+          name: v.title || v.category || 'Jain Tirth Video',
+          description: v.altText
+            ? v.altText
+            : `${v.category} video from ${SITE_NAME}. A sacred Jain pilgrimage site in Madhya Pradesh, India.`,
+          thumbnailUrl: deriveThumbnail(v.url),
+          contentUrl: (v.url || '').split('?')[0],
+          uploadDate: new Date(v.uploadedAt).toISOString(),
+          embedUrl: `${DOMAIN}/gallery`,
+          publisher: {
+            '@type': 'Organization',
+            name: SITE_NAME,
+            url: DOMAIN,
+            logo: {
+              '@type': 'ImageObject',
+              url: `${DOMAIN}/favicon.svg`,
+            },
+          },
+          isFamilyFriendly: true,
+          inLanguage: ['hi', 'en'],
+          regionsAllowed: 'IN',
+        },
+      })),
+    };
+
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.textContent = JSON.stringify(schema);
+    document.head.appendChild(script);
+    jsonLdRef.current = script;
+
+    return () => {
+      if (jsonLdRef.current) {
+        jsonLdRef.current.remove();
+        jsonLdRef.current = null;
+      }
+    };
+  }, [galleryItems]);
 
   const fetchImages = async () => {
     setLoading(true);

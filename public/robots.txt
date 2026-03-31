@@ -4,4 +4,6 @@ Allow: /
 Disallow: /admin
 Disallow: /api/
 
+Sitemap: https://pjpt.org/sitemap-index.xml
 Sitemap: https://pjpt.org/sitemap.xml
+Sitemap: https://pjpt.org/video-sitemap.xml

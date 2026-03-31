@@ -7,6 +7,14 @@ export default defineConfig({
   build: {
     rollupOptions: {
       maxParallelFileOps: 2,
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'motion': ['framer-motion'],
+          'ui': ['lucide-react'],
+          'http': ['axios', 'react-helmet-async'],
+        },
+      },
     },
   },
   plugins: [

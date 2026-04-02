@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight, ZoomIn } from 'lucide-react';
 import LotusWatermark from '../components/LotusWatermark';
@@ -162,7 +163,16 @@ export default function Gallery() {
 
   return (
     <div className="w-full pt-20 bg-bg-section min-h-screen">
-      
+      <Helmet>
+        <title>Gallery – Temple Images &amp; Videos | Avadhpuri Parasali Jain Tirth</title>
+        <meta name="description" content="Browse the photo and video gallery of Avadhpuri Parasali Jain Tirth – featuring the temple, idols, festivals, events, and the natural surroundings of this sacred Jain pilgrimage site." />
+        <link rel="canonical" href="https://pjpt.org/gallery" />
+        <meta property="og:title" content="Gallery – Temple Images &amp; Videos | Avadhpuri Parasali Jain Tirth" />
+        <meta property="og:description" content="Browse photos and videos of Avadhpuri Parasali Jain Tirth – temple, idols, festivals, and events at this sacred Jain pilgrimage site in Madhya Pradesh." />
+        <meta property="og:url" content="https://pjpt.org/gallery" />
+        <meta property="og:type" content="website" />
+      </Helmet>
+
       {/* Header */}
       <section className="py-16 px-4 text-center">
         <motion.h1 initial="hidden" animate="visible" variants={fadeUp} className={`font-cinzel text-4xl md:text-5xl text-gold-primary mb-6 uppercase tracking-wide ${fn}`}>

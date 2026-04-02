@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import LotusWatermark from '../components/LotusWatermark';
@@ -21,6 +22,15 @@ export default function Home() {
 
   return (
     <div className="w-full">
+      <Helmet>
+        <title>Avadhpuri Parasali Jain Tirth – Sacred Pilgrimage in Madhya Pradesh</title>
+        <meta name="description" content="Visit Avadhpuri Parasali Jain Tirth, a historic Jain pilgrimage site in Madhya Pradesh, India, established in Vikram Samvat 688. Explore the temple, gallery, and upcoming events." />
+        <link rel="canonical" href="https://pjpt.org/" />
+        <meta property="og:title" content="Avadhpuri Parasali Jain Tirth – Sacred Pilgrimage in Madhya Pradesh" />
+        <meta property="og:description" content="Visit Avadhpuri Parasali Jain Tirth, a historic Jain pilgrimage site in Madhya Pradesh, India, established in Vikram Samvat 688." />
+        <meta property="og:url" content="https://pjpt.org/" />
+        <meta property="og:type" content="website" />
+      </Helmet>
       {/* Hero Section */}
       <section className="relative z-[1] h-screen flex items-center justify-center overflow-hidden bg-bg-section">
         {/* Placeholder Gradient Background */}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import LotusWatermark from '../components/LotusWatermark';
 import { timelineEvents } from '../data/history';
@@ -22,6 +23,15 @@ export default function About() {
 
   return (
     <div className="w-full pt-20">
+      <Helmet>
+        <title>About Avadhpuri Parasali Jain Tirth – History &amp; Beliefs</title>
+        <meta name="description" content="Learn about the rich history, Jain philosophy, and spiritual significance of Avadhpuri Parasali Jain Tirth, founded in Vikram Samvat 688 in Madhya Pradesh, India." />
+        <link rel="canonical" href="https://pjpt.org/about" />
+        <meta property="og:title" content="About Avadhpuri Parasali Jain Tirth – History &amp; Beliefs" />
+        <meta property="og:description" content="Learn about the rich history, Jain philosophy, and spiritual significance of Avadhpuri Parasali Jain Tirth, founded in Vikram Samvat 688 in Madhya Pradesh." />
+        <meta property="og:url" content="https://pjpt.org/about" />
+        <meta property="og:type" content="website" />
+      </Helmet>
       {/* Page Hero */}
       <section className="relative h-[50vh] flex items-center justify-center bg-white overflow-hidden text-center px-4">
         <div className="absolute inset-0 pointer-events-none opacity-5 flex items-center justify-center text-gold-primary">

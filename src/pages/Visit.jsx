@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import LotusWatermark from '../components/LotusWatermark';
 import { useLang } from '../contexts/LanguageContext';
@@ -30,6 +31,15 @@ export default function Visit() {
 
   return (
     <div className="w-full pt-20">
+      <Helmet>
+        <title>Plan Your Visit – Avadhpuri Parasali Jain Tirth</title>
+        <meta name="description" content="Plan your pilgrimage to Avadhpuri Parasali Jain Tirth. Find directions, visiting hours, temple guidelines, accommodation information, and how to reach this sacred Jain site in Madhya Pradesh." />
+        <link rel="canonical" href="https://pjpt.org/visit" />
+        <meta property="og:title" content="Plan Your Visit – Avadhpuri Parasali Jain Tirth" />
+        <meta property="og:description" content="Plan your pilgrimage to Avadhpuri Parasali Jain Tirth. Find directions, visiting hours, temple guidelines, and accommodation information in Madhya Pradesh." />
+        <meta property="og:url" content="https://pjpt.org/visit" />
+        <meta property="og:type" content="website" />
+      </Helmet>
 
       {/* Page Hero */}
       <section className="py-20 px-4 text-center bg-off-white relative overflow-hidden">

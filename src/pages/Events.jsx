@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import LotusWatermark from '../components/LotusWatermark';
@@ -59,6 +60,15 @@ export default function Events() {
 
   return (
     <div className="w-full pt-20">
+      <Helmet>
+        <title>Events &amp; Festivals – Avadhpuri Parasali Jain Tirth</title>
+        <meta name="description" content="Discover upcoming events and annual festivals at Avadhpuri Parasali Jain Tirth, including Paryushan, Mahavir Jayanti, Varshitap, and other sacred Jain celebrations in Madhya Pradesh." />
+        <link rel="canonical" href="https://pjpt.org/events" />
+        <meta property="og:title" content="Events &amp; Festivals – Avadhpuri Parasali Jain Tirth" />
+        <meta property="og:description" content="Discover upcoming events and annual festivals at Avadhpuri Parasali Jain Tirth, including Paryushan, Mahavir Jayanti, Varshitap, and other sacred Jain celebrations." />
+        <meta property="og:url" content="https://pjpt.org/events" />
+        <meta property="og:type" content="website" />
+      </Helmet>
 
       {/* Page Hero */}
       <section className="py-20 px-4 text-center bg-white relative">

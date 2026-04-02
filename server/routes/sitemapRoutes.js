@@ -1,5 +1,4 @@
 import express from 'express';
-import Event from '../models/Event.js';
 import Image from '../models/Image.js';
 
 const router = express.Router();
@@ -55,23 +54,19 @@ router.get('/sitemap-index.xml', (req, res) => {
   res.send(xml);
 });
 
-// Main sitemap — static pages + dynamic event pages
+// Main sitemap — static pages only.
+// Dynamic /events/:id entries are intentionally excluded: there is no dedicated
+// event-detail route in the React app, so those URLs would return a soft 404 and
+// be flagged by Google Search Console as "crawled – not indexed".
 router.get('/sitemap.xml', async (req, res) => {
   try {
-    const events = await Event.find({}, '_id createdAt').lean();
-
     const staticEntries = staticRoutes.map(({ path, priority, changefreq }) =>
       `  <url>\n    <loc>${DOMAIN}${path}</loc>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`
-    ).join('\n');
-
-    const eventEntries = events.map(evt =>
-      `  <url>\n    <loc>${DOMAIN}/events/${evt._id}</loc>\n    <lastmod>${new Date(evt.createdAt).toISOString().split('T')[0]}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n  </url>`
     ).join('\n');
 
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${staticEntries}
-${eventEntries}
 </urlset>`;
 
     res.set('Content-Type', 'application/xml');

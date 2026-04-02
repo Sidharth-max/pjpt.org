@@ -1,4 +1,5 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import LotusWatermark from '../../components/LotusWatermark';
@@ -14,6 +15,15 @@ export default function Dhwajarohan2026() {
   const fn = lang === 'hi' ? 'font-noto' : '';
   return (
     <div className="w-full pt-20 bg-bg-section pb-20 relative">
+      <Helmet>
+        <title>Dhwajarohan Mahotsav 2026 – Avadhpuri Parasali Jain Tirth</title>
+        <meta name="description" content="Celebrate Dhwajarohan Mahotsav 2026 at Avadhpuri Parasali Jain Tirth – a grand Jain flag-hoisting ceremony on April 8, 2026 in Madhya Pradesh. Join thousands of devotees for this auspicious occasion." />
+        <link rel="canonical" href="https://pjpt.org/events/dhwajarohan-2026" />
+        <meta property="og:title" content="Dhwajarohan Mahotsav 2026 – Avadhpuri Parasali Jain Tirth" />
+        <meta property="og:description" content="Celebrate Dhwajarohan Mahotsav 2026 at Avadhpuri Parasali Jain Tirth on April 8, 2026 in Madhya Pradesh. Join thousands of devotees for this auspicious Jain flag-hoisting ceremony." />
+        <meta property="og:url" content="https://pjpt.org/events/dhwajarohan-2026" />
+        <meta property="og:type" content="website" />
+      </Helmet>
       {/* Mobile Sticky Back Button */}
       <Link
         to="/events"

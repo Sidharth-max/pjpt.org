@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Outlet, Navigate } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import ScrollToTop from './components/ScrollToTop';
@@ -42,6 +42,9 @@ function App() {
             <Route path="/visit" element={<Visit />} />
             <Route path="/events" element={<Events />} />
             <Route path="/events/dhwajarohan-2026" element={<Dhwajarohan2026 />} />
+            {/* Redirect any dynamic event ID URLs (e.g. /events/:mongoId) to /events.
+                These were previously included in the sitemap but have no dedicated page. */}
+            <Route path="/events/:id" element={<Navigate to="/events" replace />} />
             <Route path="/contact" element={<Contact />} />
           </Route>
 

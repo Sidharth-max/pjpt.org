@@ -46,6 +46,9 @@ function App() {
                 These were previously included in the sitemap but have no dedicated page. */}
             <Route path="/events/:id" element={<Navigate to="/events" replace />} />
             <Route path="/contact" element={<Contact />} />
+
+            {/* Catch-all route to prevent blank pages and soft 404s */}
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
 
           {/* Admin route isolated completely */}

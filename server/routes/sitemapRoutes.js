@@ -54,10 +54,7 @@ router.get('/sitemap-index.xml', (req, res) => {
   res.send(xml);
 });
 
-// Main sitemap — static pages only.
-// Dynamic /events/:id entries are intentionally excluded: there is no dedicated
-// event-detail route in the React app, so those URLs would return a soft 404 and
-// be flagged by Google Search Console as "crawled – not indexed".
+// Main sitemap — static pages
 router.get('/sitemap.xml', async (req, res) => {
   try {
     const staticEntries = staticRoutes.map(({ path, priority, changefreq }) =>

@@ -66,6 +66,26 @@ app.use('/api/messages', messageRoutes);
 // Sitemap & robots.txt (before static files so catch-all doesn't intercept)
 app.use('/', sitemapRoutes);
 
+// --- Handle legacy SEO routes (Wix migrations) ---
+app.use((req, res, next) => {
+  // Provide 301 redirects for legacy paths that have a modern equivalent
+  if (req.path === '/hi/about') {
+    return res.redirect(301, '/about');
+  }
+  if (req.path === '/hi/event-list') {
+    return res.redirect(301, '/events');
+  }
+  
+  // Provide 410 Gone for all other dead Wix paths like /hi/blank-* or /blank-*
+  const isLegacyDeadPath = /^\/(hi\/.*|blank-.*)$/i.test(req.path);
+  if (isLegacyDeadPath) {
+    return res.status(410).send('410 Gone - This page no longer exists.');
+  }
+
+  next();
+});
+// -------------------------------------------------
+
 // Static files for production
 const uploadsPath = path.join(__dirname, '../uploads');
 app.use('/uploads', express.static(uploadsPath));

@@ -23,7 +23,7 @@ const formatDuration = (seconds = 0) => {
 };
 
 const VIDEO_EXTENSIONS = /\.(mp4|webm|ogg|mov)$/i;
-const GALLERY_CATEGORIES = ['All', 'Temple', 'Idol', 'Festivals', 'Events', 'Nature'];
+const GALLERY_CATEGORIES = ['All', 'Temple', 'Idol', 'Festivals', 'Events', 'Nature', 'Home', 'Banner'];
 
 const formatDateLabel = (dateString) => {
   if (!dateString) return '—';

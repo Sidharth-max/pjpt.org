@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import LotusWatermark from '../components/LotusWatermark';
 import { highlights } from '../data/content';
 import { useLang } from '../contexts/LanguageContext';
+import { getImages } from '../services/api';
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -19,6 +20,35 @@ const staggerContainer = {
 export default function Home() {
   const { t, lang } = useLang();
   const fontClass = lang === 'hi' ? 'font-noto' : '';
+  const [homeImages, setHomeImages] = useState([]);
+  const [bannerImages, setBannerImages] = useState([]);
+  const [currentImgIndex, setCurrentImgIndex] = useState(0);
+
+  useEffect(() => {
+    const fetchHomeImages = async () => {
+      try {
+        const hData = await getImages('Home');
+        if (Array.isArray(hData)) setHomeImages(hData);
+        else if (hData && hData.images) setHomeImages(hData.images);
+
+        const bData = await getImages('Banner');
+        if (Array.isArray(bData)) setBannerImages(bData);
+        else if (bData && bData.images) setBannerImages(bData.images);
+      } catch (err) {
+        console.error('Failed to fetch home images:', err);
+      }
+    };
+    fetchHomeImages();
+  }, []);
+
+  useEffect(() => {
+    if (homeImages.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentImgIndex(prev => (prev + 1) % homeImages.length);
+      }, 5000);
+      return () => clearInterval(interval);
+    }
+  }, [homeImages]);
 
   return (
     <div className="w-full">
@@ -33,13 +63,35 @@ export default function Home() {
       </Helmet>
       {/* Hero Section */}
       <section className="relative z-[1] h-screen flex items-center justify-center overflow-hidden bg-bg-section">
-        {/* Placeholder Gradient Background */}
-        <div className="absolute inset-0 bg-gradient-to-br from-white to-[#F9F6F0]">
-          <div className="absolute inset-0 flex items-center justify-center text-gold-light opacity-5">
-            <div className="w-[800px] h-[800px]">
-              <LotusWatermark opacity={1} />
-            </div>
-          </div>
+        {/* Dynamic Background Slider */}
+        <div className="absolute inset-0 z-0">
+          <AnimatePresence mode="wait">
+            {homeImages.length > 0 ? (
+              <motion.div
+                key={homeImages[currentImgIndex]._id || currentImgIndex}
+                initial={{ opacity: 0, scale: 1.1 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 1.5, ease: "easeOut" }}
+                className="absolute inset-0"
+              >
+                <img
+                  src={homeImages[currentImgIndex].url}
+                  alt={homeImages[currentImgIndex].altText || "Avadhpuri Parasali Jain Tirth"}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-black/40" />
+              </motion.div>
+            ) : (
+              <div className="absolute inset-0 bg-gradient-to-br from-white to-[#F9F6F0]">
+                <div className="absolute inset-0 flex items-center justify-center text-gold-light opacity-5">
+                  <div className="w-[800px] h-[800px]">
+                    <LotusWatermark opacity={1} />
+                  </div>
+                </div>
+              </div>
+            )}
+          </AnimatePresence>
         </div>
 
         {/* Overlay */}
@@ -185,9 +237,20 @@ export default function Home() {
       <div className="gold-divider" />
 
       {/* Visit CTA Banner */}
-      <section className="py-24 px-4 bg-gold-pale text-center relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none opacity-10 flex items-center justify-center text-gold-primary">
-            <LotusWatermark opacity={1} className="w-[1000px] h-[1000px] absolute" />
+      <section className="py-24 px-4 text-center relative overflow-hidden bg-gold-pale border-y border-gold-light">
+        <div className="absolute inset-0 z-0">
+          {bannerImages.length > 0 ? (
+            <img 
+              src={bannerImages[0].url} 
+              alt={bannerImages[0].altText || "Visit Avadhpuri Parasali"} 
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="absolute inset-0 pointer-events-none opacity-10 flex items-center justify-center text-gold-primary">
+                <LotusWatermark opacity={1} className="w-[1000px] h-[1000px] absolute" />
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gold-pale/80 backdrop-blur-[2px]" />
         </div>
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="relative z-10 max-w-2xl mx-auto">
           <h2 className={`font-cinzel text-4xl mb-6 text-text-dark uppercase tracking-wide ${fontClass}`}>{t('home.cta.title')}</h2>

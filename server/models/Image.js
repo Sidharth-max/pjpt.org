@@ -5,7 +5,7 @@ const imageSchema = mongoose.Schema({
   category: { 
     type: String, 
     required: true,
-    enum: ['Temple', 'Idol', 'Festivals', 'Events', 'Nature']
+    enum: ['Temple', 'Idol', 'Festivals', 'Events', 'Nature', 'Home', 'Banner']
   },
   url: { type: String, required: true },
   publicId: { type: String, required: true },

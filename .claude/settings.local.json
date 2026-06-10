@@ -30,7 +30,14 @@
       "Bash(mongosh --eval \":*)",
       "Bash(node -e \"console.log\\(require\\(''crypto''\\).randomBytes\\(32\\).toString\\(''hex''\\)\\)\")",
       "Bash(curl -s http://localhost:5000/api/events)",
-      "Bash(curl -s \"http://localhost:5000/api/images?page=1&limit=6\")"
+      "Bash(curl -s \"http://localhost:5000/api/images?page=1&limit=6\")",
+      "Bash(curl -sI -H \"Origin: https://pjpt.org\" \"https://pjpt-gallery-1.s3.ap-south-1.amazonaws.com/gallery/10047-1774805926359-84f4d113b274b78a.mp4\")",
+      "Bash(sudo cp:*)",
+      "Bash(pm2 list:*)",
+      "Bash(curl -s https://pjpt.org/admin)",
+      "Bash(curl:*)",
+      "Read(//etc/nginx/sites-enabled/**)",
+      "Read(//etc/nginx/conf.d/**)"
     ]
   }
 }

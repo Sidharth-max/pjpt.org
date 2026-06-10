@@ -8,11 +8,13 @@ export default defineConfig({
     rollupOptions: {
       maxParallelFileOps: 2,
       output: {
-        manualChunks: {
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
-          'motion': ['framer-motion'],
-          'ui': ['lucide-react'],
-          'http': ['axios', 'react-helmet-async'],
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (['react', 'react-dom', 'react-router-dom'].some(p => id.includes(`/${p}/`))) return 'react-vendor';
+            if (id.includes('/framer-motion/')) return 'motion';
+            if (id.includes('/lucide-react/')) return 'ui';
+            if (id.includes('/axios/') || id.includes('/react-helmet-async/')) return 'http';
+          }
         },
       },
     },

@@ -115,7 +115,7 @@ export default function Events() {
                 {t('events.featured.description')}
               </p>
               <div>
-                <Link to="/events/dhwajarohan-2026" className={`btn-gold inline-block uppercase text-sm ${fn}`}>{t('events.viewdetails')}</Link>
+                <Link to="/events/sanskar-utsav-2026" className={`btn-gold inline-block uppercase text-sm ${fn}`}>{t('events.viewdetails')}</Link>
               </div>
             </div>
           </motion.div>

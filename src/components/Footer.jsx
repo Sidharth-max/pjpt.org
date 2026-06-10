@@ -64,8 +64,11 @@ export default function Footer() {
                 {t('contact.info.addr2')}
               </a>
             </address>
-            <p className={`font-cinzel text-sm text-gold-pale opacity-90 tracking-wide mb-6 ${fn}`}>
+            <p className={`font-cinzel text-sm text-gold-pale opacity-90 tracking-wide mb-2 ${fn}`}>
               {t('footer.hours.label')}: {t('contact.info.temple.val')}
+            </p>
+            <p className="font-cinzel text-sm tracking-wide mb-6">
+              <a href="tel:+917849873562" className="text-white/80 hover:text-gold-light transition-colors">+91 78498 73562</a>
             </p>
             <h4 className={`font-cinzel text-gold-light text-lg mb-2 uppercase tracking-wide ${fn}`}>{t('footer.connect')}</h4>
             <a href="https://www.instagram.com/avadhpuri_parasli_jain_tirth?igsh=MTVlb21mNHZ6cXlqbQ==" target="_blank" rel="noopener noreferrer" className="text-white/80 hover:text-gold-light transition font-cinzel text-sm uppercase tracking-wide inline-block">

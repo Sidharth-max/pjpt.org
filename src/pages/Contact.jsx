@@ -99,8 +99,13 @@ export default function Contact() {
                 <p>{t('contact.info.addr2')}</p>
               </address>
               <div className={`font-cormorant text-lg text-text-muted space-y-4 ${fn}`}>
+                <p>
+                  <strong className="text-gold-primary font-cinzel mr-2">{t('contact.info.phone')}</strong>
+                  <a href="tel:+917849873562" className="text-text-dark hover:text-gold-primary transition-colors">{t('contact.info.phone.val')}</a>
+                </p>
                 <p><strong className="text-gold-primary font-cinzel mr-2">{t('contact.info.temple')}</strong> {t('contact.info.temple.val')}</p>
                 <p><strong className="text-gold-primary font-cinzel mr-2">{t('contact.info.office')}</strong> {t('contact.info.office.val')}</p>
+                <p><strong className="text-gold-primary font-cinzel mr-2">{t('contact.info.facilities')}</strong> {t('contact.info.facilities.val')}</p>
               </div>
               <div className="mt-8 pt-8 border-t border-gold-pale">
                 <p className={`font-cormorant text-text-muted italic ${fn}`}>{t('contact.info.note')}</p>

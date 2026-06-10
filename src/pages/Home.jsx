@@ -79,6 +79,8 @@ export default function Home() {
                   src={homeImages[currentImgIndex].url}
                   alt={homeImages[currentImgIndex].altText || "Parasli Jain Tirth"}
                   className="w-full h-full object-cover"
+                  fetchpriority="high"
+                  decoding="async"
                 />
                 <div className="absolute inset-0 bg-black/40" />
               </motion.div>
@@ -240,10 +242,12 @@ export default function Home() {
       <section className="py-24 px-4 text-center relative overflow-hidden bg-gold-pale border-y border-gold-light">
         <div className="absolute inset-0 z-0">
           {bannerImages.length > 0 ? (
-            <img 
-              src={bannerImages[0].url} 
-              alt={bannerImages[0].altText || "Visit Parasli Jain Tirth"} 
+            <img
+              src={bannerImages[0].url}
+              alt={bannerImages[0].altText || "Visit Parasli Jain Tirth"}
               className="w-full h-full object-cover"
+              loading="lazy"
+              decoding="async"
             />
           ) : (
             <div className="absolute inset-0 pointer-events-none opacity-10 flex items-center justify-center text-gold-primary">
@@ -282,7 +286,7 @@ export default function Home() {
               <h3 className={`font-cinzel text-2xl mb-2 text-text-dark ${fontClass}`}>{t('home.recent.event.title')}</h3>
               <span className={`font-cinzel text-gold-primary text-xs uppercase tracking-wider block mb-4 ${fontClass}`}>{t('home.recent.event.date')}</span>
               <p className={`font-cormorant text-text-muted mb-6 ${fontClass}`}>{t('home.recent.event.desc')}</p>
-              <Link to="/events/dhwajarohan-2026" className={`font-cinzel text-gold-primary text-sm uppercase tracking-wide hover:text-gold-light transition ${fontClass}`}>
+              <Link to="/events/sanskar-utsav-2026" className={`font-cinzel text-gold-primary text-sm uppercase tracking-wide hover:text-gold-light transition ${fontClass}`}>
                 {t('home.recent.event.link')}
               </Link>
             </div>

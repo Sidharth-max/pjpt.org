@@ -138,7 +138,7 @@ export default function Events() {
                   <motion.div key={event._id} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-50px" }} variants={fadeUp} className="card group overflow-hidden flex flex-col">
                     {event.image && (
                        <div className="w-full h-48 -mx-8 -mt-8 mb-6 overflow-hidden relative">
-                         <img src={event.image} alt={event.title} className="absolute inset-0 w-full h-full object-cover" />
+                         <img src={event.image} alt={event.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" />
                        </div>
                     )}
                     <span className="font-cinzel text-gold-primary text-xs uppercase tracking-wider block mb-2">{event.date}</span>

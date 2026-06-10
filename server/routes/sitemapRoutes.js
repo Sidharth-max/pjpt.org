@@ -33,6 +33,7 @@ const staticRoutes = [
   { path: '/events', priority: '0.9', changefreq: 'weekly' },
   { path: '/contact', priority: '0.6', changefreq: 'monthly' },
   { path: '/events/dhwajarohan-2026', priority: '0.9', changefreq: 'weekly' },
+  { path: '/events/sanskar-utsav-2026', priority: '0.9', changefreq: 'weekly' },
 ];
 
 // Sitemap index — lists both sitemaps so Google finds them from one entry point

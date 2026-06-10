@@ -17,8 +17,9 @@ import Admin from './pages/Admin';
 function MainLayout() {
   return (
     <div className="flex flex-col min-h-screen w-full overflow-x-hidden">
+      <a href="#main-content" className="skip-link">Skip to content</a>
       <Navbar />
-      <main className="flex-grow w-full">
+      <main id="main-content" className="flex-grow w-full">
         <Outlet />
       </main>
       <Footer />

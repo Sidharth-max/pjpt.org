@@ -46,10 +46,10 @@ export const translations = {
 
     // Home - Recent Celebrations
     'home.recent.title': 'Recent Celebrations',
-    'home.recent.badge': 'आगामी महोत्सव · Upcoming',
-    'home.recent.event.title': 'Pratham Varshganth & Dhwajarohan Utsav 2026',
-    'home.recent.event.date': '6–8 April 2026 · Parasali Tirth',
-    'home.recent.event.desc': 'Join thousands of devotees for the first anniversary celebration — featuring Abhishek Mahapujan, Dhwajarohan, and Swamivatsalya at Malwa\'s Shatrunjay.',
+    'home.recent.badge': 'हालिया · Recent',
+    'home.recent.event.title': 'Sanskar Utsav 2026',
+    'home.recent.event.date': '12–13 June 2026 · Parasali Tirth',
+    'home.recent.event.desc': 'A two-day youth values camp for boys aged 12–21 — heartfelt discourses, bhakti, a QnA youth forum, competitions and more, in the presence of the Adinath Dada.',
     'home.recent.event.link': 'View Event Details →',
 
     // About - Hero
@@ -470,6 +470,16 @@ export const translations = {
     'admin.ui.description': 'Description',
     'admin.ui.categoryOptional': 'Category (Optional)',
     'admin.ui.imageOptional': 'Image (Optional)',
+
+    // Footer
+    'footer.tagline': 'A living pilgrimage since Vikram Samvat 688',
+    'footer.quicklinks': 'Quick Links',
+    'footer.visitus': 'Visit Us',
+    'footer.name': 'Shri Parasli Jain Tirth',
+    'footer.hours.label': 'Open',
+    'footer.connect': 'Connect',
+    'footer.rights': 'All Rights Reserved',
+    'footer.built': 'Built with devotion',
   },
 
   hi: {
@@ -519,10 +529,10 @@ export const translations = {
 
     // Home - Recent Celebrations
     'home.recent.title': 'हालिया उत्सव',
-    'home.recent.badge': 'आगामी महोत्सव · Upcoming',
-    'home.recent.event.title': 'प्रथम वर्षगांठ एवं ध्वजारोहण उत्सव 2026',
-    'home.recent.event.date': '6–8 अप्रैल 2026 · पारसली तीर्थ',
-    'home.recent.event.desc': 'हजारों श्रद्धालुओं के साथ प्रथम वर्षगांठ उत्सव में सम्मिलित हों — जिसमें अभिषेक महापूजन, ध्वजारोहण और स्वामीवात्सल्य का आयोजन होगा।',
+    'home.recent.badge': 'हालिया · Recent',
+    'home.recent.event.title': 'संस्कार-उत्सव 2026',
+    'home.recent.event.date': '12–13 जून 2026 · पारसली तीर्थ',
+    'home.recent.event.desc': 'बालकों (आयु 12–21) के लिए दो-दिवसीय संस्कार शिविर — हृदयस्पर्शी प्रवचन, भक्ति, QnA यूथ फोरम, प्रतियोगिताएँ और भी बहुत कुछ, आदिनाथ दादा की निश्रा में।',
     'home.recent.event.link': 'विस्तार देखें →',
 
     // About - Hero
@@ -943,5 +953,15 @@ export const translations = {
     'admin.ui.description': 'विवरण',
     'admin.ui.categoryOptional': 'श्रेणी (वैकल्पिक)',
     'admin.ui.imageOptional': 'चित्र (वैकल्पिक)',
+
+    // Footer
+    'footer.tagline': 'विक्रम संवत 688 से जीवंत तीर्थ',
+    'footer.quicklinks': 'त्वरित लिंक',
+    'footer.visitus': 'दर्शन हेतु',
+    'footer.name': 'श्री पारसली जैन तीर्थ',
+    'footer.hours.label': 'खुलने का समय',
+    'footer.connect': 'जुड़ें',
+    'footer.rights': 'सर्वाधिकार सुरक्षित',
+    'footer.built': 'भक्ति भाव से निर्मित',
   }
 };

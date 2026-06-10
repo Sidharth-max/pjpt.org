@@ -98,6 +98,7 @@ export default function Navbar() {
           <button
             className="md:hidden text-text-dark p-2 focus:outline-none focus:text-gold-primary transition"
             onClick={() => setIsOpen(true)}
+            aria-label="Open menu"
           >
             <Menu size={28} />
           </button>
@@ -125,7 +126,7 @@ export default function Navbar() {
             >
               <div className="flex justify-between items-center mb-12">
                 <span className="font-cinzel text-gold-primary text-xl">{t('nav.menu')}</span>
-                <button onClick={() => setIsOpen(false)} className="text-text-dark hover:text-gold-primary transition p-1">
+                <button onClick={() => setIsOpen(false)} className="text-text-dark hover:text-gold-primary transition p-1" aria-label="Close menu">
                   <X size={28} />
                 </button>
               </div>

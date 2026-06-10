@@ -50,6 +50,34 @@ export default function SanskarUtsav2026() {
         <meta property="og:url" content="https://paraslijaintirth.com/events/sanskar-utsav-2026" />
         <meta property="og:type" content="website" />
         <meta property="og:image" content="https://paraslijaintirth.com/sanskar-utsav-2026.jpg" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "Event",
+          "name": "Sanskar Utsav 2026",
+          "startDate": "2026-06-12",
+          "endDate": "2026-06-13",
+          "eventStatus": "https://schema.org/EventScheduled",
+          "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+          "description": "A 2-day values camp for boys aged 12–21 at Shri Parasli Jain Tirth, under the shelter of the Shri Adinath Dada.",
+          "image": "https://paraslijaintirth.com/sanskar-utsav-2026.jpg",
+          "url": "https://paraslijaintirth.com/events/sanskar-utsav-2026",
+          "organizer": {
+            "@type": "Organization",
+            "name": "Shri Parasli Trust Mandal"
+          },
+          "location": {
+            "@type": "Place",
+            "name": "Shri Parasli Jain Tirth",
+            "address": {
+              "@type": "PostalAddress",
+              "streetAddress": "Parasali, Shamgarh",
+              "addressLocality": "Mandsaur",
+              "addressRegion": "Madhya Pradesh",
+              "postalCode": "458883",
+              "addressCountry": "IN"
+            }
+          }
+        })}</script>
       </Helmet>
 
       {/* Mobile Sticky Back Button */}
@@ -179,6 +207,10 @@ export default function SanskarUtsav2026() {
               src="/sanskar-utsav-2026.jpg"
               alt="Sanskar Utsav 2026 invitation poster"
               className="mx-auto w-full max-w-md border-4 border-gold-pale shadow-lg"
+              width={900}
+              height={1302}
+              loading="lazy"
+              decoding="async"
             />
           </motion.div>
         </div>

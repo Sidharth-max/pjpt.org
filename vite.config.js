@@ -6,7 +6,6 @@ import { VitePWA } from 'vite-plugin-pwa'
 export default defineConfig({
   build: {
     rollupOptions: {
-      maxParallelFileOps: 2,
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {

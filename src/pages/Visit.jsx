@@ -32,12 +32,12 @@ export default function Visit() {
   return (
     <div className="w-full pt-20">
       <Helmet>
-        <title>Plan Your Visit – Avadhpuri Parasali Jain Tirth</title>
-        <meta name="description" content="Plan your pilgrimage to Avadhpuri Parasali Jain Tirth. Find directions, visiting hours, temple guidelines, accommodation information, and how to reach this sacred Jain site in Madhya Pradesh." />
-        <link rel="canonical" href="https://pjpt.org/visit" />
-        <meta property="og:title" content="Plan Your Visit – Avadhpuri Parasali Jain Tirth" />
-        <meta property="og:description" content="Plan your pilgrimage to Avadhpuri Parasali Jain Tirth. Find directions, visiting hours, temple guidelines, and accommodation information in Madhya Pradesh." />
-        <meta property="og:url" content="https://pjpt.org/visit" />
+        <title>Plan Your Visit – Parasli Jain Tirth</title>
+        <meta name="description" content="Plan your pilgrimage to Parasli Jain Tirth. Find directions, visiting hours, temple guidelines, accommodation information, and how to reach this sacred Jain site in Madhya Pradesh." />
+        <link rel="canonical" href="https://paraslijaintirth.com/visit" />
+        <meta property="og:title" content="Plan Your Visit – Parasli Jain Tirth" />
+        <meta property="og:description" content="Plan your pilgrimage to Parasli Jain Tirth. Find directions, visiting hours, temple guidelines, and accommodation information in Madhya Pradesh." />
+        <meta property="og:url" content="https://paraslijaintirth.com/visit" />
         <meta property="og:type" content="website" />
       </Helmet>
 

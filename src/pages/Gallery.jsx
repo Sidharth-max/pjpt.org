@@ -7,8 +7,8 @@ import VideoPlayer from '../components/VideoPlayer';
 import { getImages } from '../services/api';
 import { useLang } from '../contexts/LanguageContext';
 
-const DOMAIN = 'https://pjpt.org';
-const SITE_NAME = 'Avadhpuri Parasali Jain Tirth';
+const DOMAIN = 'https://paraslijaintirth.com';
+const SITE_NAME = 'Parasli Jain Tirth';
 const SITE_THUMBNAIL = `${DOMAIN}/og-image.jpg`;
 
 const deriveThumbnail = (videoUrl) => {
@@ -164,12 +164,12 @@ export default function Gallery() {
   return (
     <div className="w-full pt-20 bg-bg-section min-h-screen">
       <Helmet>
-        <title>Gallery – Temple Images &amp; Videos | Avadhpuri Parasali Jain Tirth</title>
-        <meta name="description" content="Browse the photo and video gallery of Avadhpuri Parasali Jain Tirth – featuring the temple, idols, festivals, events, and the natural surroundings of this sacred Jain pilgrimage site." />
-        <link rel="canonical" href="https://pjpt.org/gallery" />
-        <meta property="og:title" content="Gallery – Temple Images &amp; Videos | Avadhpuri Parasali Jain Tirth" />
-        <meta property="og:description" content="Browse photos and videos of Avadhpuri Parasali Jain Tirth – temple, idols, festivals, and events at this sacred Jain pilgrimage site in Madhya Pradesh." />
-        <meta property="og:url" content="https://pjpt.org/gallery" />
+        <title>Gallery – Temple Images &amp; Videos | Parasli Jain Tirth</title>
+        <meta name="description" content="Browse the photo and video gallery of Parasli Jain Tirth – featuring the temple, idols, festivals, events, and the natural surroundings of this sacred Jain pilgrimage site." />
+        <link rel="canonical" href="https://paraslijaintirth.com/gallery" />
+        <meta property="og:title" content="Gallery – Temple Images &amp; Videos | Parasli Jain Tirth" />
+        <meta property="og:description" content="Browse photos and videos of Parasli Jain Tirth – temple, idols, festivals, and events at this sacred Jain pilgrimage site in Madhya Pradesh." />
+        <meta property="og:url" content="https://paraslijaintirth.com/gallery" />
         <meta property="og:type" content="website" />
       </Helmet>
 

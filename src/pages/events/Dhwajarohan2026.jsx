@@ -16,12 +16,12 @@ export default function Dhwajarohan2026() {
   return (
     <div className="w-full pt-20 bg-bg-section pb-20 relative">
       <Helmet>
-        <title>Dhwajarohan Mahotsav 2026 – Avadhpuri Parasali Jain Tirth</title>
-        <meta name="description" content="Celebrate Dhwajarohan Mahotsav 2026 at Avadhpuri Parasali Jain Tirth – a grand Jain flag-hoisting ceremony on April 8, 2026 in Madhya Pradesh. Join thousands of devotees for this auspicious occasion." />
-        <link rel="canonical" href="https://pjpt.org/events/dhwajarohan-2026" />
-        <meta property="og:title" content="Dhwajarohan Mahotsav 2026 – Avadhpuri Parasali Jain Tirth" />
-        <meta property="og:description" content="Celebrate Dhwajarohan Mahotsav 2026 at Avadhpuri Parasali Jain Tirth on April 8, 2026 in Madhya Pradesh. Join thousands of devotees for this auspicious Jain flag-hoisting ceremony." />
-        <meta property="og:url" content="https://pjpt.org/events/dhwajarohan-2026" />
+        <title>Dhwajarohan Mahotsav 2026 – Parasli Jain Tirth</title>
+        <meta name="description" content="Celebrate Dhwajarohan Mahotsav 2026 at Parasli Jain Tirth – a grand Jain flag-hoisting ceremony on April 8, 2026 in Madhya Pradesh. Join thousands of devotees for this auspicious occasion." />
+        <link rel="canonical" href="https://paraslijaintirth.com/events/dhwajarohan-2026" />
+        <meta property="og:title" content="Dhwajarohan Mahotsav 2026 – Parasli Jain Tirth" />
+        <meta property="og:description" content="Celebrate Dhwajarohan Mahotsav 2026 at Parasli Jain Tirth on April 8, 2026 in Madhya Pradesh. Join thousands of devotees for this auspicious Jain flag-hoisting ceremony." />
+        <meta property="og:url" content="https://paraslijaintirth.com/events/dhwajarohan-2026" />
         <meta property="og:type" content="website" />
       </Helmet>
       {/* Mobile Sticky Back Button */}
@@ -285,7 +285,7 @@ export default function Dhwajarohan2026() {
           </motion.h2>
 
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="card bg-off-white mx-auto">
-            <h3 className="font-cinzel text-2xl md:text-3xl text-gold-primary mb-2">Shri Avadhpuri Parasali Jain Tirth Pedhi</h3>
+            <h3 className="font-cinzel text-2xl md:text-3xl text-gold-primary mb-2">Shri Parasli Jain Tirth Pedhi</h3>
             <p className="font-cormorant text-lg text-text-muted mb-8 pb-8 border-b border-gold-pale">Po. Parasali – 458883, Jila Mandsaur (M.P.)</p>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 font-noto text-text-dark text-left md:text-center">
@@ -334,11 +334,11 @@ export default function Dhwajarohan2026() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 text-left">
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="bg-white p-6 border-l-4 border-[#25D366] shadow-sm flex flex-col justify-center">
               <span className="font-noto font-bold text-lg text-text-dark mb-1">{t('dhwajarohan.whatsappLabel')}</span>
-              <a href="https://chat.whatsapp.com/EZJTMgrnbUN1nx9JgcCDe8" target="_blank" rel="noopener noreferrer" className="font-cinzel text-gold-primary hover:text-gold-light transition-colors mb-2 inline-block">AVADHPURI PARASALI</a>
+              <a href="https://chat.whatsapp.com/EZJTMgrnbUN1nx9JgcCDe8" target="_blank" rel="noopener noreferrer" className="font-cinzel text-gold-primary hover:text-gold-light transition-colors mb-2 inline-block">PARASLI JAIN TIRTH</a>
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="bg-white p-6 border-l-4 border-[#E1306C] shadow-sm flex flex-col justify-center">
               <span className="font-noto font-bold text-lg text-text-dark mb-1">{t('dhwajarohan.instagramLabel')}</span>
-              <a href="https://www.instagram.com/avadhpuri_parasli_jain_tirth?igsh=MTVlb21mNHZ6cXlqbQ==" target="_blank" rel="noopener noreferrer" className="font-cinzel text-gold-primary hover:text-gold-light transition-colors mb-2 inline-block break-words break-all">@AVADHPURI_PARASALI_JAIN_TIRTH</a>
+              <a href="https://www.instagram.com/avadhpuri_parasli_jain_tirth?igsh=MTVlb21mNHZ6cXlqbQ==" target="_blank" rel="noopener noreferrer" className="font-cinzel text-gold-primary hover:text-gold-light transition-colors mb-2 inline-block break-words break-all">@PARASLI_JAIN_TIRTH_JAIN_TIRTH</a>
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeUp} className="bg-white p-6 border-l-4 border-[#EA4335] shadow-sm flex flex-col justify-center">
               <span className="font-noto font-bold text-lg text-text-dark mb-1">{t('dhwajarohan.mapsLabel')}</span>

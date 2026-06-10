@@ -4,6 +4,6 @@ Allow: /
 Disallow: /admin
 Disallow: /api/
 
-Sitemap: https://pjpt.org/sitemap-index.xml
-Sitemap: https://pjpt.org/sitemap.xml
-Sitemap: https://pjpt.org/video-sitemap.xml
+Sitemap: https://paraslijaintirth.com/sitemap-index.xml
+Sitemap: https://paraslijaintirth.com/sitemap.xml
+Sitemap: https://paraslijaintirth.com/video-sitemap.xml

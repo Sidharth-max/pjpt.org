@@ -53,12 +53,12 @@ export default function Home() {
   return (
     <div className="w-full">
       <Helmet>
-        <title>Avadhpuri Parasali Jain Tirth – Sacred Pilgrimage in Madhya Pradesh</title>
-        <meta name="description" content="Visit Avadhpuri Parasali Jain Tirth, a historic Jain pilgrimage site in Madhya Pradesh, India, established in Vikram Samvat 688. Explore the temple, gallery, and upcoming events." />
-        <link rel="canonical" href="https://pjpt.org/" />
-        <meta property="og:title" content="Avadhpuri Parasali Jain Tirth – Sacred Pilgrimage in Madhya Pradesh" />
-        <meta property="og:description" content="Visit Avadhpuri Parasali Jain Tirth, a historic Jain pilgrimage site in Madhya Pradesh, India, established in Vikram Samvat 688." />
-        <meta property="og:url" content="https://pjpt.org/" />
+        <title>Parasli Jain Tirth – Sacred Pilgrimage in Madhya Pradesh</title>
+        <meta name="description" content="Visit Parasli Jain Tirth, a historic Jain pilgrimage site in Madhya Pradesh, India, established in Vikram Samvat 688. Explore the temple, gallery, and upcoming events." />
+        <link rel="canonical" href="https://paraslijaintirth.com/" />
+        <meta property="og:title" content="Parasli Jain Tirth – Sacred Pilgrimage in Madhya Pradesh" />
+        <meta property="og:description" content="Visit Parasli Jain Tirth, a historic Jain pilgrimage site in Madhya Pradesh, India, established in Vikram Samvat 688." />
+        <meta property="og:url" content="https://paraslijaintirth.com/" />
         <meta property="og:type" content="website" />
       </Helmet>
       {/* Hero Section */}
@@ -77,7 +77,7 @@ export default function Home() {
               >
                 <img
                   src={homeImages[currentImgIndex].url}
-                  alt={homeImages[currentImgIndex].altText || "Avadhpuri Parasali Jain Tirth"}
+                  alt={homeImages[currentImgIndex].altText || "Parasli Jain Tirth"}
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-black/40" />
@@ -242,7 +242,7 @@ export default function Home() {
           {bannerImages.length > 0 ? (
             <img 
               src={bannerImages[0].url} 
-              alt={bannerImages[0].altText || "Visit Avadhpuri Parasali"} 
+              alt={bannerImages[0].altText || "Visit Parasli Jain Tirth"} 
               className="w-full h-full object-cover"
             />
           ) : (

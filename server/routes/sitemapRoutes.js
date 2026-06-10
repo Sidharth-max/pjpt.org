@@ -3,8 +3,8 @@ import Image from '../models/Image.js';
 
 const router = express.Router();
 
-const DOMAIN = 'https://pjpt.org';
-const SITE_NAME = 'Avadhpuri Parasali Jain Tirth';
+const DOMAIN = 'https://paraslijaintirth.com';
+const SITE_NAME = 'Parasli Jain Tirth';
 const SITE_THUMBNAIL = `${DOMAIN}/og-image.jpg`;
 
 const VIDEO_REGEX = /\.(mp4|webm|ogg|mov)(\?.*)?$/i;

@@ -11,7 +11,7 @@ export const translations = {
 
     // Home - Hero
     'home.hero.badge': 'EST. 631 CE · MANDSAUR, MADHYA PRADESH',
-    'home.hero.title': 'AVADHPURI PARASALI',
+    'home.hero.title': 'PARASLI JAIN TIRTH',
     'home.hero.subtitle': 'JAIN TIRTH',
     'home.hero.tagline': 'A sacred Jain pilgrimage site of 1400 years, home to the self-manifested idol of Shri Adinath Bhagwan',
     'home.hero.cta.explore': 'Explore the Tirth',
@@ -31,7 +31,7 @@ export const translations = {
 
     // Home - About Intro
     'home.about.quote': '"Where the idol of Adinath emerged from the earth itself, and chose this sacred ground as its eternal home."',
-    'home.about.p1': 'Nestled near Shamgarh in the Mandsaur district of Madhya Pradesh, AVADHPURI PARASALI JAIN TIRTH stands as a beacon of unwavering devotion and spiritual history.',
+    'home.about.p1': 'Nestled near Shamgarh in the Mandsaur district of Madhya Pradesh, PARASLI JAIN TIRTH stands as a beacon of unwavering devotion and spiritual history.',
     'home.about.p2': 'For over 1400 years, devotees have traveled to this serene land to seek the blessings of the self-manifested (Swayambhu) idol of Shri Adinath Bhagwan, the first Tirthankara of Jainism.',
     'home.about.p3': 'With 26 divine idols, awe-inspiring miracles, and an atmosphere permeated with peace, the tirth continues to transform the lives of all who visit.',
     'home.about.readmore': 'Read Full History →',
@@ -54,11 +54,11 @@ export const translations = {
 
     // About - Hero
     'about.hero.badge': 'Our Sacred Heritage',
-    'about.hero.title': 'History of AVADHPURI PARASALI JAIN TIRTH',
+    'about.hero.title': 'History of PARASLI JAIN TIRTH',
     'about.hero.subtitle': 'A living pilgrimage since Vikram Samvat 688 · 631 CE',
 
     // About - Intro
-    'about.intro.title': 'AVADHPURI PARASALI JAIN TIRTH: A Divine Legacy and Present Glory',
+    'about.intro.title': 'PARASLI JAIN TIRTH: A Divine Legacy and Present Glory',
     'about.intro.p1': 'Parasali is an ancient, miraculous, and spiritual Jain pilgrimage site located in the Malwa region of Madhya Pradesh. It lies in the Mandsaur district, 10 km east of Shamgarh station on the Mumbai-Delhi railway line, and just 42 km from the renowned Nageshwar Tirth.',
     'about.intro.b1': 'Even though there is not a single Jain household in Parasali, the grand temple — resembling a divine vimana (celestial chariot) — houses a total of 26 magnificent idols, including the main deity, Lord Adinath.',
     'about.intro.b2': 'The primary idol of Lord Adinath, seated in lotus posture and measuring 76.2 cm in height, was consecrated in Vikram Samvat 688 (631 CE). It is believed that the idol emerged naturally from the earth and could not be moved, leading to its establishment at this very spot.',
@@ -95,7 +95,7 @@ export const translations = {
 
     // Gallery
     'gallery.title': 'Divine Gallery',
-    'gallery.subtitle': 'Experience the serene beauty, ancient architecture, and vibrant festivals of AVADHPURI PARASALI JAIN TIRTH.',
+    'gallery.subtitle': 'Experience the serene beauty, ancient architecture, and vibrant festivals of PARASLI JAIN TIRTH.',
     'gallery.empty.all': 'Gallery coming soon. Check back after Pratishtha Mahotsav 2025.',
     'gallery.empty.filter': 'No media found for the "%filter%" category.',
     'gallery.filter.all': 'All',
@@ -108,7 +108,7 @@ export const translations = {
 
     // Visit
     'visit.hero.title': 'Plan Your Pilgrimage',
-    'visit.hero.subtitle': 'Everything you need to visit Avadhpuri Parasali Jain Tirth',
+    'visit.hero.subtitle': 'Everything you need to visit Parasli Jain Tirth',
     'visit.info.temple.title': 'Temple Darshan',
     'visit.info.temple.desc': 'Open daily from 5:30 AM to 8:30 PM. Special morning rituals begin at 6:00 AM.',
     'visit.info.bhojan.title': 'Bhojanshala',
@@ -125,7 +125,7 @@ export const translations = {
     'visit.reach.road.title': 'By Road',
     'visit.reach.road.desc': 'Located 10 km east of Shamgarh. Local autos, buses, and private taxis easily transport devotees right to the temple gates.',
     'visit.address.title': 'Temple Address',
-    'visit.address.name': 'Shri Avadhpuri Parasali Jain Tirth',
+    'visit.address.name': 'Shri Parasli Jain Tirth',
     'visit.address.line1': 'Parasali, Shamgarh, District Mandsaur',
     'visit.address.line2': 'Madhya Pradesh — 458883, India',
     'visit.guidelines.title': 'Temple Guidelines',
@@ -149,25 +149,25 @@ export const translations = {
     'events.featured.title': 'Pratham Varshganth & Dhwajarohan Utsav',
     'events.featured.title.hi': 'प्रथम वर्षगांठ एवं ध्वजारोहण उत्सव',
     'events.featured.dates': '6 April – 8 April 2026',
-    'events.featured.description': 'A grand three-day celebration at Shri Avadhpuri Parasali Jain Tirth marking the first anniversary of Pratishtha Mahotsav. Features Abhishek Mahapujan, Siddha Chakra Puja, Dhwajarohan, Nagar Chaurasi, and Swamivatsalya.',
+    'events.featured.description': 'A grand three-day celebration at Shri Parasli Jain Tirth marking the first anniversary of Pratishtha Mahotsav. Features Abhishek Mahapujan, Siddha Chakra Puja, Dhwajarohan, Nagar Chaurasi, and Swamivatsalya.',
     'events.upcoming.varshitap.title': 'Varshitap Parnot Utsav',
     'events.upcoming.varshitap.title.hi': 'भव्यतम वर्षीतप पारणोत्सव',
     'events.upcoming.varshitap.date': 'Upcoming',
-    'events.upcoming.varshitap.description': 'A magnificent celebration of Varshitap fasting completion at Shri Avadhpuri Parasali Jain Tirth. Main beneficiary contribution: ₹3,33,333 · Sah-Labhaarthi: ₹1,11,111 · Shubhecchu: ₹51,111',
-    'events.upcoming.varshitap.location': 'Avadhpuri Parasali Jain Tirth',
+    'events.upcoming.varshitap.description': 'A magnificent celebration of Varshitap fasting completion at Shri Parasli Jain Tirth. Main beneficiary contribution: ₹3,33,333 · Sah-Labhaarthi: ₹1,11,111 · Shubhecchu: ₹51,111',
+    'events.upcoming.varshitap.location': 'Parasli Jain Tirth',
     'events.upcoming.sheela.title': 'Sheela Sthaapan Ceremony',
     'events.upcoming.sheela.title.hi': 'शीला स्थापन कार्यक्रम',
     'events.upcoming.sheela.date': '19 April 2026 (Vaishakh Sudi 2, Ravivaar)',
     'events.upcoming.sheela.description': 'Foundation stone laying ceremony for the symbolic Siddha Giriraj construction — including shrines for Thaleti, Shri Shantinath, Shri Rayanvriksha, Shri Pundarikasvami and other structures. Offerings to be announced at Dhwajarohan on 8 April 2026.',
-    'events.upcoming.sheela.location': 'Avadhpuri Parasali Jain Tirth',
+    'events.upcoming.sheela.location': 'Parasli Jain Tirth',
 
     // Dhwajarohan 2026 Event Page
     'dhwajarohan.backBtn': '← Back to Events',
-    'dhwajarohan.hero.subtitle': 'Shri Avadhpuri Parasali Tirth · Malwa\'s Shatrunjay',
+    'dhwajarohan.hero.subtitle': 'Shri Parasli Jain Tirth Tirth · Malwa\'s Shatrunjay',
     'dhwajarohan.hero.title1': 'Pratham Varshganth &',
     'dhwajarohan.hero.title2': 'Dhwajarohan Utsav 2026',
     'dhwajarohan.hero.title.hi': 'प्रथम वर्षगांठ एवं ध्वजारोहण उत्सव',
-    'dhwajarohan.hero.desc': 'A grand three-day celebration marking the first anniversary of Pratishtha Mahotsav at Shri Avadhpuri Parasali Jain Tirth — Malwa\'s Shatrunjay',
+    'dhwajarohan.hero.desc': 'A grand three-day celebration marking the first anniversary of Pratishtha Mahotsav at Shri Parasli Jain Tirth — Malwa\'s Shatrunjay',
     'dhwajarohan.hero.day1': 'महोत्सव प्रारंभ',
     'dhwajarohan.hero.day1Date': 'Vaishakh Vadi 4, Somvar · 6 April 2026',
     'dhwajarohan.hero.day3': 'मंगल ध्वजारोहण',
@@ -176,7 +176,7 @@ export const translations = {
     'dhwajarohan.spiritualAuth.position': 'परासली तीर्थ प्रतिष्ठाचार्य, वर्तमान तीर्थ मार्गदर्शक',
     'dhwajarohan.spiritualAuth.name': 'Pujya Acharya Dev Shri Jin-Hemchandrasagar Surishwarji Maharaja',
     'dhwajarohan.spiritualAuth.nameHi': 'प.पू. आचार्य देव श्री जिन-हेमचंद्रसागर सूरीश्वरजी महाराजा',
-    'dhwajarohan.spiritualAuth.desc': 'Avadhpuri Parasali Jain Tirth Pratishthachary, Vartaman Tirth Margdarshak, Shishya Shilpi, Bandhubeldi',
+    'dhwajarohan.spiritualAuth.desc': 'Parasli Jain Tirth Pratishthachary, Vartaman Tirth Margdarshak, Shishya Shilpi, Bandhubeldi',
     'dhwajarohan.presiding.heading': 'भवनिस्तारक निश्था · Presiding Spiritual Guide',
     'dhwajarohan.presiding.name': 'P.P. Acharya Dev Shri Anandchandrasagar Surishwarji M.Sa.',
     'dhwajarohan.presiding.nameHi': 'प.पू. आचार्य देव श्री आनंदचंद्रसागर सूरिजी म.सा.',
@@ -199,7 +199,7 @@ export const translations = {
     'dhwajarohan.title1': 'Pratham Varshganth &',
     'dhwajarohan.title2': 'Dhwajarohan Utsav 2026',
     'dhwajarohan.subtitle': 'प्रथम वर्षगांठ एवं ध्वजारोहण उत्सव',
-    'dhwajarohan.heroDescription': 'A grand three-day celebration marking the first anniversary of Pratishtha Mahotsav at Shri Avadhpuri Parasali Jain Tirth — Malwa\'s Shatrunjay',
+    'dhwajarohan.heroDescription': 'A grand three-day celebration marking the first anniversary of Pratishtha Mahotsav at Shri Parasli Jain Tirth — Malwa\'s Shatrunjay',
     'dhwajarohan.date1Label': 'महोत्सव प्रारंभ',
     'dhwajarohan.date1': 'Vaishakh Vadi 4, Somvar · 6 April 2026',
     'dhwajarohan.date2Label': 'मंगल ध्वजारोहण',
@@ -209,7 +209,7 @@ export const translations = {
     'dhwajarohan.spiritualTitle': 'परासली तीर्थ प्रतिष्ठाचार्य, वर्तमान तीर्थ मार्गदर्शक',
     'dhwajarohan.spiritualName': 'Pujya Acharya Dev Shri Jin-Hemchandrasagar Surishwarji Maharaja',
     'dhwajarohan.spiritualNameHi': 'प.पू. आचार्य देव श्री जिन-हेमचंद्रसागर सूरीश्वरजी महाराजा',
-    'dhwajarohan.spiritualDescription': 'Avadhpuri Parasali Jain Tirth Pratishthachary, Vartaman Tirth Margdarshak, Shishya Shilpi, Bandhubeldi',
+    'dhwajarohan.spiritualDescription': 'Parasli Jain Tirth Pratishthachary, Vartaman Tirth Margdarshak, Shishya Shilpi, Bandhubeldi',
     'dhwajarohan.presidingLabel': 'भवनिस्तारक निश्था',
     'dhwajarohan.presiding': 'Presiding Spiritual Guide',
     'dhwajarohan.presidingName': 'P.P. Acharya Dev Shri Anandchandrasagar Surishwarji M.Sa.',
@@ -243,7 +243,7 @@ export const translations = {
     'contact.hero.title': 'Get In Touch',
     'contact.hero.subtitle': 'Reach out for visiting information, events, or general inquiries',
     'contact.info.title': 'Contact Information',
-    'contact.info.name': 'Shri Avadhpuri Parasali Jain Tirth',
+    'contact.info.name': 'Shri Parasli Jain Tirth',
     'contact.info.addr1': 'Parasali, Shamgarh, District Mandsaur',
     'contact.info.addr2': 'Madhya Pradesh — 458883, India',
     'contact.info.temple': 'Temple Hours:',

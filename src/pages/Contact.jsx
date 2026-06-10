@@ -56,12 +56,12 @@ export default function Contact() {
   return (
     <div className="w-full pt-20">
       <Helmet>
-        <title>Contact Us – Avadhpuri Parasali Jain Tirth</title>
-        <meta name="description" content="Get in touch with Avadhpuri Parasali Jain Tirth. Send us a message, find our address, phone number, and location map for this sacred Jain pilgrimage site in Madhya Pradesh, India." />
-        <link rel="canonical" href="https://pjpt.org/contact" />
-        <meta property="og:title" content="Contact Us – Avadhpuri Parasali Jain Tirth" />
-        <meta property="og:description" content="Get in touch with Avadhpuri Parasali Jain Tirth. Find our address, phone number, and location map in Madhya Pradesh, India." />
-        <meta property="og:url" content="https://pjpt.org/contact" />
+        <title>Contact Us – Parasli Jain Tirth</title>
+        <meta name="description" content="Get in touch with Parasli Jain Tirth. Send us a message, find our address, phone number, and location map for this sacred Jain pilgrimage site in Madhya Pradesh, India." />
+        <link rel="canonical" href="https://paraslijaintirth.com/contact" />
+        <meta property="og:title" content="Contact Us – Parasli Jain Tirth" />
+        <meta property="og:description" content="Get in touch with Parasli Jain Tirth. Find our address, phone number, and location map in Madhya Pradesh, India." />
+        <meta property="og:url" content="https://paraslijaintirth.com/contact" />
         <meta property="og:type" content="website" />
       </Helmet>
 

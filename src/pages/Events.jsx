@@ -61,12 +61,12 @@ export default function Events() {
   return (
     <div className="w-full pt-20">
       <Helmet>
-        <title>Events &amp; Festivals – Avadhpuri Parasali Jain Tirth</title>
-        <meta name="description" content="Discover upcoming events and annual festivals at Avadhpuri Parasali Jain Tirth, including Paryushan, Mahavir Jayanti, Varshitap, and other sacred Jain celebrations in Madhya Pradesh." />
-        <link rel="canonical" href="https://pjpt.org/events" />
-        <meta property="og:title" content="Events &amp; Festivals – Avadhpuri Parasali Jain Tirth" />
-        <meta property="og:description" content="Discover upcoming events and annual festivals at Avadhpuri Parasali Jain Tirth, including Paryushan, Mahavir Jayanti, Varshitap, and other sacred Jain celebrations." />
-        <meta property="og:url" content="https://pjpt.org/events" />
+        <title>Events &amp; Festivals – Parasli Jain Tirth</title>
+        <meta name="description" content="Discover upcoming events and annual festivals at Parasli Jain Tirth, including Paryushan, Mahavir Jayanti, Varshitap, and other sacred Jain celebrations in Madhya Pradesh." />
+        <link rel="canonical" href="https://paraslijaintirth.com/events" />
+        <meta property="og:title" content="Events &amp; Festivals – Parasli Jain Tirth" />
+        <meta property="og:description" content="Discover upcoming events and annual festivals at Parasli Jain Tirth, including Paryushan, Mahavir Jayanti, Varshitap, and other sacred Jain celebrations." />
+        <meta property="og:url" content="https://paraslijaintirth.com/events" />
         <meta property="og:type" content="website" />
       </Helmet>
 
